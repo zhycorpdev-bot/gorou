@@ -58,7 +58,7 @@ export class SkipCommand extends BaseCommand {
         const { music } = interaction.guild!;
         const listeners = music.listeners.length;
         // @ts-expect-error-next-line
-        if (listeners > 3 && music.player!.queue.current.requester.id !== message.author.id) {
+        if (listeners > 3 && music.player!.queue.current.requester.id !== interaction.user.id) {
             if (music.skipVotes.includes(interaction.user)) {
                 return interaction.editReply({
                     embeds: [
