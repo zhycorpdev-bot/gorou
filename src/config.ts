@@ -27,7 +27,7 @@ export const presenceData = {
 export const shardsCount: number | "auto" = "auto";
 export const nodes = [
     {
-        host: "node.frutbits.xyz",
+        host: "194.233.71.102",
         identifier: "sg-frb",
         password: "youshallnotpassthisshit",
         port: 1039,
