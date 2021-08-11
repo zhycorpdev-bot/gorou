@@ -1,0 +1,58 @@
+{
+  "name": "discordbot-template-legacy",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A Discord bot template made in TypeScript with discord.js",
+  "repository": "https://github.com/Hazmi35/discordbot-template-legacy",
+  "license": "AGPL-3.0",
+  "author": "Hazmi35 <contact@hzmi.xyz>",
+  "scripts": {
+    "build": "npm run lint && npm run compile",
+    "compile": "tsc --build tsconfig.json",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "start": "node dist/index.js",
+    "start:dev": "ts-node -r dotenv/config src/bot.ts"
+  },
+  "main": "dist/index.js",
+  "dependencies": {
+    "canvas-constructor": "^5.0.1",
+    "date-fns": "^2.23.0",
+    "discord.js": "github:discordjs/discord.js",
+    "erela.js": "^2.3.3",
+    "got": "^11.8.2",
+    "reflect-metadata": "^0.1.13",
+    "shoukaku": "github:Deivu/Shoukaku#next",
+    "skia-canvas": "^0.9.23",
+    "tslib": "^2.3.0",
+    "typeorm": "^0.2.36",
+    "winston": "^3.3.3"
+  },
+  "eslintConfig": {
+    "extends": "@hazmi35/eslint-config/typescript",
+    "parserOptions": {
+      "project": "./tsconfig.json"
+    }
+  },
+  "devDependencies": {
+    "@hazmi35/eslint-config": "^4.0.0",
+    "@types/node": "^16.4.13",
+    "@typescript-eslint/eslint-plugin": "^4.29.0",
+    "@typescript-eslint/parser": "^4.29.0",
+    "dotenv": "^10.0.0",
+    "eslint": "^7.32.0",
+    "ts-node": "^10.1.0",
+    "typescript": "^4.3.5"
+  },
+  "optionalDependencies": {
+    "@discordjs/opus": "^0.5.3",
+    "bufferutil": "^4.0.3",
+    "erlpack": "github:discord/erlpack",
+    "libsodium-wrappers": "^0.7.9",
+    "utf-8-validate": "^5.0.5",
+    "zlib-sync": "^0.1.7"
+  },
+  "engines": {
+    "node": ">=16.6.0"
+  }
+}
