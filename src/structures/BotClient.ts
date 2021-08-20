@@ -47,7 +47,7 @@ export class BotClient extends Client {
                         embeds: [
                             createEmbed("info", `**Started** playing: **[${track.title}](${track.uri})**`, false)
                         ]
-                    });
+                    }).then(x => setTimeout(() => x.delete(), track.duration));
                 }
             });
             this.music.on("trackError", async (player, track, payload) => {
