@@ -25,7 +25,7 @@
     "shoukaku": "github:Deivu/Shoukaku#next",
     "skia-canvas": "^0.9.24",
     "tslib": "^2.3.1",
-    "typeorm": "^0.2.36",
+    "typeorm": "^0.2.37",
     "winston": "^3.3.3"
   },
   "eslintConfig": {
