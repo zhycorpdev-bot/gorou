@@ -1,8 +1,8 @@
 FROM node:16.7.0-alpine as build-stage
 
 # NOTE: Change these as you want
-LABEL name "discordbot-template (build-stage)"
-LABEL maintainer "Hazmi35 <contact@hzmi.xyz>"
+LABEL name "gorou (build-stage)"
+LABEL maintainer "Zen Shibata"
 
 WORKDIR /tmp/build
 
@@ -29,8 +29,8 @@ RUN npm prune --production
 FROM node:16.7.0-alpine
 
 # NOTE: Change these as you want
-LABEL name "discordbot-template"
-LABEL maintainer "Hazmi35 <contact@hzmi.xyz>"
+LABEL name "gorou"
+LABEL maintainer "Zen Shibata"
 
 WORKDIR /app
 
