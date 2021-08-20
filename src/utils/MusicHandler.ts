@@ -97,4 +97,10 @@ export class MusicHandler {
     public get node(): Node {
         return this.client.music.nodes.filter(x => x.connected).random();
     }
+
+    public get loopType(): LoopType {
+        if (!this.player) return LoopType.NONE;
+        if (this.player.queueRepeat) return LoopType.ALL;
+        return LoopType.ONE;
+    }
 }

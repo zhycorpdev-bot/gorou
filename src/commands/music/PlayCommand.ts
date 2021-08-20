@@ -44,11 +44,7 @@ export class PlayCommand extends BaseCommand {
     @isMemberInVoiceChannel()
     @isMemberVoiceChannelJoinable()
     @isSameVoiceChannel()
-    // @isMemberDJ()
     public async execute(message: Message, args: string[]): Promise<any> {
-        // if (message.guild!.setting?.max_queue && message.guild!.setting.max_queue <= message.guild!.music.queue.length) {
-        //     return message.channel.send(createEmbed("error", `Sorry, but max queue length is \`${message.guild!.setting.max_queue}\` tracks. Remove some track to add another!`, true));
-        // }
         const vc = message.member!.voice.channel;
         const query = args.join(" ");
         const { valid, matched } = parseURL(query);
