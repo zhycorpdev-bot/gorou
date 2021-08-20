@@ -23,10 +23,8 @@ export class MusicHandler {
         clearTimeout(this.timeout!);
         Object.assign(this, {
             lastExceptionMsg: undefined,
-            loopType: LoopType.NONE,
             skipVotes: [],
-            timeout: undefined,
-            volume: 100
+            timeout: undefined
         });
     }
 
