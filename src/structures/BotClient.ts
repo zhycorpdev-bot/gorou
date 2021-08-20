@@ -11,6 +11,7 @@ import { MusicManager } from "../utils/MusicManager";
 import "../extension";
 import { Manager } from "erela.js";
 import { createEmbed } from "../utils/createEmbed";
+import Spotify from "better-erela.js-spotify";
 
 export class BotClient extends Client {
     public readonly config = config;
@@ -21,7 +22,10 @@ export class BotClient extends Client {
         send: (id: string, payload: any) => {
             const guild = this.guilds.cache.get(id);
             if (guild) guild.shard.send(payload);
-        }
+        },
+        plugins: [
+            new Spotify()
+        ]
     });
 
     public readonly commands = new CommandManager(this, resolve(__dirname, "..", "commands"));

@@ -5,7 +5,7 @@ import { DefineCommand } from "../../utils/decorators/DefineCommand";
 import { isMemberInVoiceChannel, isMemberVoiceChannelJoinable, isSameVoiceChannel } from "../../utils/decorators/MusicHelpers";
 import { parseURL } from "../../utils/parseURL";
 
-const domains = ["soundcloud.com", "www.soundcloud.com", "m.soundcloud.com", "soundcloud.app.goo.gl", "www.youtube.com", "youtube.com", "m.youtube.com", "youtu.be", "music.youtube.com"];
+const domains = ["open.spotify.com", "soundcloud.com", "www.soundcloud.com", "m.soundcloud.com", "soundcloud.app.goo.gl", "www.youtube.com", "youtube.com", "m.youtube.com", "youtu.be", "music.youtube.com"];
 
 @DefineCommand({
     aliases: ["p"],
@@ -51,11 +51,14 @@ export class PlayCommand extends BaseCommand {
         if (valid && !domains.includes(matched[1])) {
             return message.channel.send({
                 embeds: [
-                    createEmbed("error", "Only support source from youtube & soundcloud", true)
+                    createEmbed("error", "Only support source from youtube, soundcloud and spotify", true)
                 ]
             });
         }
-        const response = await message.guild!.music.node.manager.search({ query, source: valid ? undefined : /soundcloud/gi.exec(query) ? "soundcloud" : "youtube" }, message.author.id);
+        const response = await message.guild!.music.node.manager.search({
+            query,
+            source: valid ? undefined : /soundcloud/gi.exec(query) ? "soundcloud" : /spotify/gi.exec(query) ? undefined : "youtube"
+        }, message.author.id);
         if (response.loadType === "NO_MATCHES") {
             return message.channel.send({
                 embeds: [
@@ -97,13 +100,13 @@ export class PlayCommand extends BaseCommand {
         if (valid && !domains.includes(matched[1])) {
             return interaction.editReply({
                 embeds: [
-                    createEmbed("error", "Only support source from youtube & soundcloud", true)
+                    createEmbed("error", "Only support source from youtube, soundcloud and spotify", true)
                 ]
             });
         }
         const response = await interaction.guild!.music.node.manager.search({
             query,
-            source: valid ? src : /soundcloud/gi.exec(query) ? "soundcloud" : "youtube"
+            source: valid ? src : /soundcloud/gi.exec(query) ? "soundcloud" : /spotify/gi.exec(query) ? undefined : "youtube"
         }, interaction.user.id);
         if (response.loadType === "NO_MATCHES") {
             return interaction.editReply({
