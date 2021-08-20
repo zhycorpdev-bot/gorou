@@ -25,12 +25,4 @@ export const presenceData = {
     interval: 60000
 };
 export const shardsCount: number | "auto" = "auto";
-export const nodes = [
-    {
-        host: "194.233.71.102",
-        identifier: "sg-frb",
-        password: "youshallnotpassthisshit",
-        port: 1039,
-        secure: false
-    }
-];
+export const nodes = JSON.parse(process.env.NODES!);
