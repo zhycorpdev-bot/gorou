@@ -12,6 +12,7 @@ import "../extension";
 import { Manager } from "erela.js";
 import { createEmbed } from "../utils/createEmbed";
 import Spotify from "better-erela.js-spotify";
+import Filters from "erela.js-filter";
 
 export class BotClient extends Client {
     public readonly config = config;
@@ -24,7 +25,8 @@ export class BotClient extends Client {
             if (guild) guild.shard.send(payload);
         },
         plugins: [
-            new Spotify()
+            new Spotify(),
+            new Filters()
         ]
     });
 

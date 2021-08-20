@@ -5,25 +5,25 @@ import { DefineCommand } from "../../utils/decorators/DefineCommand";
 import { isMemberInVoiceChannel, isMemberVoiceChannelJoinable, isMusicPlaying, isSameVoiceChannel } from "../../utils/decorators/MusicHelpers";
 
 @DefineCommand({
-    aliases: ["dc", "disconnect"],
+    aliases: [],
     cooldown: 3,
-    description: "Stop current queue",
-    name: "stop",
+    description: "Set pop filter",
+    name: "pop",
     slash: {
         options: []
     },
-    usage: "{prefix}stop"
+    usage: "{prefix}pop"
 })
-export class StopCommand extends BaseCommand {
+export class PopCommand extends BaseCommand {
     @isMusicPlaying()
     @isMemberInVoiceChannel()
     @isMemberVoiceChannelJoinable()
     @isSameVoiceChannel()
     public async execute(message: Message): Promise<any> {
-        await message.guild!.music.player!.destroy();
+        await message.guild!.music.player!.setPop(!message.guild!.music.player!.filters.pop);
         return message.channel.send({
             embeds: [
-                createEmbed("info", "Stopped current queue", true)
+                createEmbed("info", `${message.guild!.music.player!.filters.pop ? "Enabled" : "Disabled"} pop filter`, true)
             ]
         });
     }
@@ -34,10 +34,10 @@ export class StopCommand extends BaseCommand {
     @isSameVoiceChannel(true)
     public async executeInteraction(interaction: CommandInteraction): Promise<any> {
         await interaction.deferReply();
-        await interaction.guild!.music.player!.destroy();
+        await interaction.guild!.music.player!.setPop(!interaction.guild!.music.player!.filters.pop);
         return interaction.editReply({
             embeds: [
-                createEmbed("info", "Stopped current queue", true)
+                createEmbed("info", `${interaction.guild!.music.player!.filters.pop ? "Enabled" : "Disabled"} pop filter`, true)
             ]
         });
     }

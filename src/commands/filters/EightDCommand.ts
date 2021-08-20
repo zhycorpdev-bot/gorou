@@ -5,25 +5,25 @@ import { DefineCommand } from "../../utils/decorators/DefineCommand";
 import { isMemberInVoiceChannel, isMemberVoiceChannelJoinable, isMusicPlaying, isSameVoiceChannel } from "../../utils/decorators/MusicHelpers";
 
 @DefineCommand({
-    aliases: ["dc", "disconnect"],
+    aliases: ["eightd"],
     cooldown: 3,
-    description: "Stop current queue",
-    name: "stop",
+    description: "Set 8D filter",
+    name: "8d",
     slash: {
         options: []
     },
-    usage: "{prefix}stop"
+    usage: "{prefix}8d"
 })
-export class StopCommand extends BaseCommand {
+export class EightDCommand extends BaseCommand {
     @isMusicPlaying()
     @isMemberInVoiceChannel()
     @isMemberVoiceChannelJoinable()
     @isSameVoiceChannel()
     public async execute(message: Message): Promise<any> {
-        await message.guild!.music.player!.destroy();
+        await message.guild!.music.player!.setEightD(!message.guild!.music.player!.filters.eightD);
         return message.channel.send({
             embeds: [
-                createEmbed("info", "Stopped current queue", true)
+                createEmbed("info", `${message.guild!.music.player!.filters.eightD ? "Enabled" : "Disabled"} 8D filter`, true)
             ]
         });
     }
@@ -34,10 +34,10 @@ export class StopCommand extends BaseCommand {
     @isSameVoiceChannel(true)
     public async executeInteraction(interaction: CommandInteraction): Promise<any> {
         await interaction.deferReply();
-        await interaction.guild!.music.player!.destroy();
+        await interaction.guild!.music.player!.setEightD(!interaction.guild!.music.player!.filters.eightD);
         return interaction.editReply({
             embeds: [
-                createEmbed("info", "Stopped current queue", true)
+                createEmbed("info", `${interaction.guild!.music.player!.filters.eightD ? "Enabled" : "Disabled"} 8D filter`, true)
             ]
         });
     }

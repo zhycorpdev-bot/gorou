@@ -5,25 +5,25 @@ import { DefineCommand } from "../../utils/decorators/DefineCommand";
 import { isMemberInVoiceChannel, isMemberVoiceChannelJoinable, isMusicPlaying, isSameVoiceChannel } from "../../utils/decorators/MusicHelpers";
 
 @DefineCommand({
-    aliases: ["dc", "disconnect"],
+    aliases: ["clearfilter"],
     cooldown: 3,
-    description: "Stop current queue",
-    name: "stop",
+    description: "Clear applied filter",
+    name: "clearfilters",
     slash: {
         options: []
     },
-    usage: "{prefix}stop"
+    usage: "{prefix}clearfilters"
 })
-export class StopCommand extends BaseCommand {
+export class ClearFiltersCommand extends BaseCommand {
     @isMusicPlaying()
     @isMemberInVoiceChannel()
     @isMemberVoiceChannelJoinable()
     @isSameVoiceChannel()
     public async execute(message: Message): Promise<any> {
-        await message.guild!.music.player!.destroy();
+        await message.guild!.music.player!.clearFilters(true);
         return message.channel.send({
             embeds: [
-                createEmbed("info", "Stopped current queue", true)
+                createEmbed("info", "Cleared applied filters", true)
             ]
         });
     }
@@ -34,10 +34,10 @@ export class StopCommand extends BaseCommand {
     @isSameVoiceChannel(true)
     public async executeInteraction(interaction: CommandInteraction): Promise<any> {
         await interaction.deferReply();
-        await interaction.guild!.music.player!.destroy();
+        await interaction.guild!.music.player!.clearFilters(true);
         return interaction.editReply({
             embeds: [
-                createEmbed("info", "Stopped current queue", true)
+                createEmbed("info", "Cleared applied filters", true)
             ]
         });
     }

@@ -5,25 +5,25 @@ import { DefineCommand } from "../../utils/decorators/DefineCommand";
 import { isMemberInVoiceChannel, isMemberVoiceChannelJoinable, isMusicPlaying, isSameVoiceChannel } from "../../utils/decorators/MusicHelpers";
 
 @DefineCommand({
-    aliases: ["dc", "disconnect"],
+    aliases: [],
     cooldown: 3,
-    description: "Stop current queue",
-    name: "stop",
+    description: "Set distortion filter",
+    name: "distortion",
     slash: {
         options: []
     },
-    usage: "{prefix}stop"
+    usage: "{prefix}distortion"
 })
-export class StopCommand extends BaseCommand {
+export class DistortionCommand extends BaseCommand {
     @isMusicPlaying()
     @isMemberInVoiceChannel()
     @isMemberVoiceChannelJoinable()
     @isSameVoiceChannel()
     public async execute(message: Message): Promise<any> {
-        await message.guild!.music.player!.destroy();
+        await message.guild!.music.player!.setDistortion(!message.guild!.music.player!.filters.distortion);
         return message.channel.send({
             embeds: [
-                createEmbed("info", "Stopped current queue", true)
+                createEmbed("info", `${message.guild!.music.player!.filters.distortion ? "Enabled" : "Disabled"} distortion filter`, true)
             ]
         });
     }
@@ -34,10 +34,10 @@ export class StopCommand extends BaseCommand {
     @isSameVoiceChannel(true)
     public async executeInteraction(interaction: CommandInteraction): Promise<any> {
         await interaction.deferReply();
-        await interaction.guild!.music.player!.destroy();
+        await interaction.guild!.music.player!.setDistortion(!interaction.guild!.music.player!.filters.distortion);
         return interaction.editReply({
             embeds: [
-                createEmbed("info", "Stopped current queue", true)
+                createEmbed("info", `${interaction.guild!.music.player!.filters.distortion ? "Enabled" : "Disabled"} distortion filter`, true)
             ]
         });
     }
