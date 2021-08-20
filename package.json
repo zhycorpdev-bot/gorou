@@ -23,7 +23,7 @@
     "got": "^11.8.2",
     "reflect-metadata": "^0.1.13",
     "shoukaku": "github:Deivu/Shoukaku#next",
-    "skia-canvas": "^0.9.23",
+    "skia-canvas": "^0.9.24",
     "tslib": "^2.3.1",
     "typeorm": "^0.2.36",
     "winston": "^3.3.3"
