@@ -25,7 +25,7 @@
     "shoukaku": "github:Deivu/Shoukaku#next",
     "skia-canvas": "^0.9.24",
     "tslib": "^2.3.1",
-    "typeorm": "^0.2.36",
+    "typeorm": "^0.2.37",
     "winston": "^3.3.3"
   },
   "eslintConfig": {
@@ -37,7 +37,7 @@
   "devDependencies": {
     "@hazmi35/eslint-config": "^4.1.1",
     "@types/node": "^16.6.2",
-    "@typescript-eslint/eslint-plugin": "^4.29.1",
+    "@typescript-eslint/eslint-plugin": "^4.29.2",
     "@typescript-eslint/parser": "^4.29.2",
     "dotenv": "^10.0.0",
     "eslint": "^7.32.0",
