@@ -3,13 +3,12 @@
 import { ICommandComponent } from "../typings";
 import { BotClient } from "./BotClient";
 import { CommandInteraction, Message, SelectMenuInteraction } from "discord.js";
+import { CommandContext } from "./CommandContext";
 
 export class BaseCommand implements ICommandComponent {
     public constructor(public client: BotClient, public meta: ICommandComponent["meta"]) {}
 
-    public execute(message: Message, args: string[], ...any: any): any {}
-    public executeInteraction(interaction: CommandInteraction|SelectMenuInteraction, ...args: any): any {}
-
+    public execute(message: CommandContext, ...any: any): any {}
     public reload(): ICommandComponent {
         // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         delete require.cache[require.resolve(this.meta.path!)];

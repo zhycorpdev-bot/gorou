@@ -1,6 +1,9 @@
-import { Message, MessageEmbed, Collection, ClientEvents, CommandInteraction, Guild as EGuild, ApplicationCommandData, SelectMenuInteraction, ApplicationCommandOptionData } from "discord.js";
+import { MessageEmbed, Collection, ClientEvents, Guild as EGuild, ApplicationCommandData, ApplicationCommandOptionData } from "discord.js";
 import { BotClient } from "../structures/BotClient";
+import { CommandContext } from "../structures/CommandContext";
 import { MusicHandler } from "../utils/MusicHandler";
+
+export type MessageInteractionAction = "editReply" | "reply" | "followUp";
 
 export interface PaginationPayload {
     content?: string;
@@ -8,7 +11,6 @@ export interface PaginationPayload {
     embed: MessageEmbed;
     edit(index: number, embed: MessageEmbed, page: string): unknown;
 }
-
 
 export interface IListener {
     readonly name: keyof ClientEvents;
@@ -35,8 +37,7 @@ export interface ICommandComponent {
         slash?: SlashOption;
         contextChat?: string;
     };
-    execute(message: Message, args: string[], ...args: any): any;
-    executeInteraction(interaction: CommandInteraction|SelectMenuInteraction, ...args: any): any;
+    execute(context: CommandContext, ...args: any): any;
 }
 
 export interface ICategoryMeta {

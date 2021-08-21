@@ -1,5 +1,5 @@
-import { CommandInteraction, Message } from "discord.js";
 import { BaseCommand } from "../../structures/BaseCommand";
+import { CommandContext } from "../../structures/CommandContext";
 import { createEmbed } from "../../utils/createEmbed";
 import { DefineCommand } from "../../utils/decorators/DefineCommand";
 import { isMemberInVoiceChannel, isMemberVoiceChannelJoinable, isMusicPlaying, isSameVoiceChannel } from "../../utils/decorators/MusicHelpers";
@@ -47,62 +47,31 @@ export class LoopCommand extends BaseCommand {
     @isMemberInVoiceChannel()
     @isMemberVoiceChannelJoinable()
     @isSameVoiceChannel()
-    public async execute(message: Message, args: string[]): Promise<any> {
-        const { music } = message.guild!;
-        const loopMode = args[0]?.toLowerCase() as keyof typeof loopModes|null;
+    public async execute(ctx: CommandContext): Promise<any> {
+        if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
+        const { music } = ctx.guild!;
+        const loopMode = (ctx.args[0]?.toLowerCase() || ctx.options?.getString("type")) as keyof typeof loopModes|null;
         if (loopMode) {
             if (loopMode in loopModes) {
                 music.setLoop(loopModes[loopMode]);
-                await message.channel.send({
+                await ctx.send({
                     embeds: [
                         createEmbed("info", `Loop mode set to \`${loopMode}\``, true)
                     ]
-                });
+                }, "editReply");
             } else {
-                await message.channel.send({
+                await ctx.send({
                     embeds: [
                         createEmbed("error", `Invalid mode \`${loopMode}\`. Valid modes are ${Object.keys(loopModes).map(x => `\`${x}\``).join(", ")}`, true)
                     ]
-                });
+                }, "editReply");
             }
         } else {
-            await message.channel.send({
+            await ctx.send({
                 embeds: [
                     createEmbed("info", `Current loop mode is \`${Object.entries(loopModes).find(x => x[1] === music.loopType)![0]}\`. To change loop mode, use this: \`${this.client.config.prefix}loop [track|queue|off]\``, true)
                 ]
-            });
-        }
-    }
-
-    @isMusicPlaying(true)
-    @isMemberInVoiceChannel(true)
-    @isMemberVoiceChannelJoinable(true, true)
-    @isSameVoiceChannel(true)
-    public async executeInteraction(interaction: CommandInteraction): Promise<any> {
-        await interaction.deferReply();
-        const { music } = interaction.guild!;
-        const loopMode = interaction.options.getString("type")?.toLowerCase() as keyof typeof loopModes|null;
-        if (loopMode) {
-            if (loopMode in loopModes) {
-                music.setLoop(loopModes[loopMode]);
-                await interaction.editReply({
-                    embeds: [
-                        createEmbed("info", `Loop mode set to \`${loopMode}\``, true)
-                    ]
-                });
-            } else {
-                await interaction.editReply({
-                    embeds: [
-                        createEmbed("error", `Invalid mode \`${loopMode}\`. Valid modes are ${Object.keys(loopModes).map(x => `\`${x}\``).join(", ")}`, true)
-                    ]
-                });
-            }
-        } else {
-            await interaction.editReply({
-                embeds: [
-                    createEmbed("info", `Current loop mode is \`${Object.entries(loopModes).find(x => x[1] === music.loopType)![0]}\`. To change loop mode, use this: \`${this.client.config.prefix}loop [track|queue|off]\``, true)
-                ]
-            });
+            }, "editReply");
         }
     }
 }

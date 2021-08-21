@@ -1,22 +1,26 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
 import { Interaction } from "discord.js";
 import { BaseListener } from "../structures/BaseListener";
+import { CommandContext } from "../structures/CommandContext";
 import { createEmbed } from "../utils/createEmbed";
 import { DefineListener } from "../utils/decorators/DefineListener";
 
 @DefineListener("interactionCreate")
 export class InteractionCreateEvent extends BaseListener {
     public async execute(interaction: Interaction): Promise<any> {
+        if (!interaction.inGuild()) return;
+        const context = new CommandContext(interaction);
         if (interaction.isContextMenu()) {
             const cmd = this.client.commands.find(x => x.meta.contextChat === interaction.commandName);
             if (cmd) {
-                void cmd.executeInteraction(interaction);
+                context.additionalArgs.set("message", interaction.options.getMessage("message"));
+                void cmd.execute(context);
             }
         }
         if (interaction.isCommand()) {
             const cmd = this.client.commands.filter(x => x.meta.slash !== undefined).find(x => x.meta.slash!.name === interaction.commandName);
             if (cmd) {
-                void cmd.executeInteraction(interaction);
+                void cmd.execute(context);
             }
         }
         if (interaction.isSelectMenu()) {
@@ -34,7 +38,8 @@ export class InteractionCreateEvent extends BaseListener {
             if (cmd && user === interaction.user.id) {
                 const command = this.client.commands.filter(x => x.meta.slash !== undefined).find(x => x.meta.name === cmd);
                 if (command) {
-                    void command.executeInteraction(interaction, interaction.values);
+                    context.additionalArgs.set("values", interaction.values);
+                    void command.execute(context);
                 }
             }
         }

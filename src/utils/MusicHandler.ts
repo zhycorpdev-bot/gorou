@@ -31,7 +31,6 @@ export class MusicHandler {
     public async play(): Promise<any> {
         this.skipVotes = [];
         await this.player!.play();
-        // if (this.guild.setting?.default_volume) await this.setVolume(this.guild.setting.default_volume);
     }
 
     public async join(vc: VoiceChannel|string, channel?: TextChannel): Promise<void> {
@@ -42,15 +41,6 @@ export class MusicHandler {
             selfDeafen: true
         });
         await player.connect();
-    }
-
-    public skip(num?: number): Player {
-        return this.player!.stop(num);
-    }
-
-    public stop(): Player {
-        this.setLoop(LoopType.NONE);
-        return this.skip();
     }
 
     public async seek(time: number): Promise<void> {

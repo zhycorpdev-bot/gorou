@@ -1,5 +1,7 @@
-import { CommandInteraction, Message, SelectMenuInteraction, TextChannel } from "discord.js";
+/* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
+import { TextChannel } from "discord.js";
 import { BaseCommand } from "../../structures/BaseCommand";
+import { CommandContext } from "../../structures/CommandContext";
 import { createEmbed } from "../../utils/createEmbed";
 import { DefineCommand } from "../../utils/decorators/DefineCommand";
 import { isMemberInVoiceChannel, isMemberVoiceChannelJoinable, isSameVoiceChannel } from "../../utils/decorators/MusicHelpers";
@@ -44,95 +46,49 @@ export class PlayCommand extends BaseCommand {
     @isMemberInVoiceChannel()
     @isMemberVoiceChannelJoinable()
     @isSameVoiceChannel()
-    public async execute(message: Message, args: string[]): Promise<any> {
-        const vc = message.member!.voice.channel;
-        const query = args.join(" ");
+    public async execute(ctx: CommandContext): Promise<any> {
+        if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
+        const vc = ctx.member!.voice.channel;
+        const query = ctx.args.join(" ") || ctx.options?.getString("query") || (ctx.additionalArgs.get("values") ? ctx.additionalArgs.get("values")[0] : undefined);
         const { valid, matched } = parseURL(query);
         if (valid && !domains.includes(matched[1])) {
-            return message.channel.send({
+            return ctx.send({
                 embeds: [
                     createEmbed("error", "Only support source from youtube, soundcloud and spotify", true)
                 ]
-            });
+            }, "editReply");
         }
-        const response = await message.guild!.music.node.manager.search({
-            query,
-            source: valid ? undefined : /soundcloud/gi.exec(query) ? "soundcloud" : /spotify/gi.exec(query) ? undefined : "youtube"
-        }, message.author.id);
-        if (response.loadType === "NO_MATCHES") {
-            return message.channel.send({
-                embeds: [
-                    createEmbed("error", "Couldn't find any track", true)
-                ]
-            });
-        }
-        if (!message.guild!.music.player) await message.guild!.music.join(vc as any, message.channel as TextChannel);
-        if (response.loadType === "PLAYLIST_LOADED") {
-            for (const trck of response.tracks) await message.guild!.music.player!.queue.add(trck);
-            await message.channel.send({
-                embeds: [
-                    createEmbed("info", `Loaded **${response.playlist!.name}** with \`${response.tracks.length}\` tracks`)
-                ]
-            });
-        } else {
-            await message.guild!.music.player!.queue.add(response.tracks[0]);
-            if (message.guild!.music.player!.queue.length) {
-                await message.channel.send({
-                    embeds: [
-                        createEmbed("info", `Added **[${response.tracks[0].title}](${response.tracks[0].uri})** by **${response.tracks[0].author}**`, true)
-                    ]
-                });
-            }
-        }
-        if (!message.guild!.music.player!.playing) await message.guild!.music.play();
-    }
-
-    @isMemberInVoiceChannel(true)
-    @isMemberVoiceChannelJoinable(true, true)
-    @isSameVoiceChannel(true)
-    public async executeInteraction(interaction: CommandInteraction|SelectMenuInteraction, url: string|null, source: string|null, anotherInteraction = false): Promise<any> {
-        if (!interaction.deferred) await interaction.deferReply();
-        const member = interaction.guild!.members.resolve(interaction.user.id);
-        const vc = member!.voice.channel;
-        const query = url ?? (interaction as CommandInteraction).options.getString("query")!;
-        const src = source as any ?? (interaction as CommandInteraction).options.getString("source") as "youtube"|"soundcloud"|null ?? "youtube";
-        const { valid, matched } = parseURL(query);
-        if (valid && !domains.includes(matched[1])) {
-            return interaction.editReply({
-                embeds: [
-                    createEmbed("error", "Only support source from youtube, soundcloud and spotify", true)
-                ]
-            });
-        }
-        const response = await interaction.guild!.music.node.manager.search({
+        const src = ctx.additionalArgs.get("source") ?? ctx.options?.getString("source") as "youtube"|"soundcloud"|null ?? "youtube";
+        const response = await ctx.guild!.music.node.manager.search({
             query,
             source: valid ? src : /soundcloud/gi.exec(query) ? "soundcloud" : /spotify/gi.exec(query) ? undefined : "youtube"
-        }, interaction.user.id);
+        }, ctx.author.id);
         if (response.loadType === "NO_MATCHES") {
-            return interaction.editReply({
+            return ctx.send({
                 embeds: [
                     createEmbed("error", "Couldn't find any track", true)
                 ]
-            });
+            }, "editReply");
         }
-        if (!interaction.guild!.music.player) await interaction.guild!.music.join(vc as any, interaction.channel as TextChannel);
+        if (!ctx.guild!.music.player) await ctx.guild!.music.join(vc as any, ctx.channel as TextChannel);
         if (response.loadType === "PLAYLIST_LOADED") {
-            for (const trck of response.tracks) await interaction.guild!.music.player!.queue.add(trck);
-            await interaction.editReply({
+            for (const trck of response.tracks) await ctx.guild!.music.player!.queue.add(trck);
+            await ctx.send({
                 embeds: [
                     createEmbed("info", `Loaded **${response.playlist!.name}** with \`${response.tracks.length}\` tracks`)
                 ]
-            });
+            }, "editReply");
         } else {
-            await interaction.guild!.music.player!.queue.add(response.tracks[0]);
-            if (!anotherInteraction) {
-                await interaction.editReply({
+            await ctx.guild!.music.player!.queue.add(response.tracks[0]);
+            // Identify if the command is being runned by another command (select menu)
+            if (!ctx.additionalArgs.get("values")) {
+                await ctx.send({
                     embeds: [
                         createEmbed("info", `Added **[${response.tracks[0].title}](${response.tracks[0].uri})** by **${response.tracks[0].author}**`, true)
                     ]
-                });
+                }, "editReply");
             }
         }
-        if (!interaction.guild!.music.player!.playing) await interaction.guild!.music.play();
+        if (!ctx.guild!.music.player!.playing) await ctx.guild!.music.play();
     }
 }

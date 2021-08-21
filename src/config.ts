@@ -9,7 +9,7 @@ export const clientOptions: ClientOptions = {
     restTimeOffset: 300,
     retryLimit: 3
 };
-export const devGuild = ["332877090003091456", "715165490246582313"];
+export const devGuild = JSON.parse(process.env.DEV_GUILD!);
 export const isProd = process.env.NODE_ENV === "production";
 export const isDev = !isProd;
 export const prefix = isDev ? ">" : defaultPrefix;

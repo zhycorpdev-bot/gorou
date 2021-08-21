@@ -1,3 +1,4 @@
+import "./Node";
 import { Guild } from "discord.js";
 
 Reflect.defineProperty(Guild.prototype, "music", {

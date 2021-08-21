@@ -1,11 +1,11 @@
-import { CommandInteraction, Message } from "discord.js";
 import { BaseCommand } from "../../structures/BaseCommand";
+import { CommandContext } from "../../structures/CommandContext";
 import { createEmbed } from "../../utils/createEmbed";
 import { DefineCommand } from "../../utils/decorators/DefineCommand";
 import { isMemberInVoiceChannel, isMemberVoiceChannelJoinable, isMusicPlaying, isSameVoiceChannel } from "../../utils/decorators/MusicHelpers";
 
 @DefineCommand({
-    aliases: ["clearfilter"],
+    aliases: ["clearfilter", "clear"],
     cooldown: 3,
     description: "Clear applied filter",
     name: "clearfilters",
@@ -19,26 +19,13 @@ export class ClearFiltersCommand extends BaseCommand {
     @isMemberInVoiceChannel()
     @isMemberVoiceChannelJoinable()
     @isSameVoiceChannel()
-    public async execute(message: Message): Promise<any> {
-        await message.guild!.music.player!.clearFilters(true);
-        return message.channel.send({
+    public async execute(ctx: CommandContext): Promise<any> {
+        if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
+        await ctx.guild!.music.player!.clearFilters(true);
+        return ctx.send({
             embeds: [
                 createEmbed("info", "Cleared applied filters", true)
             ]
-        });
-    }
-
-    @isMusicPlaying(true)
-    @isMemberInVoiceChannel(true)
-    @isMemberVoiceChannelJoinable(true, true)
-    @isSameVoiceChannel(true)
-    public async executeInteraction(interaction: CommandInteraction): Promise<any> {
-        await interaction.deferReply();
-        await interaction.guild!.music.player!.clearFilters(true);
-        return interaction.editReply({
-            embeds: [
-                createEmbed("info", "Cleared applied filters", true)
-            ]
-        });
+        }, "editReply");
     }
 }

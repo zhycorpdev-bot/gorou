@@ -1,6 +1,7 @@
 import { BaseCommand } from "../../structures/BaseCommand";
-import { ColorResolvable, MessageEmbed, Message, CommandInteraction } from "discord.js";
+import { ColorResolvable, MessageEmbed } from "discord.js";
 import { DefineCommand } from "../../utils/decorators/DefineCommand";
+import { CommandContext } from "../../structures/CommandContext";
 
 @DefineCommand({
     aliases: ["pong", "peng", "p", "pingpong"],
@@ -12,33 +13,10 @@ import { DefineCommand } from "../../utils/decorators/DefineCommand";
     usage: "{prefix}ping"
 })
 export class PingCommand extends BaseCommand {
-    public execute(message: Message): Message {
-        message.channel.send("🏓 Pong!").then((msg: Message) => {
-            const latency = msg.createdTimestamp - message.createdTimestamp;
-            const wsLatency = this.client.ws.ping.toFixed(0);
-            const embed = new MessageEmbed()
-                .setAuthor("🏓 PONG!", message.client.user?.displayAvatarURL())
-                .setColor(this.searchHex(wsLatency) as ColorResolvable)
-                .addFields({
-                    name: "📶 API Latency",
-                    value: `**\`${latency}\`** ms`,
-                    inline: true
-                }, {
-                    name: "🌐 WebSocket Latency",
-                    value: `**\`${wsLatency}\`** ms`,
-                    inline: true
-                })
-                .setFooter(`Requested by: ${message.author.tag}`, message.author.displayAvatarURL({ dynamic: true }))
-                .setTimestamp();
-
-            msg.edit({ embeds: [embed], content: " " }).catch(e => this.client.logger.error("PROMISE_ERR:", e));
-        }).catch(e => this.client.logger.error("PROMISE_ERR:", e));
-        return message;
-    }
-
-    public async executeInteraction(interaction: CommandInteraction): Promise<any> {
+    public async execute(ctx: CommandContext): Promise<any> {
+        if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
         const before = Date.now();
-        await interaction.reply({ content: "🏓 Pong!" });
+        const msg = await ctx.send({ content: "🏓 Pinging..." }, "reply");
         const latency = Date.now() - before;
         const wsLatency = this.client.ws.ping.toFixed(0);
         const embed = new MessageEmbed()
@@ -53,9 +31,9 @@ export class PingCommand extends BaseCommand {
                 value: `**\`${wsLatency}\`** ms`,
                 inline: true
             })
-            .setFooter(`Requested by: ${interaction.user.tag}`, interaction.user.displayAvatarURL({ dynamic: true }))
+            .setFooter(`Requested by: ${ctx.author.tag}`, ctx.author.displayAvatarURL({ dynamic: true }))
             .setTimestamp();
-        await interaction.editReply({ content: " ", embeds: [embed] });
+        await msg.edit({ content: " ", embeds: [embed] });
     }
 
     private searchHex(ms: string | number): string | number {

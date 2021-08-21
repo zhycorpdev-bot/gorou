@@ -1,6 +1,8 @@
-import { CommandInteraction, ContextMenuInteraction, Message, MessageActionRow, MessageSelectMenu, MessageSelectOptionData, SelectMenuInteraction } from "discord.js";
+/* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
+import { MessageActionRow, MessageSelectMenu, MessageSelectOptionData, SelectMenuInteraction } from "discord.js";
 import { Track } from "erela.js";
 import { BaseCommand } from "../../structures/BaseCommand";
+import { CommandContext } from "../../structures/CommandContext";
 import { createEmbed } from "../../utils/createEmbed";
 import { DefineCommand } from "../../utils/decorators/DefineCommand";
 import { isMemberInVoiceChannel, isMemberVoiceChannelJoinable, isSameVoiceChannel } from "../../utils/decorators/MusicHelpers";
@@ -45,78 +47,53 @@ export class SearchCommand extends BaseCommand {
     @isMemberInVoiceChannel()
     @isMemberVoiceChannelJoinable()
     @isSameVoiceChannel()
-    public async execute(message: Message, args: string[]): Promise<any> {
-        const { music } = message.guild!;
-        const query = args.join(" ");
-        if (parseURL(query).valid) return this.client.commands.get("play")!.execute(message, args);
-        const trackRes = await music.node.manager.search(query, "youtube");
-        if (trackRes.loadType === "NO_MATCHES") {
-            return message.channel.send({
-                embeds: [createEmbed("error", `Sorry, i can't find anything`, true)]
-            });
+    public async execute(ctx: CommandContext): Promise<any> {
+        if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
+        const { music } = ctx.guild!;
+        const tracks = ctx.additionalArgs.get("values");
+        if (tracks && ctx.isSelectMenu()) {
+            for (const track of tracks) {
+                const newCtx = new CommandContext(ctx.context, []);
+                newCtx.additionalArgs.set("values", [track]);
+                this.client.commands.get("play")!.execute(newCtx);
+            }
+            const msg = await ctx.channel!.messages.fetch((ctx.context as SelectMenuInteraction).message.id).catch(() => undefined);
+            if (msg !== undefined) {
+                const selection = msg.components[0].components.find(x => x.type === "SELECT_MENU");
+                selection!.setDisabled(true);
+                await msg.edit({ components: [new MessageActionRow().addComponents(selection!)] });
+            }
+            return ctx.send({
+                embeds: [
+                    createEmbed("success", `Added \`${tracks.length}\` tracks to queue`, true)
+                ]
+            }, "editReply");
         }
-        await message.channel.send({
-            content: `${message.author.toString()}, Please select some tracks`,
+        const query = ctx.args.join(" ") || ctx.options?.getString("query") || ctx.options?.getMessage("message")?.content;
+        if (parseURL(String(query)).valid) {
+            const newCtx = new CommandContext(ctx.context, [String(query)]);
+            return this.client.commands.get("play")!.execute(newCtx);
+        }
+        const trackRes = await music.node.manager.search(String(query), "youtube");
+        if (trackRes.loadType === "NO_MATCHES") {
+            return ctx.send({
+                embeds: [createEmbed("error", `Sorry, i can't find anything`, true)]
+            }, "editReply");
+        }
+        await ctx.send({
+            content: `${ctx.author.toString()}, Please select some tracks`,
             components: [
                 new MessageActionRow()
                     .addComponents(
                         new MessageSelectMenu()
                             .setMinValues(1)
                             .setMaxValues(10)
-                            .setCustomId(Buffer.from(`${message.author.id}_${this.meta.name}`).toString("base64"))
+                            .setCustomId(Buffer.from(`${ctx.author.id}_${this.meta.name}`).toString("base64"))
                             .addOptions(this.generateSelectMenu(trackRes.tracks))
                             .setPlaceholder("Select some tracks")
                     )
             ]
-        });
-    }
-
-    @isMemberInVoiceChannel(true)
-    @isMemberVoiceChannelJoinable(true, true)
-    @isSameVoiceChannel(true)
-    public async executeInteraction(interaction: CommandInteraction|SelectMenuInteraction|ContextMenuInteraction, tracks: string[]|null): Promise<any> {
-        await interaction.deferReply();
-        if (interaction.isSelectMenu() && tracks) {
-            for (const track of tracks) {
-                this.client.commands.get("play")!.executeInteraction(interaction, track, "youtube", true);
-            }
-            const channel = await interaction.channel;
-            const msg = await channel!.messages.fetch(interaction.message.id).catch(() => undefined);
-            if (msg !== undefined) {
-                const selection = msg.components[0].components.find(x => x.type === "SELECT_MENU");
-                selection!.setDisabled(true);
-                await msg.edit({ components: [new MessageActionRow().addComponents(selection!)] });
-            }
-            return interaction.editReply({
-                embeds: [
-                    createEmbed("success", `Added \`${tracks.length}\` tracks to queue`, true)
-                ]
-            });
-        }
-        if (interaction.isCommand() || interaction.isContextMenu()) {
-            const query = interaction.isContextMenu() ? interaction.options.getMessage("message")!.content : interaction.options.getString("query")!;
-            if (parseURL(query).valid) return this.client.commands.get("play")!.executeInteraction(interaction, query);
-            const trackRes = await interaction.guild!.music.node.manager.search(query, "youtube");
-            if (trackRes.loadType === "NO_MATCHES") {
-                return interaction.editReply({
-                    embeds: [createEmbed("error", `Sorry, i can't find anything`, true)]
-                });
-            }
-            await interaction.editReply({
-                content: `${interaction.user.toString()}, Please select some tracks`,
-                components: [
-                    new MessageActionRow()
-                        .addComponents(
-                            new MessageSelectMenu()
-                                .setMinValues(1)
-                                .setMaxValues(10)
-                                .setCustomId(Buffer.from(`${interaction.user.id}_${this.meta.name}`).toString("base64"))
-                                .addOptions(this.generateSelectMenu(trackRes.tracks))
-                                .setPlaceholder("Select some tracks")
-                        )
-                ]
-            });
-        }
+        }, "editReply");
     }
 
     private generateSelectMenu(tracks: Track[]): MessageSelectOptionData[] {

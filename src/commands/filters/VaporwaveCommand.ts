@@ -1,5 +1,5 @@
-import { CommandInteraction, Message } from "discord.js";
 import { BaseCommand } from "../../structures/BaseCommand";
+import { CommandContext } from "../../structures/CommandContext";
 import { createEmbed } from "../../utils/createEmbed";
 import { DefineCommand } from "../../utils/decorators/DefineCommand";
 import { isMemberInVoiceChannel, isMemberVoiceChannelJoinable, isMusicPlaying, isSameVoiceChannel } from "../../utils/decorators/MusicHelpers";
@@ -7,7 +7,7 @@ import { isMemberInVoiceChannel, isMemberVoiceChannelJoinable, isMusicPlaying, i
 @DefineCommand({
     aliases: [],
     cooldown: 3,
-    description: "Set vaporwave filter",
+    description: "Toggle vaporwave filter",
     name: "vaporwave",
     slash: {
         options: []
@@ -19,26 +19,13 @@ export class VaporwaveCommand extends BaseCommand {
     @isMemberInVoiceChannel()
     @isMemberVoiceChannelJoinable()
     @isSameVoiceChannel()
-    public async execute(message: Message): Promise<any> {
-        await message.guild!.music.player!.setVaporwave(!message.guild!.music.player!.filters.vaporwave);
-        return message.channel.send({
+    public async execute(ctx: CommandContext): Promise<any> {
+        if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
+        await ctx.guild!.music.player!.setVaporwave(!ctx.guild!.music.player!.filters.vaporwave);
+        return ctx.send({
             embeds: [
-                createEmbed("info", `${message.guild!.music.player!.filters.vaporwave ? "Enabled" : "Disabled"} vaporwave filter`, true)
+                createEmbed("info", `${ctx.guild!.music.player!.filters.vaporwave ? "Enabled" : "Disabled"} vaporwave filter`, true)
             ]
-        });
-    }
-
-    @isMusicPlaying(true)
-    @isMemberInVoiceChannel(true)
-    @isMemberVoiceChannelJoinable(true, true)
-    @isSameVoiceChannel(true)
-    public async executeInteraction(interaction: CommandInteraction): Promise<any> {
-        await interaction.deferReply();
-        await interaction.guild!.music.player!.setVaporwave(!interaction.guild!.music.player!.filters.vaporwave);
-        return interaction.editReply({
-            embeds: [
-                createEmbed("info", `${interaction.guild!.music.player!.filters.vaporwave ? "Enabled" : "Disabled"} vaporwave filter`, true)
-            ]
-        });
+        }, "editReply");
     }
 }

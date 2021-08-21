@@ -1,5 +1,5 @@
-import { CommandInteraction, Message } from "discord.js";
 import { BaseCommand } from "../../structures/BaseCommand";
+import { CommandContext } from "../../structures/CommandContext";
 import { createEmbed } from "../../utils/createEmbed";
 import { DefineCommand } from "../../utils/decorators/DefineCommand";
 import { isMemberInVoiceChannel, isMemberVoiceChannelJoinable, isMusicPlaying, isSameVoiceChannel } from "../../utils/decorators/MusicHelpers";
@@ -19,26 +19,13 @@ export class StopCommand extends BaseCommand {
     @isMemberInVoiceChannel()
     @isMemberVoiceChannelJoinable()
     @isSameVoiceChannel()
-    public async execute(message: Message): Promise<any> {
-        await message.guild!.music.player!.destroy();
-        return message.channel.send({
+    public async execute(ctx: CommandContext): Promise<any> {
+        if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
+        await ctx.guild!.music.player!.destroy();
+        return ctx.send({
             embeds: [
                 createEmbed("info", "Stopped current queue", true)
             ]
-        });
-    }
-
-    @isMusicPlaying(true)
-    @isMemberInVoiceChannel(true)
-    @isMemberVoiceChannelJoinable(true, true)
-    @isSameVoiceChannel(true)
-    public async executeInteraction(interaction: CommandInteraction): Promise<any> {
-        await interaction.deferReply();
-        await interaction.guild!.music.player!.destroy();
-        return interaction.editReply({
-            embeds: [
-                createEmbed("info", "Stopped current queue", true)
-            ]
-        });
+        }, "editReply");
     }
 }

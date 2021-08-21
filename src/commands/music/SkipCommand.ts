@@ -1,5 +1,5 @@
-import { CommandInteraction, Message } from "discord.js";
 import { BaseCommand } from "../../structures/BaseCommand";
+import { CommandContext } from "../../structures/CommandContext";
 import { createEmbed } from "../../utils/createEmbed";
 import { DefineCommand } from "../../utils/decorators/DefineCommand";
 import { isMemberInVoiceChannel, isMemberVoiceChannelJoinable, isMusicPlaying, isSameVoiceChannel } from "../../utils/decorators/MusicHelpers";
@@ -19,68 +19,33 @@ export class SkipCommand extends BaseCommand {
     @isMemberInVoiceChannel()
     @isMemberVoiceChannelJoinable()
     @isSameVoiceChannel()
-    public async execute(message: Message): Promise<any> {
-        const { music } = message.guild!;
+    public async execute(ctx: CommandContext): Promise<any> {
+        if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
+        const { music } = ctx.guild!;
         const listeners = music.listeners.length;
-        // @ts-expect-error-next-line
-        if (listeners > 3 && music.player!.queue.current.requester.id !== message.author.id) {
-            if (music.skipVotes.includes(message.author)) {
-                return message.channel.send({
+        if (listeners > 3 && music.player!.queue.current!.requester !== ctx.author.id) {
+            if (music.skipVotes.includes(ctx.author)) {
+                return ctx.send({
                     embeds: [
                         createEmbed("info", "You're already vote to skip the song.", true)
                     ]
-                });
+                }, "editReply");
             }
-            music.skipVotes.push(message.author);
+            music.skipVotes.push(ctx.author);
             const needed = Math.round(listeners * 0.4);
             if (music.skipVotes.length < needed) {
-                return message.channel.send({
+                return ctx.send({
                     embeds: [
                         createEmbed("info", "Need more votes to skip the song!", true)
                     ]
-                });
+                }, "editReply");
             }
         }
-        await music.skip();
-        return message.channel.send({
+        await ctx.send({
             embeds: [
-                createEmbed("info", `Skipped **${music.player!.queue.current!.title}**`, true)
+                createEmbed("info", `Skipped **[${music.player!.queue.current!.title}](${music.player!.queue.current!.uri!})**`, true)
             ]
-        });
-    }
-
-    @isMusicPlaying(true)
-    @isMemberInVoiceChannel(true)
-    @isMemberVoiceChannelJoinable(true, true)
-    @isSameVoiceChannel(true)
-    public async executeInteraction(interaction: CommandInteraction): Promise<any> {
-        await interaction.deferReply();
-        const { music } = interaction.guild!;
-        const listeners = music.listeners.length;
-        // @ts-expect-error-next-line
-        if (listeners > 3 && music.player!.queue.current.requester.id !== interaction.user.id) {
-            if (music.skipVotes.includes(interaction.user)) {
-                return interaction.editReply({
-                    embeds: [
-                        createEmbed("info", "You're already vote to skip the song.", true)
-                    ]
-                });
-            }
-            music.skipVotes.push(interaction.user);
-            const needed = Math.round(listeners * 0.4);
-            if (music.skipVotes.length < needed) {
-                return interaction.editReply({
-                    embeds: [
-                        createEmbed("info", "Need more votes to skip the song!", true)
-                    ]
-                });
-            }
-        }
-        await music.player!.stop();
-        return interaction.editReply({
-            embeds: [
-                createEmbed("info", `Skipped **${music.player!.queue.current!.title}**`, true)
-            ]
-        });
+        }, "editReply");
+        return music.player?.stop();
     }
 }

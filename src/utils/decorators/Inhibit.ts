@@ -1,39 +1,24 @@
 /* eslint-disable func-names, @typescript-eslint/naming-convention */
-import { CommandInteraction, Message } from "discord.js";
+import { CommandContext } from "../../structures/CommandContext";
 import { createEmbed } from "../createEmbed";
 
-export function inhibit<T extends (msg: Message, ...args: any[]) => Promise<string|void> | (string|void)>(func: T) {
+export function inhibit<T extends (ctx: CommandContext, ...args: any[]) => Promise<string|void> | (string|void)>(func: T) {
     return function (_: unknown, __: string, descriptor: PropertyDescriptor): void {
         const method = descriptor.value;
         if (!method) throw new Error("Descriptor value isn't provided");
-        descriptor.value = async function (msg: Message, ...args: any[]): Promise<any> {
-            const message = await func(msg, ...args);
+        descriptor.value = async function (ctx: CommandContext, ...args: any[]): Promise<any> {
+            const message = await func(ctx, ...args);
             if (typeof message === "string") {
                 if (message.length) {
-                    return msg.channel.send({
+                    if (ctx.isInteraction() && !ctx.deferred) {
+                        await ctx.deferReply();
+                    }
+                    return ctx.send({
                         embeds: [createEmbed("error", message, true)]
-                    });
+                    }, "editReply");
                 }
             }
-            await method.call(this, msg, ...args);
-        };
-    };
-}
-
-export function inhibitInteraction<T extends (interaction: CommandInteraction, ...args: any[]) => Promise<string|void> | (string|void)>(func: T) {
-    return function (_: unknown, __: string, descriptor: PropertyDescriptor): void {
-        const method = descriptor.value;
-        if (!method) throw new Error("Descriptor value isn't provided");
-        descriptor.value = async function (interaction: CommandInteraction, ...args: any[]): Promise<any> {
-            const message = await func(interaction, ...args);
-            if (typeof message === "string") {
-                if (message.length) {
-                    return interaction.reply({
-                        embeds: [createEmbed("error", message, true)]
-                    });
-                }
-            }
-            await method.call(this, interaction, ...args);
+            await method.call(this, ctx, ...args);
         };
     };
 }

@@ -1,5 +1,5 @@
-import { CommandInteraction, Message } from "discord.js";
 import { BaseCommand } from "../../structures/BaseCommand";
+import { CommandContext } from "../../structures/CommandContext";
 import { createEmbed } from "../../utils/createEmbed";
 import { DefineCommand } from "../../utils/decorators/DefineCommand";
 import { isMemberInVoiceChannel, isMemberVoiceChannelJoinable, isMusicPlaying, isSameVoiceChannel } from "../../utils/decorators/MusicHelpers";
@@ -19,26 +19,12 @@ export class EightDCommand extends BaseCommand {
     @isMemberInVoiceChannel()
     @isMemberVoiceChannelJoinable()
     @isSameVoiceChannel()
-    public async execute(message: Message): Promise<any> {
-        await message.guild!.music.player!.setEightD(!message.guild!.music.player!.filters.eightD);
-        return message.channel.send({
+    public async execute(ctx: CommandContext): Promise<any> {
+        await ctx.guild!.music.player!.setEightD(!ctx.guild!.music.player!.filters.eightD);
+        return ctx.send({
             embeds: [
-                createEmbed("info", `${message.guild!.music.player!.filters.eightD ? "Enabled" : "Disabled"} 8D filter`, true)
+                createEmbed("info", `${ctx.guild!.music.player!.filters.eightD ? "Enabled" : "Disabled"} 8D filter`, true)
             ]
-        });
-    }
-
-    @isMusicPlaying(true)
-    @isMemberInVoiceChannel(true)
-    @isMemberVoiceChannelJoinable(true, true)
-    @isSameVoiceChannel(true)
-    public async executeInteraction(interaction: CommandInteraction): Promise<any> {
-        await interaction.deferReply();
-        await interaction.guild!.music.player!.setEightD(!interaction.guild!.music.player!.filters.eightD);
-        return interaction.editReply({
-            embeds: [
-                createEmbed("info", `${interaction.guild!.music.player!.filters.eightD ? "Enabled" : "Disabled"} 8D filter`, true)
-            ]
-        });
+        }, "editReply");
     }
 }

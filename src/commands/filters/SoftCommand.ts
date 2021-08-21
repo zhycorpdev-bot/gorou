@@ -1,5 +1,5 @@
-import { CommandInteraction, Message } from "discord.js";
 import { BaseCommand } from "../../structures/BaseCommand";
+import { CommandContext } from "../../structures/CommandContext";
 import { createEmbed } from "../../utils/createEmbed";
 import { DefineCommand } from "../../utils/decorators/DefineCommand";
 import { isMemberInVoiceChannel, isMemberVoiceChannelJoinable, isMusicPlaying, isSameVoiceChannel } from "../../utils/decorators/MusicHelpers";
@@ -7,7 +7,7 @@ import { isMemberInVoiceChannel, isMemberVoiceChannelJoinable, isMusicPlaying, i
 @DefineCommand({
     aliases: [],
     cooldown: 3,
-    description: "Set soft filter",
+    description: "Toggle soft filter",
     name: "soft",
     slash: {
         options: []
@@ -19,26 +19,13 @@ export class SoftCommand extends BaseCommand {
     @isMemberInVoiceChannel()
     @isMemberVoiceChannelJoinable()
     @isSameVoiceChannel()
-    public async execute(message: Message): Promise<any> {
-        await message.guild!.music.player!.setSoft(!message.guild!.music.player!.filters.soft);
-        return message.channel.send({
+    public async execute(ctx: CommandContext): Promise<any> {
+        if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
+        await ctx.guild!.music.player!.setSoft(!ctx.guild!.music.player!.filters.soft);
+        return ctx.send({
             embeds: [
-                createEmbed("info", `${message.guild!.music.player!.filters.soft ? "Enabled" : "Disabled"} soft filter`, true)
+                createEmbed("info", `${ctx.guild!.music.player!.filters.soft ? "Enabled" : "Disabled"} soft filter`, true)
             ]
-        });
-    }
-
-    @isMusicPlaying(true)
-    @isMemberInVoiceChannel(true)
-    @isMemberVoiceChannelJoinable(true, true)
-    @isSameVoiceChannel(true)
-    public async executeInteraction(interaction: CommandInteraction): Promise<any> {
-        await interaction.deferReply();
-        await interaction.guild!.music.player!.setSoft(!interaction.guild!.music.player!.filters.soft);
-        return interaction.editReply({
-            embeds: [
-                createEmbed("info", `${interaction.guild!.music.player!.filters.soft ? "Enabled" : "Disabled"} soft filter`, true)
-            ]
-        });
+        }, "editReply");
     }
 }

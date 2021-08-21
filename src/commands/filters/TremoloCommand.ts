@@ -1,5 +1,5 @@
-import { CommandInteraction, Message } from "discord.js";
 import { BaseCommand } from "../../structures/BaseCommand";
+import { CommandContext } from "../../structures/CommandContext";
 import { createEmbed } from "../../utils/createEmbed";
 import { DefineCommand } from "../../utils/decorators/DefineCommand";
 import { isMemberInVoiceChannel, isMemberVoiceChannelJoinable, isMusicPlaying, isSameVoiceChannel } from "../../utils/decorators/MusicHelpers";
@@ -7,7 +7,7 @@ import { isMemberInVoiceChannel, isMemberVoiceChannelJoinable, isMusicPlaying, i
 @DefineCommand({
     aliases: [],
     cooldown: 3,
-    description: "Set tremolo filter",
+    description: "Toggle tremolo filter",
     name: "tremolo",
     slash: {
         options: []
@@ -19,26 +19,13 @@ export class TremoloCommand extends BaseCommand {
     @isMemberInVoiceChannel()
     @isMemberVoiceChannelJoinable()
     @isSameVoiceChannel()
-    public async execute(message: Message): Promise<any> {
-        await message.guild!.music.player!.setTremolo(!message.guild!.music.player!.filters.tremolo);
-        return message.channel.send({
+    public async execute(ctx: CommandContext): Promise<any> {
+        if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
+        await ctx.guild!.music.player!.setTremolo(!ctx.guild!.music.player!.filters.tremolo);
+        return ctx.send({
             embeds: [
-                createEmbed("info", `${message.guild!.music.player!.filters.tremolo ? "Enabled" : "Disabled"} tremolo filter`, true)
+                createEmbed("info", `${ctx.guild!.music.player!.filters.tremolo ? "Enabled" : "Disabled"} tremolo filter`, true)
             ]
-        });
-    }
-
-    @isMusicPlaying(true)
-    @isMemberInVoiceChannel(true)
-    @isMemberVoiceChannelJoinable(true, true)
-    @isSameVoiceChannel(true)
-    public async executeInteraction(interaction: CommandInteraction): Promise<any> {
-        await interaction.deferReply();
-        await interaction.guild!.music.player!.setTremolo(!interaction.guild!.music.player!.filters.tremolo);
-        return interaction.editReply({
-            embeds: [
-                createEmbed("info", `${interaction.guild!.music.player!.filters.tremolo ? "Enabled" : "Disabled"} tremolo filter`, true)
-            ]
-        });
+        }, "editReply");
     }
 }

@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import { BaseCommand } from "../../structures/BaseCommand";
-import { MessageEmbed, Message, CommandInteraction, MessageActionRow, MessageSelectMenu, SelectMenuInteraction, MessageSelectOptionData } from "discord.js";
+import { MessageEmbed, MessageActionRow, MessageSelectMenu, MessageSelectOptionData, SelectMenuInteraction } from "discord.js";
 import { DefineCommand } from "../../utils/decorators/DefineCommand";
 import { createEmbed } from "../../utils/createEmbed";
+import { CommandContext } from "../../structures/CommandContext";
 
 @DefineCommand({
     aliases: ["commands", "cmds", "info"],
@@ -28,48 +30,61 @@ export class HelpCommand extends BaseCommand {
         .setThumbnail("https://hzmi.xyz/assets/images/question_mark.png")
         .setColor("#00FF00");
 
-    public async execute(message: Message, args: string[]): Promise<any> {
+    public async execute(ctx: CommandContext): Promise<any> {
+        if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
         this.infoEmbed.fields = [];
-        const command = this.client.commands.get(args[0]) ?? this.client.commands.get(this.client.commands.aliases.get(args[0])!);
-        if (!args.length) {
+        const val = ctx.args[0] ?? ctx.options?.getString("command") ?? (ctx.additionalArgs.get("values") ? ctx.additionalArgs.get("values")[0] : null);
+        const command = this.client.commands.get(val) ?? this.client.commands.get(this.client.commands.aliases.get(val)!);
+        if (!val) {
             const embed = this.listEmbed
-                .setThumbnail(message.client.user?.displayAvatarURL() as string)
+                .setThumbnail(this.client.user?.displayAvatarURL() as string)
                 .setTimestamp();
             this.listEmbed.fields = [];
             for (const category of [...this.client.commands.categories.values()]) {
-                const isDev = this.client.config.devs.includes(message.author.id);
+                const isDev = this.client.config.devs.includes(ctx.author.id);
                 const cmds = category.cmds.filter(c => isDev ? true : !c.meta.devOnly).map(c => `\`${c.meta.name}\``);
                 if (cmds.length === 0) continue;
                 if (category.hide && !isDev) continue;
                 embed.addField(`**${category.name}**`, cmds.join(", "));
             }
-            return message.channel.send({ embeds: [embed] }).catch(e => this.client.logger.error("PROMISE_ERR:", e));
+            return ctx.send({ embeds: [embed] }, "editReply").catch(e => this.client.logger.error("PROMISE_ERR:", e));
         }
         if (!command) {
-            const matching = this.generateSelectMenu(args[0], message.author.id);
+            const matching = this.generateSelectMenu(val, ctx.author.id);
             if (!matching.length) {
-                return message.channel.send({
+                return ctx.send({
                     embeds: [
                         createEmbed("error", "Couldn't find matching command", true)
                     ]
-                });
+                }, "editReply");
             }
-            return message.channel.send({
+            return ctx.send({
                 components: [
                     new MessageActionRow()
                         .addComponents(
                             new MessageSelectMenu()
                                 .setMinValues(1)
                                 .setMaxValues(1)
-                                .setCustomId(Buffer.from(`${message.author.id}_${this.meta.name}`).toString("base64"))
+                                .setCustomId(Buffer.from(`${ctx.author.id}_${this.meta.name}`).toString("base64"))
                                 .addOptions(matching)
                                 .setPlaceholder("Select matching command")
                         )
                 ],
                 content: `Couldn't find matching command name. Do you mean this?`
-            });
+            }, "editReply");
         }
-        return message.channel.send({
+        // Disable select menu
+        if (ctx.isSelectMenu()) {
+            const channel = await ctx.channel;
+            const msg = await channel!.messages.fetch((ctx.context as SelectMenuInteraction).message.id).catch(() => undefined);
+            if (msg !== undefined) {
+                const selection = msg.components[0].components.find(x => x.type === "SELECT_MENU");
+                selection!.setDisabled(true);
+                await msg.edit({ components: [new MessageActionRow().addComponents(selection!)] });
+            }
+        }
+        // Return info embed
+        return ctx.send({
             embeds: [
                 this.infoEmbed
                     .setTitle(`Help for ${command.meta.name} command`).addField("Name", `\`${command.meta.name}\``, true)
@@ -79,75 +94,7 @@ export class HelpCommand extends BaseCommand {
                     .setFooter(`<> = required | [] = optional ${command.meta.devOnly ? "(Only my developers can use this command)" : ""}`, "https://hzmi.xyz/assets/images/390511462361202688.png")
                     .setTimestamp()
             ]
-        });
-    }
-
-    public async executeInteraction(interaction: CommandInteraction|SelectMenuInteraction, res: string[]): Promise<any> {
-        this.infoEmbed.fields = [];
-        const val = (Array.isArray(res) ? res[0] : null) ?? (interaction as CommandInteraction).options.getString("command");
-        const cmd = this.client.commands.get(val!) ?? this.client.commands.get(this.client.commands.aliases.get(val!)!);
-        if (!val) {
-            const embed = this.listEmbed
-                .setThumbnail(this.client.user?.displayAvatarURL() as string)
-                .setTimestamp();
-            this.listEmbed.fields = [];
-            for (const category of [...this.client.commands.categories.values()]) {
-                const isDev = this.client.config.devs.includes(interaction.user.id);
-                const cmds = category.cmds.filter(c => isDev ? true : !c.meta.devOnly).map(c => `\`${c.meta.name}\``);
-                if (cmds.length === 0) continue;
-                if (category.hide && !isDev) continue;
-                embed.addField(`**${category.name}**`, cmds.join(", "));
-            }
-            return interaction.reply({ embeds: [embed] });
-        }
-        if (!cmd) {
-            const matching = this.generateSelectMenu(val, interaction.user.id);
-            if (!matching.length) {
-                return interaction.reply({
-                    ephemeral: true,
-                    embeds: [
-                        createEmbed("error", "Couldn't find matching command", true)
-                    ]
-                });
-            }
-            return interaction.reply({
-                components: [
-                    new MessageActionRow()
-                        .addComponents(
-                            new MessageSelectMenu()
-                                .setMinValues(1)
-                                .setMaxValues(1)
-                                .setCustomId(Buffer.from(`${interaction.user.id}_${this.meta.name}`).toString("base64"))
-                                .addOptions(matching)
-                                .setPlaceholder("Select matching command")
-                        )
-                ],
-                content: `Couldn't find matching command name. Do you mean this?`
-            });
-        }
-        await interaction.deferReply();
-        if (interaction.isSelectMenu()) {
-            const channel = await interaction.channel;
-            const msg = await channel!.messages.fetch(interaction.message.id).catch(() => undefined);
-            if (msg !== undefined) {
-                const selection = msg.components[0].components.find(x => x.type === "SELECT_MENU");
-                selection!.setDisabled(true);
-                await msg.edit({ components: [new MessageActionRow().addComponents(selection!)] });
-            }
-        }
-        return interaction.editReply({
-            components: [],
-            embeds: [
-                this.infoEmbed
-                    .setTitle(`Help for ${cmd.meta.name} command`)
-                    .addField("Name", `\`${cmd.meta.name}\``, true)
-                    .addField("Description", `\`${cmd.meta.description!}\``, true)
-                    .addField("Aliases", Number(cmd.meta.aliases?.length) > 0 ? cmd.meta.aliases?.map(c => `\`${c}\``).join(", ") as string : "None.")
-                    .addField("Usage", `\`${cmd.meta.usage!.replace(/{prefix}/g, this.client.config.prefix)}\``, true)
-                    .setFooter(`<> = required | [] = optional ${cmd.meta.devOnly ? "(Only my developers can use this command)" : ""}`, "https://hzmi.xyz/assets/images/390511462361202688.png")
-                    .setTimestamp()
-            ]
-        });
+        }, "editReply");
     }
 
     private generateSelectMenu(cmd: string, author: string): MessageSelectOptionData[] {

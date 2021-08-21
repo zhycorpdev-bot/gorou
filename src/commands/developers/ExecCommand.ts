@@ -1,7 +1,7 @@
 import { BaseCommand } from "../../structures/BaseCommand";
 import { exec } from "child_process";
-import { Message } from "discord.js";
 import { DefineCommand } from "../../utils/decorators/DefineCommand";
+import { CommandContext } from "../../structures/CommandContext";
 
 @DefineCommand({
     aliases: ["$", "bash", "execute"],
@@ -12,24 +12,24 @@ import { DefineCommand } from "../../utils/decorators/DefineCommand";
     usage: "{prefix}exec <bash>"
 })
 export class ExecCommand extends BaseCommand {
-    public async execute(message: Message, args: string[]): Promise<any> {
-        if (!args[0]) return message.channel.send("Please provide a command to execute!");
+    public async execute(ctx: CommandContext): Promise<any> {
+        if (!ctx.args[0]) return ctx.send("Please provide a command to execute!", "editReply");
 
-        const m: any = await message.channel.send(`❯_ ${args.join(" ")}`);
+        const m: any = await ctx.send(`❯_ ${ctx.args.join(" ")}`);
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
-        exec(args.join(" "), async (e: any, stdout: any, stderr: any) => {
+        exec(ctx.args.join(" "), async (e: any, stdout: any, stderr: any) => {
             if (e) return m.edit(`\`\`\`js\n${e.message}\`\`\``);
             if (!stderr && !stdout) return m.edit("Executed without result.");
             if (stdout) {
                 const pages = this.paginate(stdout, 1950);
                 for (const page of pages) {
-                    await message.channel.send(`\`\`\`\n${page}\`\`\``);
+                    await ctx.send(`\`\`\`\n${page}\`\`\``);
                 }
             }
             if (stderr) {
                 const pages = this.paginate(stderr, 1950);
                 for (const page of pages) {
-                    await message.channel.send(`\`\`\`\n${page}\`\`\``);
+                    await ctx.send(`\`\`\`\n${page}\`\`\``);
                 }
             }
         });
