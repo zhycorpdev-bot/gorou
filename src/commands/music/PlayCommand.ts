@@ -47,7 +47,7 @@ export class PlayCommand extends BaseCommand {
     @isMemberVoiceChannelJoinable()
     @isSameVoiceChannel()
     public async execute(ctx: CommandContext): Promise<any> {
-        if (ctx.isInteraction()) await ctx.deferReply();
+        if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
         const vc = ctx.member!.voice.channel;
         const query = ctx.args.join(" ") || ctx.options?.getString("query") || (ctx.additionalArgs.get("values") ? ctx.additionalArgs.get("values")[0] : undefined);
         const { valid, matched } = parseURL(query);
