@@ -19,7 +19,7 @@
 ```sh
 $ npm prune --production
 ```
-6. Start it with `npm start`, and you're done!
+7. Start it with `npm start`, and you're done!
 
 ## Installation
 
