@@ -25,7 +25,7 @@ export class QueueCommand extends BaseCommand {
         if (pages.length) embed.setFooter(`Page 1 of ${pages.length}.`);
         if (pages.length > 1) {
             const pagination = new ButtonPagination(message, {
-                content: music.player?.queue.current ? `▶ **Now** playing: **[${music.player.queue.current.title}](${music.player.queue.current.uri!})**` : "",
+                content: music.player?.queue.current ? `▶ **Now** playing: **__${music.player.queue.current.title}__**` : "",
                 pages, embed,
                 edit: (i, emb, page): MessageEmbed => emb.setDescription(page).setFooter(`Page ${i + 1} of ${pages.length}`)
             });
@@ -43,7 +43,7 @@ export class QueueCommand extends BaseCommand {
         if (pages.length) embed.setFooter(`Page 1 of ${pages.length}.`);
         if (pages.length > 1) {
             const pagination = new ButtonPagination(interaction, {
-                content: music.player?.queue.current ? `▶ **Now** playing: **[${music.player.queue.current.title}](${music.player.queue.current.uri!})**` : "",
+                content: music.player?.queue.current ? `▶ **Now** playing: **__${music.player.queue.current.title}__**` : "",
                 pages, embed,
                 edit: (i, emb, page): MessageEmbed => emb.setDescription(page).setFooter(`Page ${i + 1} of ${pages.length}`)
             });
