@@ -99,6 +99,7 @@ export class MusicHandler {
     public get loopType(): LoopType {
         if (!this.player) return LoopType.NONE;
         if (this.player.queueRepeat) return LoopType.ALL;
-        return LoopType.ONE;
+        if (this.player.trackRepeat) return LoopType.ONE;
+        return LoopType.NONE;
     }
 }

@@ -68,7 +68,7 @@ export class LoopCommand extends BaseCommand {
         } else {
             await message.channel.send({
                 embeds: [
-                    createEmbed("info", `Current loop mode is \`${Object.entries(loopModes).find(x => x[1] === music.loopType)![0]}\``, true)
+                    createEmbed("info", `Current loop mode is \`${Object.entries(loopModes).find(x => x[1] === music.loopType)![0]}\`. To change loop mode, use this: \`${this.client.config.prefix}loop [track|queue|off]\``, true)
                 ]
             });
         }
@@ -100,7 +100,7 @@ export class LoopCommand extends BaseCommand {
         } else {
             await interaction.editReply({
                 embeds: [
-                    createEmbed("info", `Current loop mode is \`${Object.entries(loopModes).find(x => x[1] === music.loopType)![0]}\``, true)
+                    createEmbed("info", `Current loop mode is \`${Object.entries(loopModes).find(x => x[1] === music.loopType)![0]}\`. To change loop mode, use this: \`${this.client.config.prefix}loop [track|queue|off]\``, true)
                 ]
             });
         }
