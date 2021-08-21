@@ -16,6 +16,7 @@ import { CommandContext } from "../../structures/CommandContext";
 export class EvalCommand extends BaseCommand {
     public async execute(ctx: CommandContext): Promise<any> {
         const msg = ctx.context;
+        const message = ctx.context;
         const client = this.client;
 
         const embed = new MessageEmbed()
