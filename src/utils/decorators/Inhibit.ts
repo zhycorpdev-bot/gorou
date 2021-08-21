@@ -1,5 +1,4 @@
 /* eslint-disable func-names, @typescript-eslint/naming-convention */
-import { CommandInteraction } from "discord.js";
 import { CommandContext } from "../../structures/CommandContext";
 import { createEmbed } from "../createEmbed";
 
@@ -11,7 +10,7 @@ export function inhibit<T extends (ctx: CommandContext, ...args: any[]) => Promi
             const message = await func(ctx, ...args);
             if (typeof message === "string") {
                 if (message.length) {
-                    if (ctx.isInteraction() && !(ctx.context as CommandInteraction).deferred) {
+                    if (ctx.isInteraction() && !ctx.deferred) {
                         await ctx.deferReply();
                     }
                     return ctx.send({

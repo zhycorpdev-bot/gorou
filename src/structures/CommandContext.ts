@@ -32,6 +32,10 @@ export class CommandContext {
     }
 
 
+    public get deferred(): boolean {
+        return this.context instanceof Interaction ? (this.context as CommandInteraction).deferred : false;
+    }
+
     public get options(): CommandInteractionOptionResolver|null {
         return this.context instanceof Interaction ? (this.context as CommandInteraction).options : null;
     }

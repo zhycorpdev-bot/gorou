@@ -1,4 +1,4 @@
-import { Message, MessageButton, MessageActionRow, InteractionButtonOptions, CommandInteraction, TextChannel } from "discord.js";
+import { Message, MessageButton, MessageActionRow, InteractionButtonOptions, CommandInteraction, TextChannel, SelectMenuInteraction, ContextMenuInteraction, Interaction } from "discord.js";
 import { PaginationPayload } from "../typings";
 
 const DATAS: InteractionButtonOptions[] = [
@@ -35,7 +35,7 @@ const DATAS: InteractionButtonOptions[] = [
 ];
 
 export class ButtonPagination {
-    public constructor(public readonly msg: Message|CommandInteraction, public readonly payload: PaginationPayload) {}
+    public constructor(public readonly msg: Interaction|CommandInteraction|SelectMenuInteraction|ContextMenuInteraction|Message, public readonly payload: PaginationPayload) {}
 
     public async start(): Promise<any> {
         const embed = this.payload.embed;
@@ -56,7 +56,7 @@ export class ButtonPagination {
                 ]
         };
         let msg = await (isInteraction ? (this.msg as CommandInteraction).editReply(toSend) : this.msg.channel!.send(toSend));
-        msg = await (this.msg.client.channels.cache.get(this.msg.channelId) as TextChannel).messages.fetch(msg.id);
+        msg = await (this.msg.client.channels.cache.get(this.msg.channelId!) as TextChannel).messages.fetch(msg.id);
         if (pages.length < 2) return;
         const author = isInteraction ? (this.msg as CommandInteraction).user : (this.msg as Message).author;
         const collector = msg.createMessageComponentCollector({
