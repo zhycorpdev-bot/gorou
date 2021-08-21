@@ -3,6 +3,7 @@ import { resolve, parse } from "path";
 import { Collection, Snowflake, Message, ApplicationCommandData } from "discord.js";
 import { BotClient } from "../structures/BotClient";
 import { ICommandComponent, ICategoryMeta } from "../typings";
+import { CommandContext } from "../structures/CommandContext";
 
 export class CommandManager extends Collection<string, ICommandComponent> {
     public readonly categories: Collection<string, ICategoryMeta> = new Collection();
@@ -111,7 +112,7 @@ export class CommandManager extends Collection<string, ICommandComponent> {
         }
         try {
             if (command.meta.devOnly && !this.client.config.devs.includes(message.author.id)) return undefined;
-            return command.execute(message, args);
+            return command.execute(new CommandContext(message, args));
         } catch (e) {
             this.client.logger.error("COMMAND_HANDLER_ERR:", e);
         } finally {
