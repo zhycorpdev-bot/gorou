@@ -1,7 +1,21 @@
-import { Message, MessageEmbed, Collection, ClientEvents, CommandInteraction, Guild as EGuild, ApplicationCommandData, SelectMenuInteraction, ApplicationCommandOptionData } from "discord.js";
+import { MessageEmbed, Collection, ClientEvents, Guild as EGuild, ApplicationCommandData, ApplicationCommandOptionData } from "discord.js";
 import { BotClient } from "../structures/BotClient";
 import { CommandContext } from "../structures/CommandContext";
 import { MusicHandler } from "../utils/MusicHandler";
+
+export type MessageInteractionAction = "editReply" | "reply" | "followUp";
+
+export enum MessageComponentTypes {
+    ACTION_ROW = 1,
+    BUTTON = 2,
+    SELECT_MENU = 3,
+}
+
+export enum InteractionTypes {
+    PING = 1,
+    APPLICATION_COMMAND = 2,
+    MESSAGE_COMPONENT = 3,
+}
 
 export interface PaginationPayload {
     content?: string;

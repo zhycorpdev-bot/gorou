@@ -1,19 +1,24 @@
-import { Collection, CommandInteraction, CommandInteractionOptionResolver, ContextMenuInteraction, Interaction, InteractionReplyOptions, Message, MessageOptions, MessagePayload, SelectMenuInteraction, TextBasedChannels, User } from "discord.js";
+/* eslint-disable @typescript-eslint/no-unnecessary-condition */
+import { ButtonInteraction, Collection, CommandInteraction, CommandInteractionOptionResolver, ContextMenuInteraction, Interaction, InteractionReplyOptions, Message, MessageOptions, MessagePayload, SelectMenuInteraction, TextBasedChannels, User } from "discord.js";
+import { InteractionTypes, MessageComponentTypes } from "discord.js/typings/enums";
+import { MessageInteractionAction } from "../typings";
 
-export type MessageInteractionPayload = "editReply" | "reply" | "followUp";
 
 export class CommandContext {
     public additionalArgs: Collection<string, any> = new Collection();
     public constructor(public readonly context: Interaction|CommandInteraction|SelectMenuInteraction|ContextMenuInteraction|Message, public args: string[] = []) {}
 
-    public isInteraction(): boolean {
-        return this.context instanceof Interaction;
+    public async deferReply(): Promise<void> {
+        if (this.isInteraction()) {
+            return (this.context as CommandInteraction).deferReply();
+        }
+        return Promise.resolve(undefined);
     }
 
-    public async send(options: string|MessagePayload|MessageOptions|InteractionReplyOptions, type: MessageInteractionPayload = "editReply"): Promise<Message> {
-        if (this.context instanceof Interaction && this.context.isCommand()) {
+    public async send(options: string|MessagePayload|MessageOptions|InteractionReplyOptions, type: MessageInteractionAction = "editReply"): Promise<Message> {
+        if (this.isInteraction()) {
             (options as InteractionReplyOptions).fetchReply = true;
-            const msg = await this.context[type](options) as Message;
+            const msg = await (this.context as CommandInteraction)[type](options) as Message;
             const channel = this.context.channel;
             const res = await channel!.messages.fetch(msg.id).catch(() => null);
             return res ?? msg;
@@ -35,5 +40,35 @@ export class CommandContext {
 
     public get author(): User {
         return this.context instanceof Interaction ? this.context.user : this.context.author;
+    }
+
+    public isInteraction(): boolean {
+        return this.isCommand() || this.isContextMenu() || this.isMessageComponent() || this.isButton() || this.isSelectMenu();
+    }
+
+    public isCommand(): boolean {
+        return InteractionTypes[(this.context as Interaction).type] === InteractionTypes.APPLICATION_COMMAND && typeof (this.context as any).targetId === "undefined";
+    }
+
+    public isContextMenu(): boolean {
+        return InteractionTypes[(this.context as Interaction).type] === InteractionTypes.APPLICATION_COMMAND && typeof (this.context as any).targetId !== "undefined";
+    }
+
+    public isMessageComponent(): boolean {
+        return InteractionTypes[(this.context as Interaction).type] === InteractionTypes.MESSAGE_COMPONENT;
+    }
+
+    public isButton(): boolean {
+        return (
+            InteractionTypes[(this.context as Interaction).type] === InteractionTypes.MESSAGE_COMPONENT &&
+            MessageComponentTypes[(this.context as ButtonInteraction).componentType] === MessageComponentTypes.BUTTON
+        );
+    }
+
+    public isSelectMenu(): boolean {
+        return (
+            InteractionTypes[(this.context as Interaction).type] === InteractionTypes.MESSAGE_COMPONENT &&
+            MessageComponentTypes[(this.context as SelectMenuInteraction).componentType] === MessageComponentTypes.SELECT_MENU
+        );
     }
 }

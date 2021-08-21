@@ -13,9 +13,9 @@ import { CommandContext } from "../../structures/CommandContext";
     usage: "{prefix}ping"
 })
 export class PingCommand extends BaseCommand {
-    public async execute(context: CommandContext): Promise<any> {
+    public async execute(ctx: CommandContext): Promise<any> {
         const before = Date.now();
-        await context.send({ content: "🏓 Pinging..." }, "reply");
+        const msg = await ctx.send({ content: "🏓 Pinging..." }, "reply");
         const latency = Date.now() - before;
         const wsLatency = this.client.ws.ping.toFixed(0);
         const embed = new MessageEmbed()
@@ -30,9 +30,9 @@ export class PingCommand extends BaseCommand {
                 value: `**\`${wsLatency}\`** ms`,
                 inline: true
             })
-            .setFooter(`Requested by: ${context.author.tag}`, context.author.displayAvatarURL({ dynamic: true }))
+            .setFooter(`Requested by: ${ctx.author.tag}`, ctx.author.displayAvatarURL({ dynamic: true }))
             .setTimestamp();
-        await context.send({ content: " ", embeds: [embed] }, "editReply");
+        await msg.edit({ content: " ", embeds: [embed] });
     }
 
     private searchHex(ms: string | number): string | number {
