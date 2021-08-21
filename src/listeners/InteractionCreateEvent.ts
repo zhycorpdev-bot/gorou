@@ -8,6 +8,7 @@ import { DefineListener } from "../utils/decorators/DefineListener";
 @DefineListener("interactionCreate")
 export class InteractionCreateEvent extends BaseListener {
     public async execute(interaction: Interaction): Promise<any> {
+        if (!interaction.inGuild()) return;
         const context = new CommandContext(interaction);
         if (interaction.isContextMenu()) {
             const cmd = this.client.commands.find(x => x.meta.contextChat === interaction.commandName);
