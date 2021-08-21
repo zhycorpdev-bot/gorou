@@ -14,6 +14,7 @@ import { CommandContext } from "../../structures/CommandContext";
 })
 export class PingCommand extends BaseCommand {
     public async execute(ctx: CommandContext): Promise<any> {
+        if (ctx.isInteraction()) await ctx.deferReply();
         const before = Date.now();
         const msg = await ctx.send({ content: "🏓 Pinging..." }, "reply");
         const latency = Date.now() - before;
