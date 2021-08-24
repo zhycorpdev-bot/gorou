@@ -50,6 +50,13 @@ export class PlayCommand extends BaseCommand {
         if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
         const vc = ctx.member!.voice.channel;
         const query = ctx.args.join(" ") || ctx.options?.getString("query") || (ctx.additionalArgs.get("values") ? ctx.additionalArgs.get("values")[0] : undefined);
+        if (!query) {
+            return ctx.send({
+                embeds: [
+                    createEmbed("error", "Please provide a valid query!", true)
+                ]
+            }, "editReply");
+        }
         const { valid, matched } = parseURL(query);
         if (valid && !domains.includes(matched[1])) {
             return ctx.send({
