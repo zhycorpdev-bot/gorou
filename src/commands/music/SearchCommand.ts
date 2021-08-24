@@ -70,6 +70,13 @@ export class SearchCommand extends BaseCommand {
             }, "editReply");
         }
         const query = ctx.args.join(" ") || ctx.options?.getString("query") || ctx.options?.getMessage("message")?.content;
+        if (!query) {
+            return ctx.send({
+                embeds: [
+                    createEmbed("error", "Please provide a valid query!", true)
+                ]
+            }, "editReply");
+        }
         if (parseURL(String(query)).valid) {
             const newCtx = new CommandContext(ctx.context, [String(query)]);
             return this.client.commands.get("play")!.execute(newCtx);
