@@ -59,7 +59,7 @@ export class EvalCommand extends BaseCommand {
             } else { embed.addField("Output", `\`\`\`js\n${output}\`\`\``); }
             ctx.send({ embeds: [embed] }).catch(e => this.client.logger.error("PROMISE_ERR:", e));
         } catch (e) {
-            const error = this.clean(e);
+            const error = this.clean(String(e));
             if (error.length > 1024) {
                 const hastebin = await this.hastebin(error);
                 embed.addField("Error", `${hastebin}.js`);
