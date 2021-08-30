@@ -70,7 +70,7 @@ export class PlayCommand extends BaseCommand {
             query,
             source: valid ? src : /soundcloud/gi.exec(query) ? "soundcloud" : /spotify/gi.exec(query) ? undefined : "youtube"
         }, ctx.author.id);
-        if (response.loadType === "NO_MATCHES") {
+        if (response.loadType === "NO_MATCHES" || !response.tracks.length) {
             return ctx.send({
                 embeds: [
                     createEmbed("error", "Couldn't find any track", true)
