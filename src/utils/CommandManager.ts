@@ -35,6 +35,7 @@ export class CommandManager extends Collection<string, ICommandComponent> {
                                 if (command.meta.contextChat) {
                                     if (this.client.config.isDev) {
                                         for (const guild of this.client.config.devGuild) {
+                                            if (!this.client.config.registerDevSlash) continue;
                                             const g = await this.client.guilds.fetch({ guild });
                                             await g.commands.create({
                                                 name: command.meta.contextChat,
@@ -56,6 +57,7 @@ export class CommandManager extends Collection<string, ICommandComponent> {
                                     if (!command.meta.slash.description) Object.assign(command.meta.slash, { description: command.meta.description });
                                     if (this.client.config.isDev) {
                                         for (const guild of this.client.config.devGuild) {
+                                            if (!this.client.config.registerDevSlash) continue;
                                             const g = await this.client.guilds.fetch({ guild });
                                             await g.commands.create(command.meta.slash as ApplicationCommandData)
                                                 .catch(() => this.client.logger.info(`Missing access on ${guild} [SLASH_COMMAND]`));

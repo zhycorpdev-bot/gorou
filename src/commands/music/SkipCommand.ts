@@ -29,7 +29,7 @@ export class SkipCommand extends BaseCommand {
                     embeds: [
                         createEmbed("info", "You're already vote to skip the song.", true)
                     ]
-                }, "editReply");
+                });
             }
             music.skipVotes.push(ctx.author);
             const needed = Math.round(listeners * 0.4);
@@ -38,14 +38,14 @@ export class SkipCommand extends BaseCommand {
                     embeds: [
                         createEmbed("info", "Need more votes to skip the song!", true)
                     ]
-                }, "editReply");
+                });
             }
         }
         await ctx.send({
             embeds: [
                 createEmbed("info", `Skipped **[${music.player!.queue.current!.title}](${music.player!.queue.current!.uri!})**`, true)
             ]
-        }, "editReply");
+        });
         return music.player?.stop();
     }
 }

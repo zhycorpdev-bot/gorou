@@ -26,6 +26,6 @@ export class NightcoreCommand extends BaseCommand {
             embeds: [
                 createEmbed("info", `${ctx.guild!.music.player!.filters.nightcore ? "Enabled" : "Disabled"} nightcore filter`, true)
             ]
-        }, "editReply");
+        });
     }
 }

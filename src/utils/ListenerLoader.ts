@@ -12,8 +12,9 @@ export class ListenerLoader {
                 for (const file of listeners) {
                     const event = await this.import(resolve(this.path, file), this.client);
                     if (event === undefined) throw new Error(`File ${file} is not a valid listener file`);
-                    this.client.logger.info(`Listener on event ${event.name.toString()} has been added.`);
-                    this.client.addListener(event.name, (...args) => event.execute(...args));
+                    this.client.logger.info(`Listener on event ${event.name.toString()} has been added. Emitter: "${event.emitter}"`);
+                    if (event.emitter === "client") this.client.addListener(event.name, (...args) => event.execute(...args));
+                    if (event.emitter === "erela") this.client.music.addListener(event.name, (...args) => event.execute(...args));
                 }
             })
             .catch(err => this.client.logger.error("LISTENER_LOADER_ERR:", err))

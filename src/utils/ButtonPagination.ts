@@ -4,31 +4,26 @@ import { PaginationPayload } from "../typings";
 const DATAS: InteractionButtonOptions[] = [
     {
         style: "SECONDARY",
-        label: "Previous 10 pages",
         emoji: "⏪",
         customId: "PREV10"
     },
     {
         style: "PRIMARY",
-        label: "Previous",
         emoji: "⬅️",
         customId: "PREV"
     },
     {
         style: "DANGER",
-        label: "Stop",
         emoji: "🚫",
         customId: "STOP"
     },
     {
         style: "PRIMARY",
-        label: "Next",
         emoji: "➡️",
         customId: "NEXT"
     },
     {
         style: "SECONDARY",
-        label: "Next 10 pages",
         emoji: "⏩",
         customId: "NEXT10"
     }
@@ -55,14 +50,13 @@ export class ButtonPagination {
                         .addComponents(buttons)
                 ]
         };
-        let msg = await (isInteraction ? (this.msg as CommandInteraction).editReply(toSend) : this.msg.channel!.send(toSend));
-        msg = await (this.msg.client.channels.cache.get(this.msg.channelId!) as TextChannel).messages.fetch(msg.id);
+        const msg = await (isInteraction ? (this.msg as CommandInteraction).editReply(toSend) : await (this.msg as Message).edit(toSend));
+        const fetchedMsg = await (this.msg.client.channels.cache.get(this.msg.channelId!) as TextChannel).messages.fetch(msg.id);
         if (pages.length < 2) return;
-        const author = isInteraction ? (this.msg as CommandInteraction).user : (this.msg as Message).author;
-        const collector = msg.createMessageComponentCollector({
+        const collector = fetchedMsg.createMessageComponentCollector({
             filter: i => {
                 void i.deferUpdate();
-                return DATAS.map(x => x.customId).includes(i.customId) && i.user.id === author.id;
+                return DATAS.map(x => x.customId.toLowerCase()).includes(i.customId.toLowerCase()) && i.user.id === this.payload.author;
             }
         });
 
@@ -83,7 +77,7 @@ export class ButtonPagination {
             index = ((index % pages.length) + Number(pages.length)) % pages.length;
 
             this.payload.edit.call(this, index, embed, pages[index]);
-            await (msg as Message).edit({
+            await fetchedMsg.edit({
                 embeds: [embed],
                 content: this.payload.content,
                 components: pages.length < 2

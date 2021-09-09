@@ -47,7 +47,7 @@ export class HelpCommand extends BaseCommand {
                 if (category.hide && !isDev) continue;
                 embed.addField(`**${category.name}**`, cmds.join(", "));
             }
-            return ctx.send({ embeds: [embed] }, "editReply").catch(e => this.client.logger.error("PROMISE_ERR:", e));
+            return ctx.send({ embeds: [embed] }).catch(e => this.client.logger.error("PROMISE_ERR:", e));
         }
         if (!command) {
             const matching = this.generateSelectMenu(val, ctx.author.id);
@@ -56,7 +56,7 @@ export class HelpCommand extends BaseCommand {
                     embeds: [
                         createEmbed("error", "Couldn't find matching command", true)
                     ]
-                }, "editReply");
+                });
             }
             return ctx.send({
                 components: [
@@ -71,7 +71,7 @@ export class HelpCommand extends BaseCommand {
                         )
                 ],
                 content: `Couldn't find matching command name. Do you mean this?`
-            }, "editReply");
+            });
         }
         // Disable select menu
         if (ctx.isSelectMenu()) {
@@ -94,7 +94,7 @@ export class HelpCommand extends BaseCommand {
                     .setFooter(`<> = required | [] = optional ${command.meta.devOnly ? "(Only my developers can use this command)" : ""}`, "https://hzmi.xyz/assets/images/390511462361202688.png")
                     .setTimestamp()
             ]
-        }, "editReply");
+        });
     }
 
     private generateSelectMenu(cmd: string, author: string): MessageSelectOptionData[] {

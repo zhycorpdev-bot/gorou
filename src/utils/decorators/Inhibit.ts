@@ -15,7 +15,7 @@ export function inhibit<T extends (ctx: CommandContext, ...args: any[]) => Promi
                     }
                     return ctx.send({
                         embeds: [createEmbed("error", message, true)]
-                    }, "editReply");
+                    });
                 }
             }
             await method.call(this, ctx, ...args);

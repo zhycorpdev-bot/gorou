@@ -26,6 +26,6 @@ export class TrebblebassCommand extends BaseCommand {
             embeds: [
                 createEmbed("info", `${ctx.guild!.music.player!.filters.trebblebass ? "Enabled" : "Disabled"} trebblebass filter`, true)
             ]
-        }, "editReply");
+        });
     }
 }

@@ -25,6 +25,6 @@ export class EightDCommand extends BaseCommand {
             embeds: [
                 createEmbed("info", `${ctx.guild!.music.player!.filters.eightD ? "Enabled" : "Disabled"} 8D filter`, true)
             ]
-        }, "editReply");
+        });
     }
 }

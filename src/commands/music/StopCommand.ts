@@ -26,6 +26,6 @@ export class StopCommand extends BaseCommand {
             embeds: [
                 createEmbed("info", "Stopped current queue", true)
             ]
-        }, "editReply");
+        });
     }
 }

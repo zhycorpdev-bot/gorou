@@ -58,20 +58,20 @@ export class LoopCommand extends BaseCommand {
                     embeds: [
                         createEmbed("info", `Loop mode set to \`${loopMode}\``, true)
                     ]
-                }, "editReply");
+                });
             } else {
                 await ctx.send({
                     embeds: [
                         createEmbed("error", `Invalid mode \`${loopMode}\`. Valid modes are ${Object.keys(loopModes).map(x => `\`${x}\``).join(", ")}`, true)
                     ]
-                }, "editReply");
+                });
             }
         } else {
             await ctx.send({
                 embeds: [
                     createEmbed("info", `Current loop mode is \`${Object.entries(loopModes).find(x => x[1] === music.loopType)![0]}\`. To change loop mode, use this: \`${this.client.config.prefix}loop [track|queue|off]\``, true)
                 ]
-            }, "editReply");
+            });
         }
     }
 }

@@ -67,7 +67,7 @@ export class SearchCommand extends BaseCommand {
                 embeds: [
                     createEmbed("success", `Added \`${tracks.length}\` tracks to queue`, true)
                 ]
-            }, "editReply");
+            });
         }
         const query = ctx.args.join(" ") || ctx.options?.getString("query") || ctx.options?.getMessage("message")?.content;
         if (!query) {
@@ -75,7 +75,7 @@ export class SearchCommand extends BaseCommand {
                 embeds: [
                     createEmbed("error", "Please provide a valid query!", true)
                 ]
-            }, "editReply");
+            });
         }
         if (parseURL(String(query)).valid) {
             const newCtx = new CommandContext(ctx.context, [String(query)]);
@@ -85,7 +85,7 @@ export class SearchCommand extends BaseCommand {
         if (trackRes.loadType === "NO_MATCHES") {
             return ctx.send({
                 embeds: [createEmbed("error", `Sorry, i can't find anything`, true)]
-            }, "editReply");
+            });
         }
         await ctx.send({
             content: `${ctx.author.toString()}, Please select some tracks`,
@@ -100,7 +100,7 @@ export class SearchCommand extends BaseCommand {
                             .setPlaceholder("Select some tracks")
                     )
             ]
-        }, "editReply");
+        });
     }
 
     private generateSelectMenu(tracks: Track[]): MessageSelectOptionData[] {

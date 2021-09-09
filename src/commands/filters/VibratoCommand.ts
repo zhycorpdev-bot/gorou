@@ -26,6 +26,6 @@ export class VibratoCommand extends BaseCommand {
             embeds: [
                 createEmbed("info", `${ctx.guild!.music.player!.filters.vibrato ? "Enabled" : "Disabled"} vibrato filter`, true)
             ]
-        }, "editReply");
+        });
     }
 }

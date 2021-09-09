@@ -9,10 +9,10 @@ export const clientOptions: ClientOptions = {
     restTimeOffset: 300,
     retryLimit: 3
 };
-export const devGuild = JSON.parse(process.env.DEV_GUILD!);
+export const devGuild = JSON.parse(process.env.DEV_GUILD! || "[]");
 export const isProd = process.env.NODE_ENV === "production";
 export const isDev = !isProd;
-export const prefix = isDev ? ">" : defaultPrefix;
+export const prefix = isDev ? ";" : defaultPrefix;
 export const presenceData = {
     activities: [
         "Hello, World!",
@@ -25,4 +25,6 @@ export const presenceData = {
     interval: 60000
 };
 export const shardsCount: number | "auto" = "auto";
-export const nodes = JSON.parse(process.env.NODES!);
+export const nodes = JSON.parse(process.env.NODES! || "[]");
+export const deleteQueueTimeout = 180000;
+export const registerDevSlash = process.env.REGISTER_DEV_SLASH === "yes";

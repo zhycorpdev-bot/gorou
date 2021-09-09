@@ -13,7 +13,7 @@ import { CommandContext } from "../../structures/CommandContext";
 })
 export class ExecCommand extends BaseCommand {
     public async execute(ctx: CommandContext): Promise<any> {
-        if (!ctx.args[0]) return ctx.send("Please provide a command to execute!", "editReply");
+        if (!ctx.args[0]) return ctx.send("Please provide a command to execute!");
 
         const m: any = await ctx.send(`❯_ ${ctx.args.join(" ")}`);
         // eslint-disable-next-line @typescript-eslint/no-misused-promises
