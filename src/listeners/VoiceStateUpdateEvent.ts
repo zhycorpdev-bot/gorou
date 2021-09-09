@@ -23,6 +23,6 @@ export class VoiceStateUpdateEvent extends BaseListener {
         if (oldID === queueVC && newID !== queueVC && !member?.user.bot && !music.timeout) this.client.util.doTimeout(queueVCMembers, music);
 
         // Handle when user joins voice channel or bot gets moved
-        if (newID === queueVC && !member?.user.bot) this.client.util.resumeTimeout(queueVCMembers, music);
+        if (newID === queueVC && !member?.user.bot && music.timeout) this.client.util.resumeTimeout(queueVCMembers, music);
     }
 }
