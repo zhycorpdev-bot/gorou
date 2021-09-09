@@ -15,6 +15,7 @@ export class PlayerMoveEvent extends BaseListener {
         if (newCh) {
             if (newVCMembers?.size === 0 && !music.timeout) this.client.util.doTimeout([...newVCMembers.values()], music);
             else if (newVCMembers?.size !== 0 && music.timeout) this.client.util.resumeTimeout([...newVCMembers!.values()], music);
+            else player.pause(false);
             player.setVoiceChannel(newCh);
         }
 
