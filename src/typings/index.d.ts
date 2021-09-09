@@ -6,14 +6,21 @@ import { MusicHandler } from "../utils/MusicHandler";
 export type MessageInteractionAction = "editReply" | "reply" | "followUp";
 
 export interface PaginationPayload {
+    author: string;
     content?: string;
     pages: string[];
     embed: MessageEmbed;
     edit(index: number, embed: MessageEmbed, page: string): unknown;
 }
 
+export interface ListenerEmitter {
+    client: keyof ClientEvents;
+    erela: string;
+}
+
 export interface IListener {
     readonly name: keyof ClientEvents;
+    readonly emitter: "erela"|"client";
     execute(...args: any): void;
 }
 
