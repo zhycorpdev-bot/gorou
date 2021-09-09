@@ -31,9 +31,10 @@ export class QueueCommand extends BaseCommand {
         if (pages.length) embed.setFooter(`Page 1 of ${pages.length}.`);
         if (pages.length > 1) {
             const pagination = new ButtonPagination(msg, {
+                author: ctx.author.id,
                 content: music.player?.queue.current ? `▶ **Now playing: __${music.player.queue.current.title}__**` : "",
-                pages, embed,
-                edit: (i, emb, page): MessageEmbed => emb.setDescription(page).setFooter(`Page ${i + 1} of ${pages.length}`)
+                edit: (i, emb, page): MessageEmbed => emb.setDescription(page).setFooter(`Page ${i + 1} of ${pages.length}`),
+                embed, pages
             });
             await pagination.start();
         }
