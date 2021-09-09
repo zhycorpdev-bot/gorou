@@ -16,6 +16,8 @@ export class MusicHandler {
     public skipVotes: User[] = [];
     public lastExceptionMsg?: Message;
     public timeout?: NodeJS.Timeout;
+    public oldMusicMessage?: Message;
+    public oldVoiceStateUpdateMessage?: Message;
 
     public constructor(public readonly guild: Guild) {}
 
@@ -23,6 +25,8 @@ export class MusicHandler {
         clearTimeout(this.timeout!);
         Object.assign(this, {
             lastExceptionMsg: undefined,
+            oldMusicMessage: undefined,
+            oldVoiceStateUpdateMessage: undefined,
             skipVotes: [],
             timeout: undefined
         });
