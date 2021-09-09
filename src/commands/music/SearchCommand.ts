@@ -69,7 +69,7 @@ export class SearchCommand extends BaseCommand {
                 ]
             });
         }
-        const query = ctx.args.join(" ") || ctx.options?.getString("query") || ctx.options?.getMessage("message")?.content;
+        let query = ctx.args.join(" ") || ctx.options?.getString("query") || ctx.options?.getMessage("message")?.content;
         if (!query) {
             return ctx.send({
                 embeds: [
@@ -77,6 +77,11 @@ export class SearchCommand extends BaseCommand {
                 ]
             });
         }
+        // Remove command prefix if exists
+        for (const alias of this.meta.aliases!.concat(this.client.commands.get("play")!.meta.aliases!)) {
+            query = query.replace(`${this.client.config.prefix}${alias}`, "");
+        }
+        query = query.replace(`${this.client.config.prefix}play`, "").replace(`${this.client.config.prefix}search`, "");
         if (parseURL(String(query)).valid) {
             const newCtx = new CommandContext(ctx.context, [String(query)]);
             return this.client.commands.get("play")!.execute(newCtx);
