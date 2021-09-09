@@ -16,7 +16,7 @@ export class Util {
             const timeout = this.client.config.deleteQueueTimeout;
             const duration = formatMS(timeout);
             const textChannel = this.client.channels.cache.get(music.player!.textChannel!);
-            music.oldVoiceStateUpdateMessage = undefined;
+            music.oldVoiceStateUpdateMessage = null;
             music.timeout = setTimeout(() => {
                 music.player?.destroy();
                 void music.reset();
@@ -36,7 +36,7 @@ export class Util {
                         `If there's no one who joins my voice channel in the next **${duration}**, the queue will be deleted.`)
                             .setTitle("⏸ Queue paused.")
                     ]
-                }).then(m => music.oldVoiceStateUpdateMessage = m).catch(e => this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e));
+                }).then(m => music.oldVoiceStateUpdateMessage = m.id).catch(e => this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e));
             }
         } catch (e) { this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e); }
     }
@@ -57,7 +57,7 @@ export class Util {
                     if (thumbnail) embed.setThumbnail(thumbnail);
                     textChannel.send({
                         embeds: [embed]
-                    }).then(m => music.oldVoiceStateUpdateMessage = m).catch(e => this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e));
+                    }).then(m => music.oldVoiceStateUpdateMessage = m.id).catch(e => this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e));
                 }
                 music.player?.pause(false);
             } catch (e) { this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e); }

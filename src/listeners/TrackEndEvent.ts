@@ -7,7 +7,7 @@ export class TrackEndEvent extends BaseListener {
     public async execute(player: Player): Promise<void> {
         const manager = this.client._music.fetch(player.guild);
         if (manager.oldMusicMessage) {
-            await manager.oldMusicMessage.delete().catch(() => null);
+            manager.oldMusicMessage = null;
         }
     }
 }

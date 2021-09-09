@@ -9,11 +9,10 @@ export class TrackStartEvent extends BaseListener {
         const manager = this.client._music.fetch(player.guild);
         const channel = this.client.channels.cache.get(player.textChannel!);
         if (channel?.isText()) {
-            manager.oldMusicMessage = await channel.send({
-                embeds: [
-                    createEmbed("info", `**Started** playing: **[${track.title}](${track.uri})**`, false)
-                ]
+            const msg = await channel.send({
+                embeds: [createEmbed("info", `▶ Start playing: **[${track.title}](${track.uri})**`).setThumbnail(track.thumbnail!)]
             });
+            manager.oldMusicMessage = msg.id;
         }
     }
 }

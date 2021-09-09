@@ -1,4 +1,4 @@
-import { Guild, Message, TextChannel, User, VoiceChannel, GuildMember } from "discord.js";
+import { Guild, TextChannel, User, VoiceChannel, GuildMember, Snowflake } from "discord.js";
 import { BotClient } from "../structures/BotClient";
 import { readableTime } from "./readableTime";
 import { Node, Player } from "erela.js";
@@ -14,22 +14,19 @@ export type Filters = "vibrato"|"vaporwave"|"tremolo"|"nightcore"|"karaoke"|"eig
 export class MusicHandler {
     public client: BotClient = this.guild.client;
     public skipVotes: User[] = [];
-    public lastExceptionMsg?: Message;
     public timeout?: NodeJS.Timeout;
-    public oldMusicMessage?: Message;
-    public oldVoiceStateUpdateMessage?: Message;
-
+    private _lastMusicMessageID: Snowflake | null = null;
+    private _lastVoiceStateUpdateMessageID: Snowflake | null = null;
+    private _lastExceptionMessageID: Snowflake | null = null;
     public constructor(public readonly guild: Guild) {}
 
     public reset(): void {
-        clearTimeout(this.timeout!);
-        Object.assign(this, {
-            lastExceptionMsg: undefined,
-            oldMusicMessage: undefined,
-            oldVoiceStateUpdateMessage: undefined,
-            skipVotes: [],
-            timeout: undefined
-        });
+        if (this.timeout) clearTimeout(this.timeout);
+        this.timeout = undefined;
+        this.oldMusicMessage = null;
+        this.oldExceptionMessage = null;
+        this.oldVoiceStateUpdateMessage = null;
+        this.skipVotes = [];
     }
 
     public async play(): Promise<any> {
@@ -95,5 +92,53 @@ export class MusicHandler {
         if (this.player.queueRepeat) return LoopType.ALL;
         if (this.player.trackRepeat) return LoopType.ONE;
         return LoopType.NONE;
+    }
+
+    public get oldExceptionMessage(): Snowflake | null {
+        return this._lastExceptionMessageID;
+    }
+
+    public set oldExceptionMessage(id: Snowflake|null) {
+        if (this._lastExceptionMessageID !== null) {
+            const textChannel = this.client.channels.cache.get(String(this.player?.textChannel)) as TextChannel|null;
+            if (textChannel?.isText()) {
+                textChannel.messages.fetch(this._lastExceptionMessageID, { cache: false })
+                    .then(m => m.delete())
+                    .catch(e => this.client.logger.error("DELETE_OLD_EXCEPTION_MESSAGE_ERR:", e));
+            }
+        }
+        this._lastExceptionMessageID = id;
+    }
+
+    public get oldMusicMessage(): Snowflake | null {
+        return this._lastMusicMessageID;
+    }
+
+    public set oldMusicMessage(id: Snowflake | null) {
+        if (this._lastMusicMessageID !== null) {
+            const textChannel = this.client.channels.cache.get(String(this.player?.textChannel)) as TextChannel|null;
+            if (textChannel?.isText()) {
+                textChannel.messages.fetch(this._lastMusicMessageID, { cache: false })
+                    .then(m => m.delete())
+                    .catch(e => this.client.logger.error("DELETE_OLD_MUSIC_MESSAGE_ERR:", e));
+            }
+        }
+        this._lastMusicMessageID = id;
+    }
+
+    public get oldVoiceStateUpdateMessage(): Snowflake | null {
+        return this._lastVoiceStateUpdateMessageID;
+    }
+
+    public set oldVoiceStateUpdateMessage(id: Snowflake | null) {
+        if (this._lastVoiceStateUpdateMessageID !== null) {
+            const textChannel = this.client.channels.cache.get(String(this.player?.textChannel)) as TextChannel|null;
+            if (textChannel?.isText()) {
+                textChannel.messages.fetch(this._lastVoiceStateUpdateMessageID, { cache: false })
+                    .then(m => m.delete())
+                    .catch(e => this.client.logger.error("DELETE_OLD_VOICE_STATE_UPDATE_MESSAGE_ERR:", e));
+            }
+        }
+        this._lastVoiceStateUpdateMessageID = id;
     }
 }

@@ -12,7 +12,7 @@ export const clientOptions: ClientOptions = {
 export const devGuild = JSON.parse(process.env.DEV_GUILD! || "[]");
 export const isProd = process.env.NODE_ENV === "production";
 export const isDev = !isProd;
-export const prefix = isDev ? ";" : defaultPrefix;
+export const prefix = isDev ? ">" : defaultPrefix;
 export const presenceData = {
     activities: [
         "Hello, World!",

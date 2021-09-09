@@ -7,17 +7,17 @@ import { DefineListener } from "../utils/decorators/DefineListener";
 export class TrackErrorEvent extends BaseListener {
     public async execute(player: Player, track: Track, payload: TrackExceptionEvent): Promise<void> {
         const manager = this.client._music.fetch(player.guild);
-        if (manager.lastExceptionMsg) {
-            await manager.lastExceptionMsg.delete();
-            manager.lastExceptionMsg = undefined;
+        if (manager.oldExceptionMessage) {
+            manager.oldExceptionMessage = null;
         }
         const channel = this.client.channels.cache.get(player.textChannel!);
         if (channel?.isText()) {
-            manager.lastExceptionMsg = await channel.send({
+            const msg = await channel.send({
                 embeds: [
                     createEmbed("error", `There is an exception while trying to play this track:\n\`\`\`java\n${payload.exception!.message}\`\`\``, true)
                 ]
             });
+            manager.oldExceptionMessage = msg.id;
         }
     }
 }
