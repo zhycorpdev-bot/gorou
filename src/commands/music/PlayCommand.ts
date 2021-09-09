@@ -6,6 +6,7 @@ import { createEmbed } from "../../utils/createEmbed";
 import { DefineCommand } from "../../utils/decorators/DefineCommand";
 import { isMemberInVoiceChannel, isMemberVoiceChannelJoinable, isSameVoiceChannel } from "../../utils/decorators/MusicHelpers";
 import { parseURL } from "../../utils/parseURL";
+import { readableTime } from "../../utils/readableTime";
 
 const domains = ["open.spotify.com", "soundcloud.com", "www.soundcloud.com", "m.soundcloud.com", "soundcloud.app.goo.gl", "www.youtube.com", "youtube.com", "m.youtube.com", "youtu.be", "music.youtube.com"];
 
@@ -55,7 +56,7 @@ export class PlayCommand extends BaseCommand {
                 embeds: [
                     createEmbed("error", "Please provide a valid query!", true)
                 ]
-            }, "editReply");
+            });
         }
         const { valid, matched } = parseURL(query);
         if (valid && !domains.includes(matched[1])) {
@@ -63,7 +64,7 @@ export class PlayCommand extends BaseCommand {
                 embeds: [
                     createEmbed("error", "Only support source from youtube, soundcloud and spotify", true)
                 ]
-            }, "editReply");
+            });
         }
         const src = ctx.additionalArgs.get("source") ?? ctx.options?.getString("source") as "youtube"|"soundcloud"|null ?? "youtube";
         const response = await ctx.guild!.music.node.manager.search({
@@ -75,25 +76,23 @@ export class PlayCommand extends BaseCommand {
                 embeds: [
                     createEmbed("error", "Couldn't find any track", true)
                 ]
-            }, "editReply");
+            });
         }
         if (!ctx.guild!.music.player) await ctx.guild!.music.join(vc as any, ctx.channel as TextChannel);
         if (response.loadType === "PLAYLIST_LOADED") {
             for (const trck of response.tracks) await ctx.guild!.music.player!.queue.add(trck);
             await ctx.send({
                 embeds: [
-                    createEmbed("info", `Loaded **${response.playlist!.name}** with \`${response.tracks.length}\` tracks`)
+                    createEmbed("info", `All tracks in playlist: **[${response.playlist!.name}](${query})** **[**\`${readableTime(response.playlist!.duration)}\`**]**, has been added to the queue!`)
                 ]
-            }, "editReply");
+            });
         } else {
             await ctx.guild!.music.player!.queue.add(response.tracks[0]);
             // Identify if the command is being runned by another command (select menu)
             if (!ctx.additionalArgs.get("values")) {
                 await ctx.send({
-                    embeds: [
-                        createEmbed("info", `Added **[${response.tracks[0].title}](${response.tracks[0].uri})** by **${response.tracks[0].author}**`, true)
-                    ]
-                }, "editReply");
+                    embeds: [createEmbed("info", `✅ Track **[${response.tracks[0].title}](${response.tracks[0].uri})** has been added to the queue`).setThumbnail(response.tracks[0].thumbnail!)]
+                });
             }
         }
         if (!ctx.guild!.music.player!.playing) await ctx.guild!.music.play();

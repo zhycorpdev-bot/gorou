@@ -26,6 +26,6 @@ export class DaycoreCommand extends BaseCommand {
             embeds: [
                 createEmbed("info", `${ctx.guild!.music.player!.filters.daycore ? "Enabled" : "Disabled"} daycore filter`, true)
             ]
-        }, "editReply");
+        });
     }
 }

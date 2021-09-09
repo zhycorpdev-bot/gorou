@@ -26,6 +26,6 @@ export class PopCommand extends BaseCommand {
             embeds: [
                 createEmbed("info", `${ctx.guild!.music.player!.filters.pop ? "Enabled" : "Disabled"} pop filter`, true)
             ]
-        }, "editReply");
+        });
     }
 }

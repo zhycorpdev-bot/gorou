@@ -26,6 +26,6 @@ export class ClearFiltersCommand extends BaseCommand {
             embeds: [
                 createEmbed("info", "Cleared applied filters", true)
             ]
-        }, "editReply");
+        });
     }
 }

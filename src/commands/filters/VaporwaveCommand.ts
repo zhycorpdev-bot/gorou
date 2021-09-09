@@ -26,6 +26,6 @@ export class VaporwaveCommand extends BaseCommand {
             embeds: [
                 createEmbed("info", `${ctx.guild!.music.player!.filters.vaporwave ? "Enabled" : "Disabled"} vaporwave filter`, true)
             ]
-        }, "editReply");
+        });
     }
 }

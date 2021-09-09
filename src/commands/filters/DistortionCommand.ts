@@ -26,6 +26,6 @@ export class DistortionCommand extends BaseCommand {
             embeds: [
                 createEmbed("info", `${ctx.guild!.music.player!.filters.distortion ? "Enabled" : "Disabled"} distortion filter`, true)
             ]
-        }, "editReply");
+        });
     }
 }

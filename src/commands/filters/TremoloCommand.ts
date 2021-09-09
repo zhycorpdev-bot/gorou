@@ -26,6 +26,6 @@ export class TremoloCommand extends BaseCommand {
             embeds: [
                 createEmbed("info", `${ctx.guild!.music.player!.filters.tremolo ? "Enabled" : "Disabled"} tremolo filter`, true)
             ]
-        }, "editReply");
+        });
     }
 }

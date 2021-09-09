@@ -26,6 +26,6 @@ export class SoftCommand extends BaseCommand {
             embeds: [
                 createEmbed("info", `${ctx.guild!.music.player!.filters.soft ? "Enabled" : "Disabled"} soft filter`, true)
             ]
-        }, "editReply");
+        });
     }
 }

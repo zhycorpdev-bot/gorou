@@ -26,6 +26,6 @@ export class KaraokeCommand extends BaseCommand {
             embeds: [
                 createEmbed("info", `${ctx.guild!.music.player!.filters.karaoke ? "Enabled" : "Disabled"} karaoke filter`, true)
             ]
-        }, "editReply");
+        });
     }
 }
