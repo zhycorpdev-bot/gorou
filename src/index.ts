@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { ShardingManager } from "discord.js";
 import { resolve } from "path";
 import { isProd, shardsCount } from "./config";
