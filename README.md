@@ -1,5 +1,5 @@
 # Gorou
-> Open-source music bot with lavalink. Made with Typescript. Featured with awesome new thing on Discord
+> Open-source Discord music bot with Lavalink featured with an awesome new thing on Discord.
 
 <a href="https://zhycorp.net/discord"><img src="https://img.shields.io/discord/332877090003091456?color=7289da&logo=discord&logoColor=white" alt="Discord server" /></a>
 <img src="https://badgen.net/badge/icon/typescript?icon=typescript&label"></a>
@@ -7,7 +7,7 @@
 
 ## Usage
 
-**Requires [Node.js](https://nodejs.org) version v16.6.0 or above.**
+**Requires [Node.js](https://nodejs.org) version v16.6.0 or above and**
 **Requires [Lavalink Server](https://github.com/freyacodes/Lavalink).**
 
 1. Install [Node.js](https://nodejs.org)
