@@ -29,6 +29,10 @@ export class PlayerMoveEvent extends BaseListener {
                         embeds: [
                             createEmbed("warn", "I was disconnected from the voice channel, the queue will be deleted")
                         ]
+                    }).then(msg => {
+                        if (msg.channelId === music.playerMessage?.channelId) {
+                            setTimeout(() => msg.delete().catch(() => null), 5000);
+                        }
                     }).catch(e => this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e));
                 }
             } catch (e) {
