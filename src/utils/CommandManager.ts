@@ -6,6 +6,7 @@ import { ICommandComponent, ICategoryMeta } from "../typings";
 import { CommandContext } from "../structures/CommandContext";
 
 export class CommandManager extends Collection<string, ICommandComponent> {
+    public isReady = false;
     public readonly categories: Collection<string, ICategoryMeta> = new Collection();
     public readonly aliases: Collection<string, string> = new Collection();
     private readonly cooldowns: Collection<string, Collection<Snowflake, number>> = new Collection();
@@ -83,7 +84,10 @@ export class CommandManager extends Collection<string, ICommandComponent> {
                 }
             })
             .catch(err => this.client.logger.error("CMD_LOADER_ERR:", err))
-            .finally(() => this.client.logger.info("All categories has been registered."));
+            .finally(() => {
+                this.client.logger.info("All categories has been registered.");
+                this.isReady = true;
+            });
     }
 
     // eslint-disable-next-line @typescript-eslint/require-await
