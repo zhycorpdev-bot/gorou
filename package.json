@@ -23,6 +23,7 @@
     "erela.js": "^2.3.3",
     "erela.js-filter": "^0.2.3",
     "got": "^11.8.2",
+    "mongodb": "^3.7.1",
     "reflect-metadata": "^0.1.13",
     "skia-canvas": "^0.9.25",
     "tslib": "^2.3.1",
