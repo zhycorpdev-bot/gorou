@@ -49,9 +49,9 @@ export class SearchCommand extends BaseCommand {
     @isSameVoiceChannel()
     public async execute(ctx: CommandContext): Promise<any> {
         if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
-        if (ctx.guild!.music.playerMessage?.channelId !== ctx.context.channelId) {
+        if (ctx.guild!.music.playerMessage && ctx.guild!.music.playerMessage.channelId !== ctx.context.channelId) {
             return ctx.send({
-                embeds: [createEmbed("error", `This command is restricted to <#${ctx.guild!.music.playerMessage!.channelId}>.`)]
+                embeds: [createEmbed("error", `This command is restricted to <#${ctx.guild!.music.playerMessage.channelId}>.`)]
             });
         }
         const { music } = ctx.guild!;

@@ -51,7 +51,7 @@ export class LoopCommand extends BaseCommand {
         if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
         const { music } = ctx.guild!;
         const loopMode = (ctx.args[0]?.toLowerCase() || ctx.options?.getString("type")) as keyof typeof loopModes|null;
-        const fromRequester = ctx.context.channelId === ctx.guild!.music.playerMessage!.channelId;
+        const fromRequester = ctx.context.channelId === ctx.guild!.music.playerMessage?.channelId;
         if (loopMode) {
             if (loopMode in loopModes) {
                 music.setLoop(loopModes[loopMode]);
