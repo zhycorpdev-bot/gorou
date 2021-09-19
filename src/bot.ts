@@ -2,7 +2,7 @@ import { BotClient } from "./structures/BotClient";
 import { clientOptions } from "./config";
 import { NoStackError } from "./utils/NoStackError";
 
-const client = new BotClient(clientOptions);
+export const client = new BotClient(clientOptions);
 
 process.on("exit", code => {
     client.logger.info(`NodeJS process exited with code ${code}`);
