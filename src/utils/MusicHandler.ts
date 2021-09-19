@@ -1,7 +1,9 @@
-import { Guild, TextChannel, User, VoiceChannel, GuildMember, Snowflake } from "discord.js";
+import { Guild, TextChannel, User, VoiceChannel, GuildMember, Snowflake, Message } from "discord.js";
 import { BotClient } from "../structures/BotClient";
 import { readableTime } from "./readableTime";
 import { Node, Player } from "erela.js";
+import { createEmbed } from "./createEmbed";
+import { chunk } from "./chunk";
 
 export enum LoopType {
     NONE,
@@ -15,10 +17,52 @@ export class MusicHandler {
     public client: BotClient = this.guild.client;
     public skipVotes: User[] = [];
     public timeout?: NodeJS.Timeout;
+    public playerMessage!: Message|undefined;
     private _lastMusicMessageID: Snowflake | null = null;
     private _lastVoiceStateUpdateMessageID: Snowflake | null = null;
     private _lastExceptionMessageID: Snowflake | null = null;
     public constructor(public readonly guild: Guild) {}
+
+    public async updatePlayerEmbed(): Promise<any> {
+        const loopModes = {
+            [LoopType.ONE]: "track",
+            [LoopType.ALL]: "queue",
+            [LoopType.NONE]: "off"
+        };
+        if (this.playerMessage) {
+            if (this.player?.queue.totalSize) {
+                const list = chunk(this.player.queue.map((x, i) => `${++i}. ${x.author!} - ${x.title} [${readableTime(x.duration!)}] ~ <@${x.requester as any}>`), 10);
+                // @ts-expect-error-next-line
+                const display = this.player.queue.current!.displayThumbnail("maxresdefault") || "";
+                const image = await this.client.request.get(display).then(() => display).catch(() => this.client.config.defaultBanner);
+                await this.playerMessage.edit({
+                    allowedMentions: { parse: [] },
+                    embeds: [
+                        createEmbed("info")
+                            .setTitle(`**${this.player.queue.current!.title}**`)
+                            .setURL(this.player.queue.current!.uri!)
+                            .setDescription(`Requested by: <@${String(this.player.queue.current!.requester)}>`)
+                            .setImage(image)
+                            .setFooter(`${this.player.queue.size} songs in queue | Volume: ${this.player.volume}% ${this.loopType === LoopType.NONE ? "" : `| Loop: ${loopModes[this.loopType]}`} ${this.player.paused ? "Song paused" : ""}`)
+                    ],
+                    content: `**__Queue list:__**${list.length > 1 ? `\n\nAnd **${this.player.queue.totalSize - list[0].length}** more...` : ""}\n${list.length ? list[0].reverse().join("\n") : "Join a voice channel and queue songs by name or url in here."}`
+                });
+            } else {
+                const data = await this.client.databases.guilds.get(this.guild.id);
+                await this.playerMessage.edit({
+                    allowedMentions: { parse: [] },
+                    embeds: [
+                        createEmbed("info")
+                            .setAuthor("No song playing currently", this.guild.iconURL({ dynamic: true, size: 4096 })!)
+                            .setImage(this.client.config.defaultBanner)
+                            .setDescription("Join a voice channel and queue songs by name or url in here.")
+                            .setFooter(`Prefix for this server is: ${data.prefix}`)
+                    ],
+                    content: " "
+                });
+            }
+        }
+    }
 
     public reset(): void {
         if (this.timeout) clearTimeout(this.timeout);

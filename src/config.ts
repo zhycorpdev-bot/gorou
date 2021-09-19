@@ -28,3 +28,7 @@ export const shardsCount: number | "auto" = "auto";
 export const nodes = JSON.parse(process.env.NODES! || "[]");
 export const deleteQueueTimeout = 180000;
 export const registerDevSlash = process.env.REGISTER_DEV_SLASH === "yes";
+export const leftTimeout = 120000;
+export const defaultBanner = process.env.DEFAULT_BANNER!;
+
+if (typeof defaultBanner !== "string") throw new Error("config#defaultBanner must be a string.");

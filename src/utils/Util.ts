@@ -21,12 +21,17 @@ export class Util {
                 music.player?.destroy();
                 void music.reset();
                 if (textChannel?.isText()) {
-                    textChannel.send({
+                    void textChannel.send({
                         embeds: [
                             createEmbed("error", `**${duration}** have passed and there is no one who joins my voice channel, the queue was deleted.`)
                                 .setTitle("⏹ Queue deleted.")
                         ]
-                    }).catch(e => this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e));
+                    }).catch(e => { this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e); return null; })
+                        .then(msg => {
+                            if (msg?.channelId === music.playerMessage?.channelId) {
+                                setTimeout(() => msg?.delete().catch(() => null), 5000);
+                            }
+                        });
                 }
             }, timeout);
             if (textChannel?.isText()) {
@@ -57,7 +62,12 @@ export class Util {
                     if (thumbnail) embed.setThumbnail(thumbnail);
                     textChannel.send({
                         embeds: [embed]
-                    }).then(m => music.oldVoiceStateUpdateMessage = m.id).catch(e => this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e));
+                    }).then(m => {
+                        music.oldVoiceStateUpdateMessage = m.id;
+                        if (m.channelId === music.playerMessage?.channelId) {
+                            setTimeout(() => music.oldVoiceStateUpdateMessage = null, 5000);
+                        }
+                    }).catch(e => this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e));
                 }
                 music.player?.pause(false);
             } catch (e) { this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e); }

@@ -9,5 +9,6 @@ export class TrackEndEvent extends BaseListener {
         if (manager.oldMusicMessage) {
             manager.oldMusicMessage = null;
         }
+        await manager.updatePlayerEmbed();
     }
 }
