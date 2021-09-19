@@ -54,9 +54,16 @@ export class ButtonPagination {
         const fetchedMsg = await (this.msg.client.channels.cache.get(this.msg.channelId!) as TextChannel).messages.fetch(msg.id);
         if (pages.length < 2) return;
         const collector = fetchedMsg.createMessageComponentCollector({
+            idle: 10000,
             filter: i => {
                 void i.deferUpdate();
                 return DATAS.map(x => x.customId.toLowerCase()).includes(i.customId.toLowerCase()) && i.user.id === this.payload.author;
+            }
+        });
+
+        collector.on("end", async () => {
+            if (this.msg.guild?.music.playerMessage?.channelId === this.msg.channelId) {
+                await fetchedMsg.delete().catch(() => null);
             }
         });
 

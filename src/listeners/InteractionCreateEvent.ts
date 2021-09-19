@@ -1,15 +1,43 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
-import { Interaction } from "discord.js";
+import { GuildMember, Interaction, Message } from "discord.js";
 import { BaseListener } from "../structures/BaseListener";
 import { CommandContext } from "../structures/CommandContext";
 import { createEmbed } from "../utils/createEmbed";
 import { DefineListener } from "../utils/decorators/DefineListener";
+import { LoopType } from "../utils/MusicHandler";
 
 @DefineListener("interactionCreate")
 export class InteractionCreateEvent extends BaseListener {
     public async execute(interaction: Interaction): Promise<any> {
         if (!interaction.inGuild()) return;
         const context = new CommandContext(interaction);
+        if (interaction.isButton()) {
+            const src = this.decode(interaction.customId || "");
+            if (src.startsWith("player")) {
+                await interaction.deferReply();
+                const action: "resumepause"|"stop"|"skip"|"loop"|"shuffle" = src.split("_")[1] as any;
+                const { music } = interaction.guild!;
+                if (music.player?.queue.current && (interaction.member as GuildMember).voice.channelId === music.player.voiceChannel) {
+                    if (action === "resumepause") {
+                        await music.player.pause(!music.player.paused);
+                        void interaction.followUp({
+                            embeds: [createEmbed("success", music.player.paused ? "Paused current music" : "Resumed current music", true)]
+                        }).then(x => setTimeout(() => (x as Message).delete().catch(() => null), 5000));
+                    } else if (action === "loop") {
+                        const loopModes = {
+                            [LoopType.ONE]: "track",
+                            [LoopType.ALL]: "queue",
+                            [LoopType.NONE]: "off"
+                        };
+                        context.args = [loopModes[(music.loopType + 1) as 0|1|2] || loopModes[LoopType.NONE]];
+                        void this.client.commands.get("loop")!.execute(context);
+                    } else {
+                        const cmd = this.client.commands.filter(x => x.meta.slash !== undefined).find(x => x.meta.slash!.name === action);
+                        if (cmd) void cmd.execute(context);
+                    }
+                }
+            }
+        }
         if (interaction.isContextMenu()) {
             const cmd = this.client.commands.find(x => x.meta.contextChat === interaction.commandName);
             if (cmd) {

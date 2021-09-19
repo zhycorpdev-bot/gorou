@@ -1,12 +1,19 @@
 import { MessageEmbed, User, Message } from "discord.js";
 import { DefineListener } from "../utils/decorators/DefineListener";
 import { BaseListener } from "../structures/BaseListener";
+import { CommandContext } from "../structures/CommandContext";
 
 @DefineListener("messageCreate")
 export class MessageCreateEvent extends BaseListener {
     public async execute(message: Message): Promise<any> {
-        if (message.author.bot || message.channel.type === "DM") return message;
-        if (message.content.startsWith(this.client.config.prefix)) return this.client.commands.handle(message);
+        if (message.channel.type === "DM" || !this.client.commands.isReady) return message;
+        const data = await this.client.databases.guilds.get(message.guild!.id);
+        if (message.channelId === data.requesterChannel) {
+            if (message.deletable) await message.delete().catch(() => null);
+            if (!message.content.startsWith(data.prefix)) void this.client.commands.get("play")!.execute(new CommandContext(message, message.content.split(/ +/g)));
+        }
+        if (message.author.bot) return;
+        if (message.content.startsWith(data.prefix)) void this.client.commands.handle(message);
 
         if ((await this.getUserFromMention(message.content))?.id === this.client.user?.id) {
             message.channel.send({

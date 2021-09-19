@@ -49,6 +49,11 @@ export class SearchCommand extends BaseCommand {
     @isSameVoiceChannel()
     public async execute(ctx: CommandContext): Promise<any> {
         if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
+        if (ctx.guild!.music.playerMessage?.channelId !== ctx.context.channelId) {
+            return ctx.send({
+                embeds: [createEmbed("error", `This command is restricted to <#${ctx.guild!.music.playerMessage!.channelId}>.`)]
+            });
+        }
         const { music } = ctx.guild!;
         const tracks = ctx.additionalArgs.get("values");
         if (tracks && ctx.isSelectMenu()) {
@@ -63,19 +68,25 @@ export class SearchCommand extends BaseCommand {
                 selection!.setDisabled(true);
                 await msg.edit({ components: [new MessageActionRow().addComponents(selection!)] });
             }
-            return ctx.send({
-                embeds: [
-                    createEmbed("success", `Added \`${tracks.length}\` tracks to queue`, true)
-                ]
-            });
+            if (music.playerMessage?.channelId !== ctx.context.channelId) {
+                return ctx.send({
+                    embeds: [
+                        createEmbed("success", `Added \`${tracks.length}\` tracks to queue`, true)
+                    ]
+                });
+            }
         }
         let query = ctx.args.join(" ") || ctx.options?.getString("query") || ctx.options?.getMessage("message")?.content;
         if (!query) {
-            return ctx.send({
+            const msg = await ctx.send({
                 embeds: [
                     createEmbed("error", "Please provide a valid query!", true)
                 ]
             });
+            if (music.playerMessage?.channelId === ctx.context.channelId) {
+                setTimeout(() => msg.delete().catch(() => null), 5000);
+            }
+            return undefined;
         }
         // Remove command prefix if exists
         for (const alias of this.meta.aliases!.concat(this.client.commands.get("play")!.meta.aliases!)) {
@@ -88,9 +99,13 @@ export class SearchCommand extends BaseCommand {
         }
         const trackRes = await music.node.manager.search(String(query), "youtube");
         if (trackRes.loadType === "NO_MATCHES") {
-            return ctx.send({
+            const msg = await ctx.send({
                 embeds: [createEmbed("error", `Sorry, i can't find anything`, true)]
             });
+            if (music.playerMessage?.channelId === ctx.context.channelId) {
+                setTimeout(() => msg.delete().catch(() => null), 5000);
+            }
+            return undefined;
         }
         await ctx.send({
             content: `${ctx.author.toString()}, Please select some tracks`,

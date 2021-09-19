@@ -51,27 +51,38 @@ export class LoopCommand extends BaseCommand {
         if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
         const { music } = ctx.guild!;
         const loopMode = (ctx.args[0]?.toLowerCase() || ctx.options?.getString("type")) as keyof typeof loopModes|null;
+        const fromRequester = ctx.context.channelId === ctx.guild!.music.playerMessage!.channelId;
         if (loopMode) {
             if (loopMode in loopModes) {
                 music.setLoop(loopModes[loopMode]);
-                await ctx.send({
+                const msg = await ctx.send({
                     embeds: [
                         createEmbed("info", `Loop mode set to \`${loopMode}\``, true)
                     ]
                 });
+                if (fromRequester) {
+                    setTimeout(() => msg.delete().catch(() => null), 5000);
+                }
             } else {
-                await ctx.send({
+                const msg = await ctx.send({
                     embeds: [
                         createEmbed("error", `Invalid mode \`${loopMode}\`. Valid modes are ${Object.keys(loopModes).map(x => `\`${x}\``).join(", ")}`, true)
                     ]
                 });
+                if (fromRequester) {
+                    setTimeout(() => msg.delete().catch(() => null), 5000);
+                }
             }
         } else {
-            await ctx.send({
+            const msg = await ctx.send({
                 embeds: [
                     createEmbed("info", `Current loop mode is \`${Object.entries(loopModes).find(x => x[1] === music.loopType)![0]}\`. To change loop mode, use this: \`${this.client.config.prefix}loop [track|queue|off]\``, true)
                 ]
             });
+            if (fromRequester) {
+                setTimeout(() => msg.delete().catch(() => null), 5000);
+            }
         }
+        await music.updatePlayerEmbed();
     }
 }

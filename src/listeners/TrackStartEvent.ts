@@ -8,7 +8,8 @@ export class TrackStartEvent extends BaseListener {
     public async execute(player: Player, track: Track): Promise<void> {
         const manager = this.client._music.fetch(player.guild);
         const channel = this.client.channels.cache.get(player.textChannel!);
-        if (channel?.isText()) {
+        await manager.updatePlayerEmbed();
+        if (channel?.isText() && !manager.playerMessage) {
             const msg = await channel.send({
                 embeds: [createEmbed("info", `▶ Start playing: **[${track.title}](${track.uri})**`).setThumbnail(track.thumbnail!)]
             });

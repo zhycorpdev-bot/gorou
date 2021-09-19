@@ -18,6 +18,9 @@ export class TrackErrorEvent extends BaseListener {
                 ]
             });
             manager.oldExceptionMessage = msg.id;
+            if (manager.playerMessage) {
+                setTimeout(() => manager.oldExceptionMessage = null, 20000);
+            }
         }
     }
 }
