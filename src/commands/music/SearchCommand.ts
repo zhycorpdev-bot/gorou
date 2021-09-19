@@ -66,7 +66,8 @@ export class SearchCommand extends BaseCommand {
             if (msg !== undefined) {
                 const selection = msg.components[0].components.find(x => x.type === "SELECT_MENU");
                 selection!.setDisabled(true);
-                await msg.edit({ components: [new MessageActionRow().addComponents(selection!)] });
+                if (msg.channelId === music.playerMessage?.channelId) await msg.delete().catch(() => null);
+                else await msg.edit({ components: [new MessageActionRow().addComponents(selection!)] });
             }
             if (music.playerMessage?.channelId !== ctx.context.channelId) {
                 return ctx.send({
