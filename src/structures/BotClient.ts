@@ -49,7 +49,6 @@ export class BotClient extends Client {
         this.listeners.load();
         this.on("raw", (d: any) => this.music.updateVoiceState(d));
         this.on("ready", async () => {
-            await this.commands.load();
             await this.music.init(this.user!.id);
             await createConnection({
                 database: "gorou",
