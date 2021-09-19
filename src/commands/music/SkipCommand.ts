@@ -33,10 +33,10 @@ export class SkipCommand extends BaseCommand {
             }
             music.skipVotes.push(ctx.author);
             const needed = Math.round(listeners * 0.4);
-            if (music.skipVotes.length < needed) {
+            if (music.skipVotes.length < needed && music.player?.queue.current?.requester !== ctx.author.id) {
                 return ctx.send({
                     embeds: [
-                        createEmbed("info", "Need more votes to skip the song!", true)
+                        createEmbed("info", `Need more votes to skip the song! **[**\`${music.skipVotes.length}\`**/**\`${needed}\`**]**`, true)
                     ]
                 });
             }
