@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
-import { ButtonInteraction, Collection, CommandInteraction, CommandInteractionOptionResolver, ContextMenuInteraction, GuildMember, Interaction, InteractionReplyOptions, Message, MessageOptions, MessagePayload, SelectMenuInteraction, TextBasedChannels, User } from "discord.js";
+import { ButtonInteraction, Collection, CommandInteraction, CommandInteractionOptionResolver, ContextMenuInteraction, GuildMember, Interaction, InteractionReplyOptions, Message, MessageMentions, MessageOptions, MessagePayload, SelectMenuInteraction, TextBasedChannels, User } from "discord.js";
 import { MessageInteractionAction } from "../typings";
 import { InteractionTypes, MessageComponentTypes } from "../typings/enum";
 
@@ -46,6 +46,10 @@ export class CommandContext {
 
     public get member(): GuildMember|null {
         return this.guild!.members.resolve(this.author.id);
+    }
+
+    public get mentions(): MessageMentions|null {
+        return this.context instanceof Interaction ? null : this.context.mentions;
     }
 
     public isInteraction(): boolean {
