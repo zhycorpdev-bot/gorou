@@ -32,6 +32,9 @@ export class MusicHandler {
         if (this.playerMessage) {
             if (this.player?.queue.totalSize) {
                 const list = chunk(this.player.queue.map((x, i) => `${++i}. ${x.author!} - ${x.title} [${readableTime(x.duration!)}] ~ <@${x.requester as any}>`), 10);
+                // @ts-expect-error-next-line
+                const display = this.player.queue.current!.displayThumbnail("maxresdefault") || "";
+                const image = await this.client.request.get(display).then(() => display).catch(() => this.client.config.defaultBanner);
                 await this.playerMessage.edit({
                     allowedMentions: { parse: [] },
                     embeds: [
@@ -39,8 +42,7 @@ export class MusicHandler {
                             .setTitle(`**${this.player.queue.current!.title}**`)
                             .setURL(this.player.queue.current!.uri!)
                             .setDescription(`Requested by: <@${String(this.player.queue.current!.requester)}>`)
-                            // @ts-expect-error-next-line
-                            .setImage(this.player.queue.current!.displayThumbnail("maxresdefault"))
+                            .setImage(image)
                             .setFooter(`${this.player.queue.size} songs in queue | Volume: ${this.player.volume}% ${this.loopType === LoopType.NONE ? "" : `| Loop: ${loopModes[this.loopType]}`} ${this.player.paused ? "Song paused" : ""}`)
                     ],
                     content: `**__Queue list:__**${list.length > 1 ? `\n\nAnd **${this.player.queue.totalSize - list[0].length}** more...` : ""}\n${list.length ? list[0].reverse().join("\n") : "Join a voice channel and queue songs by name or url in here."}`
