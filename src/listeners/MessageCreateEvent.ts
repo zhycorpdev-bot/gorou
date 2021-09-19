@@ -13,7 +13,7 @@ export class MessageCreateEvent extends BaseListener {
             if (!message.content.startsWith(data.prefix) && !message.author.bot) void this.client.commands.get("play")!.execute(new CommandContext(message, message.content.split(/ +/g)));
         }
         if (message.author.bot) return;
-        if (message.content.startsWith(data.prefix)) void this.client.commands.handle(message);
+        if (message.content.startsWith(data.prefix) || message.content.startsWith(this.client.config.prefix)) void this.client.commands.handle(message);
 
         if ((await this.getUserFromMention(message.content))?.id === this.client.user?.id) {
             message.channel.send({
@@ -21,7 +21,7 @@ export class MessageCreateEvent extends BaseListener {
                     new MessageEmbed()
                         .setAuthor(this.client.user!.username, this.client.user?.displayAvatarURL())
                         .setColor("#00FF00")
-                        .setDescription(`:wave: | Hello ${message.author.username}, my prefix is \`${this.client.config.prefix}\``)
+                        .setDescription(`:wave: | Hello ${message.author.username}, my prefix for this server is \`${data.prefix}\``)
                         .setTimestamp()
                 ]
             }).catch(e => this.client.logger.error("PROMISE_ERR:", e));
