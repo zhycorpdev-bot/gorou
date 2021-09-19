@@ -16,7 +16,6 @@
   "main": "dist/index.js",
   "dependencies": {
     "better-erela.js-spotify": "^1.1.2",
-    "canvas-constructor": "^5.0.1",
     "date-fns": "^2.23.0",
     "discord.js": "^13.1.0",
     "erela.js": "^2.3.3",
@@ -24,7 +23,6 @@
     "got": "^11.8.2",
     "mongodb": "^3.7.1",
     "reflect-metadata": "^0.1.13",
-    "skia-canvas": "^0.9.25",
     "tslib": "^2.3.1",
     "typeorm": "^0.2.37",
     "winston": "^3.3.3"
