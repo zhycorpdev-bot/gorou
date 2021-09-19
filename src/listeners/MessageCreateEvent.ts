@@ -9,7 +9,7 @@ export class MessageCreateEvent extends BaseListener {
         if (message.channel.type === "DM" || !this.client.commands.isReady) return message;
         const data = await this.client.databases.guilds.get(message.guild!.id);
         if (message.channelId === data.requesterChannel) {
-            if (message.deletable) await message.delete().catch(() => null);
+            if (message.deletable && message.author.id !== this.client.user!.id) await message.delete().catch(() => null);
             if (!message.content.startsWith(data.prefix) && !message.author.bot) void this.client.commands.get("play")!.execute(new CommandContext(message, message.content.split(/ +/g)));
         }
         if (message.author.bot) return;
