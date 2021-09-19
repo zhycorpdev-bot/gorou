@@ -10,6 +10,11 @@ export class CommandContext {
     public guild = this.context.guild;
     public constructor(public readonly context: Interaction|CommandInteraction|SelectMenuInteraction|ContextMenuInteraction|Message, public args: string[] = []) {}
 
+    public setAdditionalArgs(key: string, value: any): CommandContext {
+        this.additionalArgs.set(key, value);
+        return this;
+    }
+
     public async deferReply(): Promise<void> {
         if (this.isInteraction()) {
             return (this.context as CommandInteraction).deferReply();
