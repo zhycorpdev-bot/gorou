@@ -1,4 +1,5 @@
 import { inhibit } from "./Inhibit";
+import { VoiceChannel } from "discord.js";
 
 export function isMusicPlaying(): any {
     return inhibit(msg => {
@@ -24,7 +25,7 @@ export function isMemberInVoiceChannel(): any {
 
 export function isMemberVoiceChannelJoinable(ignoreWhenSame = true): any {
     return inhibit(msg => {
-        const vc = msg.member!.voice.channel!;
+        const vc = msg.guild?.channels.cache.get(msg.member!.voice.channelId!) as VoiceChannel;
         if (ignoreWhenSame && msg.guild!.me!.voice.channelId && msg.guild!.me!.voice.channelId === msg.member!.voice.channelId) return undefined;
         if (!vc.permissionsFor(msg.guild!.me!)!.has(["CONNECT", "SPEAK"])) {
             return "I'm missing `CONNECT` or `SPEAK` permission in your voice!";

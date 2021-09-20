@@ -1,11 +1,22 @@
-import { GuildMember } from "discord.js";
+import { GuildMember, Message } from "discord.js";
 import { BotClient } from "../structures/BotClient";
 import { createEmbed } from "./createEmbed";
 import { formatMS } from "./formatMS";
 import { MusicHandler } from "./MusicHandler";
+import { APIMessage } from "discord-api-types/v9";
 
 export class Util {
     public constructor(public client: BotClient) {}
+
+    public convertToMessage(msg: APIMessage|Message): Message {
+        if (!(msg instanceof Message)) {
+            const newMsg = new Message(this.client as any, msg);
+            // @ts-expect-error-next-line
+            newMsg._patch(msg);
+            return newMsg;
+        }
+        return msg;
+    }
 
     public doTimeout(vcMembers: GuildMember[], music: MusicHandler): any {
         try {

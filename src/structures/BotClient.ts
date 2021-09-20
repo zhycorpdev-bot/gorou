@@ -51,7 +51,7 @@ export class BotClient extends Client {
         this.on("ready", async () => {
             await this.music.init(this.user!.id);
             await createConnection({
-                database: "gorou",
+                database: "reincarnartion",
                 entities: [`${resolve(__dirname, "..", "entities")}/**/*.ts`, `${resolve(__dirname, "..", "entities")}/**/*.js`],
                 type: "mongodb",
                 url: process.env.DATABASE!,
