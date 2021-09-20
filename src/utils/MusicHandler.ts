@@ -42,7 +42,7 @@ export class MusicHandler {
                     .setURL(this.player.queue.current!.uri!)
                     .setDescription(`Requested by: <@${String(this.player.queue.current!.requester)}>`)
                     .setImage(image)
-                    .setFooter(`${this.player.queue.size} songs in queue | Volume: ${this.player.volume}% ${this.loopType === LoopType.NONE ? "" : `| Loop: ${loopModes[this.loopType]}`} ${this.player.paused ? "Song paused" : ""}`);
+                    .setFooter(`${this.player.queue.size} songs in queue | Volume: ${this.player.volume}% ${this.loopType === LoopType.NONE ? "" : `| Loop: ${loopModes[this.loopType]}`} ${this.player.paused ? "| Song paused" : ""}`);
                 if (this.client.config.enableProgressBar) {
                     const percent = this.player.position / this.player.queue.current!.duration! * 12;
                     const progbar = new Array(12).fill("▬");
