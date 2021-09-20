@@ -53,7 +53,7 @@ export class CommandManager extends Collection<string, ICommandComponent> {
                                         this.client.logger.info(`Registered ${command.meta.name} to chat input context for global`);
                                     }
                                 }
-                                if (!allCmd.has(command.meta.name) && command.meta.slash) {
+                                if (!allCmd.find(x => x.name === command.meta.name) && command.meta.slash) {
                                     if (!command.meta.slash.name) Object.assign(command.meta.slash, { name: command.meta.name });
                                     if (!command.meta.slash.description) Object.assign(command.meta.slash, { description: command.meta.description });
                                     if (this.client.config.isDev) {

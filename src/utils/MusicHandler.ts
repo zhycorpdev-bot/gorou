@@ -17,6 +17,7 @@ export class MusicHandler {
     public client: BotClient = this.guild.client;
     public skipVotes: User[] = [];
     public timeout?: NodeJS.Timeout;
+    public updateInterval?: NodeJS.Timer;
     public playerMessage!: Message|undefined;
     private _lastMusicMessageID: Snowflake | null = null;
     private _lastVoiceStateUpdateMessageID: Snowflake | null = null;
@@ -35,16 +36,21 @@ export class MusicHandler {
                 // @ts-expect-error-next-line
                 const display = this.player.queue.current!.displayThumbnail("maxresdefault") || "";
                 const image = await this.client.request.get(display).then(() => display).catch(() => this.client.config.defaultBanner);
+                const embed = createEmbed("info")
+                    .setTitle(`**${this.player.queue.current!.title}**`)
+                    .setURL(this.player.queue.current!.uri!)
+                    .setDescription(`Requested by: <@${String(this.player.queue.current!.requester)}>`)
+                    .setImage(image)
+                    .setFooter(`${this.player.queue.size} songs in queue | Volume: ${this.player.volume}% ${this.loopType === LoopType.NONE ? "" : `| Loop: ${loopModes[this.loopType]}`} ${this.player.paused ? "Song paused" : ""}`);
+                if (this.client.config.enableProgressBar) {
+                    const percent = this.player.position / this.player.queue.current!.duration! * 12;
+                    const progbar = new Array(12).fill("▬");
+                    progbar[Math.round(percent)] = "🔘";
+                    embed.setDescription(`${this.player.paused ? "⏸" : "▶️"} ${progbar.join("")} **[\`${readableTime(this.player.position)}\` - \`${readableTime(this.player.queue.current!.duration!)}\`]** by <@${String(this.player.queue.current!.requester)}>`);
+                }
                 await this.playerMessage.edit({
                     allowedMentions: { parse: [] },
-                    embeds: [
-                        createEmbed("info")
-                            .setTitle(`**${this.player.queue.current!.title}**`)
-                            .setURL(this.player.queue.current!.uri!)
-                            .setDescription(`Requested by: <@${String(this.player.queue.current!.requester)}>`)
-                            .setImage(image)
-                            .setFooter(`${this.player.queue.size} songs in queue | Volume: ${this.player.volume}% ${this.loopType === LoopType.NONE ? "" : `| Loop: ${loopModes[this.loopType]}`} ${this.player.paused ? "Song paused" : ""}`)
-                    ],
+                    embeds: [embed],
                     content: `**__Queue list:__**${list.length > 1 ? `\n\nAnd **${this.player.queue.totalSize - list[0].length}** more...` : ""}\n${list.length ? list[0].reverse().join("\n") : "Join a voice channel and queue songs by name or url in here."}`
                 });
             } else {
@@ -66,6 +72,7 @@ export class MusicHandler {
 
     public reset(): void {
         if (this.timeout) clearTimeout(this.timeout);
+        if (this.updateInterval) clearInterval(this.updateInterval);
         this.timeout = undefined;
         this.oldMusicMessage = null;
         this.oldExceptionMessage = null;

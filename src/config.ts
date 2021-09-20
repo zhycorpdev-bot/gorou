@@ -31,6 +31,7 @@ export const registerDevSlash = process.env.REGISTER_DEV_SLASH === "yes";
 export const leftTimeout = 120000;
 export const defaultBanner = process.env.DEFAULT_BANNER!;
 export const databaseName = process.env.DATABASE_NAME;
+export const enableProgressBar = process.env.ENABLE_PROGRESS_BAR === "yes";
 
 if (typeof databaseName !== "string") throw new Error("config#databaseName must be a string.");
 if (typeof defaultBanner !== "string") throw new Error("config#defaultBanner must be a string.");
