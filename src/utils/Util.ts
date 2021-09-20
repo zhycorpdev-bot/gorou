@@ -53,8 +53,8 @@ export class Util {
                             .setTitle("⏸ Queue paused.")
                     ]
                 }).then(msg => {
-                    music.oldVoiceStateUpdateMessage = msg.id
-                    if (msg?.channelId === music.playerMessage?.channelId) {
+                    music.oldVoiceStateUpdateMessage = msg.id;
+                    if (msg.channelId === music.playerMessage?.channelId) {
                         setTimeout(() => music.oldVoiceStateUpdateMessage = null, 5000);
                     }
                 }).catch(e => this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e));
