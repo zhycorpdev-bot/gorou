@@ -88,7 +88,7 @@ export class SetupCommand extends BaseCommand {
         }
         await this.client.databases.guilds.repository.save(data);
         return ctx.send({
-            embeds: [createEmbed("info", `Set requester channel to: <#${data.requesterChannel}>`)]
+            embeds: [createEmbed("info", `Set requester channel to: <#${data.requesterChannel!}>`)]
         });
     }
 
