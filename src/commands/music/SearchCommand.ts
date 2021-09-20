@@ -69,12 +69,13 @@ export class SearchCommand extends BaseCommand {
                 if (msg.channelId === music.playerMessage?.channelId) await msg.delete().catch(() => null);
                 else await msg.edit({ components: [new MessageActionRow().addComponents(selection!)] });
             }
-            if (music.playerMessage?.channelId !== ctx.context.channelId) {
-                return ctx.send({
-                    embeds: [
-                        createEmbed("success", `Added \`${tracks.length}\` tracks to queue`, true)
-                    ]
-                });
+            const message = await ctx.send({
+                embeds: [
+                    createEmbed("success", `Added \`${tracks.length}\` tracks to queue`, true)
+                ]
+            });
+            if (ctx.context.channelId === music.playerMessage?.channelId) {
+                setTimeout(() => message.delete().catch(() => null), 5000);
             }
             return undefined;
         }
