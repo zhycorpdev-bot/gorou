@@ -67,23 +67,23 @@ export class SetupCommand extends BaseCommand {
                         new MessageButton()
                             .setCustomId(this.encode(`player_resumepause`))
                             .setEmoji("⏯")
-                            .setStyle("PRIMARY"),
+                            .setStyle("SECONDARY"),
                         new MessageButton()
                             .setCustomId(this.encode(`player_stop`))
                             .setEmoji("⏹")
-                            .setStyle("PRIMARY"),
+                            .setStyle("DANGER"),
                         new MessageButton()
                             .setCustomId(this.encode(`player_skip`))
                             .setEmoji("⏭")
-                            .setStyle("PRIMARY"),
+                            .setStyle("SECONDARY"),
                         new MessageButton()
                             .setCustomId(this.encode(`player_loop`))
                             .setEmoji("🔁")
-                            .setStyle("PRIMARY"),
+                            .setStyle("SECONDARY"),
                         new MessageButton()
                             .setCustomId(this.encode(`player_shuffle`))
                             .setEmoji("🔀")
-                            .setStyle("PRIMARY")
+                            .setStyle("SUCCESS")
                     )
             ]
         };
