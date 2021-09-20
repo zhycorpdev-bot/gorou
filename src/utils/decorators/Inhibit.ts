@@ -13,9 +13,12 @@ export function inhibit<T extends (ctx: CommandContext, ...args: any[]) => Promi
                     if (ctx.isInteraction() && !ctx.deferred) {
                         await ctx.deferReply();
                     }
-                    return ctx.send({
+                    const msg = await ctx.send({
                         embeds: [createEmbed("error", message, true)]
                     });
+                    if (msg.channelId === ctx.guild!.music.playerMessage?.channelId) {
+                        setTimeout(() => msg.delete().catch(() => null), 5000);
+                    }
                 }
             }
             await method.call(this, ctx, ...args);
