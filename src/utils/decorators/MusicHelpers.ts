@@ -25,9 +25,9 @@ export function isMemberInVoiceChannel(): any {
 
 export function isMemberVoiceChannelJoinable(ignoreWhenSame = true): any {
     return inhibit(msg => {
-        const vc = msg.guild?.channels.cache.get(msg.member!.voice.channelId!) as VoiceChannel;
+        const vc = msg.guild?.channels.cache.get(msg.member!.voice.channelId!) as VoiceChannel|null;
         if (ignoreWhenSame && msg.guild!.me!.voice.channelId && msg.guild!.me!.voice.channelId === msg.member!.voice.channelId) return undefined;
-        if (!vc.permissionsFor(msg.guild!.me!)!.has(["CONNECT", "SPEAK"])) {
+        if (!vc?.permissionsFor(msg.guild!.me!)!.has(["CONNECT", "SPEAK"])) {
             return "I'm missing `CONNECT` or `SPEAK` permission in your voice!";
         }
         if (!vc.joinable) return "I can't join your voice channel";

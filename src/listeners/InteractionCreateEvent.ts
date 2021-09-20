@@ -57,13 +57,13 @@ export class InteractionCreateEvent extends BaseListener {
                     return setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
                 }
                 const member = interaction.guild!.members.cache.get(interaction.user.id);
-                if (!member!.voice.channelId) {
+                const vc = interaction.guild!.channels.cache.get(member!.voice.channelId!) as VoiceChannel|undefined;
+                if (!vc) {
                     const msg = await interaction.followUp({
                         embeds: [createEmbed("error", "Please join a voice channel", true)]
                     });
                     return setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
                 }
-                const vc = interaction.guild!.channels.cache.get(member!.voice.channelId!) as VoiceChannel;
                 if (!vc.permissionsFor(interaction.guild!.me!)!.has(["CONNECT", "SPEAK"])) {
                     const msg = await interaction.followUp({
                         embeds: [createEmbed("error", "I'm missing `CONNECT` or `SPEAK` permission in your voice!", true)]
