@@ -22,6 +22,7 @@ export class StopCommand extends BaseCommand {
     public async execute(ctx: CommandContext): Promise<any> {
         if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
         await ctx.guild!.music.player!.destroy();
+        await ctx.guild!.music.reset();
         const msg = await ctx.send({
             embeds: [
                 createEmbed("info", "Stopped current queue", true)
