@@ -95,8 +95,17 @@ export class InteractionCreateEvent extends BaseListener {
                     };
                     context.args = [loopModes[(music.loopType + 1) as 0|1|2] || loopModes[LoopType.NONE]];
                     void this.client.commands.get("loop")!.execute(context);
+                } else if (action === "stop") {
+                    await music.player!.destroy();
+                    await music.reset();
+                    const msg = await interaction.followUp({
+                        embeds: [
+                            createEmbed("info", "Stopped current queue", true)
+                        ]
+                    });
+                    setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
                 } else {
-                    const cmd = this.client.commands.filter(x => x.meta.slash !== undefined).find(x => x.meta.slash!.name === action);
+                    const cmd = this.client.commands.find(x => x.meta.name === action);
                     if (cmd) void cmd.execute(context);
                 }
             }
