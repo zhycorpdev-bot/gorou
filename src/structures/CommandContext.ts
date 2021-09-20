@@ -30,9 +30,6 @@ export class CommandContext {
             const res = await channel!.messages.fetch(msg.id).catch(() => null);
             return res ?? msg;
         }
-        if ((options as InteractionReplyOptions).ephemeral) {
-            throw new Error("Cannot send ephemeral message in a non-interaction context");
-        }
         return this.context.channel!.send(options);
     }
 
