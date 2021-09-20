@@ -23,7 +23,6 @@ export class PlayerMoveEvent extends BaseListener {
             try {
                 player.destroy();
                 void music.reset();
-                await music.updatePlayerEmbed();
                 this.client.logger.info(`${this.client.shard ? `[Shard #${this.client.shard.ids[0]}]` : ""} Disconnected from the voice channel at ${music.guild.name}, the queue was deleted.`);
                 if (textChannel?.isText()) {
                     textChannel.send({

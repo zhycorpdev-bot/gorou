@@ -52,7 +52,12 @@ export class Util {
                         `If there's no one who joins my voice channel in the next **${duration}**, the queue will be deleted.`)
                             .setTitle("⏸ Queue paused.")
                     ]
-                }).then(m => music.oldVoiceStateUpdateMessage = m.id).catch(e => this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e));
+                }).then(msg => {
+                    music.oldVoiceStateUpdateMessage = msg.id
+                    if (msg?.channelId === music.playerMessage?.channelId) {
+                        setTimeout(() => music.oldVoiceStateUpdateMessage = null, 5000);
+                    }
+                }).catch(e => this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e));
             }
         } catch (e) { this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e); }
     }

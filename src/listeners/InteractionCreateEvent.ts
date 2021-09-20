@@ -87,6 +87,7 @@ export class InteractionCreateEvent extends BaseListener {
                     void interaction.followUp({
                         embeds: [createEmbed("success", music.player.paused ? "Paused current music" : "Resumed current music", true)]
                     }).then(x => setTimeout(() => this.client.util.convertToMessage(x).delete().catch(() => null), 5000));
+                    await music.updatePlayerEmbed();
                 } else if (action === "loop") {
                     const loopModes = {
                         [LoopType.ONE]: "track",

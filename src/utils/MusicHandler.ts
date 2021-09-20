@@ -71,6 +71,7 @@ export class MusicHandler {
     }
 
     public reset(): void {
+        void this.updatePlayerEmbed();
         if (this.timeout) clearTimeout(this.timeout);
         if (this.updateInterval) clearInterval(this.updateInterval);
         this.timeout = undefined;

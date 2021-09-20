@@ -31,6 +31,5 @@ export class StopCommand extends BaseCommand {
         if (ctx.channel!.id === ctx.guild?.music.playerMessage?.channelId) {
             setTimeout(() => msg.delete().catch(() => null), 5000);
         }
-        await ctx.guild?.music.updatePlayerEmbed();
     }
 }

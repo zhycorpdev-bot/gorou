@@ -8,7 +8,6 @@ export class QueueEndEvent extends BaseListener {
     public async execute(player: Player): Promise<void> {
         const manager = this.client._music.fetch(player.guild);
         const channel = this.client.channels.cache.get(player.textChannel!);
-        await manager.updatePlayerEmbed();
         if (channel?.isText() && !manager.playerMessage) {
             await channel.send({
                 embeds: [
