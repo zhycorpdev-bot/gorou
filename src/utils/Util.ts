@@ -29,8 +29,6 @@ export class Util {
             const textChannel = this.client.channels.cache.get(music.player!.textChannel!);
             music.oldVoiceStateUpdateMessage = null;
             music.timeout = setTimeout(() => {
-                music.player?.destroy();
-                void music.reset();
                 if (textChannel?.isText()) {
                     void textChannel.send({
                         embeds: [
@@ -39,11 +37,14 @@ export class Util {
                         ]
                     }).catch(e => { this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e); return null; })
                         .then(msg => {
+                            music.oldVoiceStateUpdateMessage = null;
                             if (msg?.channelId === music.playerMessage?.channelId) {
                                 setTimeout(() => msg?.delete().catch(e => this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e)), 5000);
                             }
                         });
                 }
+                music.player?.destroy();
+                void music.reset();
             }, timeout);
             if (textChannel?.isText()) {
                 textChannel.send({
