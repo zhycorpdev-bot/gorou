@@ -7,14 +7,21 @@ import { isMemberInVoiceChannel, isMemberVoiceChannelJoinable, isMusicPlaying, i
 @DefineCommand({
     aliases: [],
     cooldown: 3,
-    description: "Skip current track",
-    name: "skip",
+    description: "Show or change the music player's volume",
+    name: "volume",
     slash: {
-        options: []
+        options: [
+            {
+                name: "volume",
+                description: "Volume to set",
+                type: "INTEGER",
+                required: true
+            }
+        ]
     },
-    usage: "{prefix}skip"
+    usage: "{prefix}volume [new volume]"
 })
-export class SkipCommand extends BaseCommand {
+export class VolumeCommand extends BaseCommand {
     @isMusicPlaying()
     @isMemberInVoiceChannel()
     @isMemberVoiceChannelJoinable()
@@ -22,41 +29,36 @@ export class SkipCommand extends BaseCommand {
     public async execute(ctx: CommandContext): Promise<any> {
         if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
         const { music } = ctx.guild!;
-        const listeners = music.listeners.length;
-        if (listeners > 3 && music.player!.queue.current!.requester !== ctx.author.id) {
-            if (music.skipVotes.includes(ctx.author)) {
-                const msg = await ctx.send({
-                    embeds: [
-                        createEmbed("info", "You're already vote to skip the song.", true)
-                    ]
-                });
-                if (music.playerMessage?.channelId === ctx.context.channelId) {
-                    setTimeout(() => msg.delete().catch(() => null), 5000);
-                }
-                return undefined;
+        let volume = Number(ctx.args[0] || ctx.options?.getInteger("volume"));
+        if (isNaN(volume)) {
+            const msg = await ctx.send({ embeds: [createEmbed("info", `📶 The current volume is \`${music.player!.volume.toString()}\``)] });
+            if (ctx.channel!.id === ctx.guild?.music.playerMessage?.channelId) {
+                setTimeout(() => msg.delete().catch(() => null), 5000);
             }
-            music.skipVotes.push(ctx.author);
-            const needed = Math.round(listeners * 0.4);
-            if (music.skipVotes.length < needed && music.player?.queue.current?.requester !== ctx.author.id) {
-                const msg = await ctx.send({
-                    embeds: [
-                        createEmbed("info", `Need more votes to skip the song! **[**\`${music.skipVotes.length}\`**/**\`${needed}\`**]**`, true)
-                    ]
-                });
-                if (music.playerMessage?.channelId === ctx.context.channelId) {
-                    setTimeout(() => msg.delete().catch(() => null), 5000);
-                }
-                return undefined;
+            return undefined;
+        }
+        if (volume < 0) volume = 0;
+        if (volume === 0) {
+            const msg = await ctx.send({ embeds: [createEmbed("warn", "❗ Please pause the music player instead of setting the volume to \`0\`")] });
+            if (ctx.channel!.id === ctx.guild?.music.playerMessage?.channelId) {
+                setTimeout(() => msg.delete().catch(() => null), 5000);
             }
+            return undefined;
         }
-        const msg = await ctx.send({
-            embeds: [
-                createEmbed("info", `Skipped **[${music.player!.queue.current!.title}](${music.player!.queue.current!.uri!})**`, true)
-            ]
-        });
-        if (music.playerMessage?.channelId === ctx.context.channelId) {
-            setTimeout(() => msg.delete().catch(() => null), 5000);
+        if (volume > 100) {
+            const msg = await ctx.send({
+                embeds: [createEmbed("warn", `❗ I can't set the volume above \`100\``)]
+            });
+            if (ctx.channel!.id === ctx.guild?.music.playerMessage?.channelId) {
+                setTimeout(() => msg.delete().catch(() => null), 5000);
+            }
+            return undefined;
         }
-        return music.player?.stop();
+
+        music.player?.setVolume(volume);
+        const m = await ctx.send({ embeds: [createEmbed("info", `📶 Volume set to \`${volume}\``)] });
+        if (ctx.channel!.id === ctx.guild?.music.playerMessage?.channelId) {
+            setTimeout(() => m.delete().catch(() => null), 5000);
+        }
     }
 }
