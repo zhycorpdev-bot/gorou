@@ -47,57 +47,42 @@ export class SetupCommand extends BaseCommand {
                 embeds: [createEmbed("error", "I need these permissions to make requester channel: `SEND_MESSAGES`, `ATTACH_FILES`")]
             });
         }
-        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-        if (old === undefined && !ctx.guild?.members.cache.get(this.client.user!.id)?.permissions.has("MANAGE_CHANNELS")) {
-            return ctx.send({
-                embeds: [createEmbed("error", "I don't have `MANAGE_CHANNELS` permission to create new channel!")]
-            });
-        }
-        const toSend = {
-            embeds: [
-                createEmbed("info")
-                    .setAuthor("No song playing currently", ctx.guild!.iconURL({ dynamic: true, size: 4096 })!)
-                    .setImage(this.client.config.defaultBanner)
-                    .setDescription("Join a voice channel and queue songs by name or url in here.")
-                    .setFooter(`Prefix for this server is: ${data.prefix}`)
-            ],
-            components: [
-                new MessageActionRow()
-                    .addComponents(
-                        new MessageButton()
-                            .setCustomId(this.encode(`player_resumepause`))
-                            .setEmoji("⏯")
-                            .setStyle("SECONDARY"),
-                        new MessageButton()
-                            .setCustomId(this.encode(`player_stop`))
-                            .setEmoji("⏹")
-                            .setStyle("DANGER"),
-                        new MessageButton()
-                            .setCustomId(this.encode(`player_skip`))
-                            .setEmoji("⏭")
-                            .setStyle("SECONDARY"),
-                        new MessageButton()
-                            .setCustomId(this.encode(`player_loop`))
-                            .setEmoji("🔁")
-                            .setStyle("SECONDARY"),
-                        new MessageButton()
-                            .setCustomId(this.encode(`player_shuffle`))
-                            .setEmoji("🔀")
-                            .setStyle("SUCCESS")
-                    )
-            ]
-        };
         if (channel.isText()) {
             data.requesterChannel = channel.id;
-            const msg = await channel.send(toSend);
-            ctx.guild!.music.playerMessage = msg;
-            data.requesterMessage = msg.id;
-        } else {
-            const newChannel = await ctx.guild?.channels.create(`${this.client.user!.username.replace(" ", "-").substr(0, 98)}-request`, {
-                type: "GUILD_TEXT"
+            const msg = await channel.send({
+                embeds: [
+                    createEmbed("info")
+                        .setAuthor("No song playing currently", ctx.guild!.iconURL({ dynamic: true, size: 4096 })!)
+                        .setImage(this.client.config.defaultBanner)
+                        .setDescription("Join a voice channel and queue songs by name or url in here.")
+                        .setFooter(`Prefix for this server is: ${data.prefix}`)
+                ],
+                components: [
+                    new MessageActionRow()
+                        .addComponents(
+                            new MessageButton()
+                                .setCustomId(this.encode(`player_resumepause`))
+                                .setEmoji("⏯")
+                                .setStyle("SECONDARY"),
+                            new MessageButton()
+                                .setCustomId(this.encode(`player_stop`))
+                                .setEmoji("⏹")
+                                .setStyle("DANGER"),
+                            new MessageButton()
+                                .setCustomId(this.encode(`player_skip`))
+                                .setEmoji("⏭")
+                                .setStyle("SECONDARY"),
+                            new MessageButton()
+                                .setCustomId(this.encode(`player_loop`))
+                                .setEmoji("🔁")
+                                .setStyle("SECONDARY"),
+                            new MessageButton()
+                                .setCustomId(this.encode(`player_shuffle`))
+                                .setEmoji("🔀")
+                                .setStyle("SUCCESS")
+                        )
+                ]
             });
-            data.requesterChannel = newChannel!.id;
-            const msg = await newChannel!.send(toSend);
             ctx.guild!.music.playerMessage = msg;
             data.requesterMessage = msg.id;
         }
