@@ -76,6 +76,7 @@ export class SearchCommand extends BaseCommand {
                     ]
                 });
             }
+            return undefined;
         }
         let query = ctx.args.join(" ") || ctx.options?.getString("query") || ctx.options?.getMessage("message")?.content;
         if (!query) {
