@@ -9,7 +9,7 @@ import { formatMS } from "../utils/formatMS";
 import { ListenerLoader } from "../utils/ListenerLoader";
 import { MusicManager } from "../utils/MusicManager";
 import "../extension";
-import { Manager } from "erela.js";
+import { Manager } from "./Manager";
 import Spotify from "better-erela.js-spotify";
 import Filters from "erela.js-filter";
 import { Util } from "../utils/Util";

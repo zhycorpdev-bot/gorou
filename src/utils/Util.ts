@@ -40,7 +40,7 @@ export class Util {
                     }).catch(e => { this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e); return null; })
                         .then(msg => {
                             if (msg?.channelId === music.playerMessage?.channelId) {
-                                setTimeout(() => msg?.delete().catch(() => null), 5000);
+                                setTimeout(() => msg?.delete().catch(e => this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e)), 5000);
                             }
                         });
                 }
@@ -52,12 +52,7 @@ export class Util {
                         `If there's no one who joins my voice channel in the next **${duration}**, the queue will be deleted.`)
                             .setTitle("⏸ Queue paused.")
                     ]
-                }).then(msg => {
-                    music.oldVoiceStateUpdateMessage = msg.id;
-                    if (msg.channelId === music.playerMessage?.channelId) {
-                        setTimeout(() => music.oldVoiceStateUpdateMessage = null, 5000);
-                    }
-                }).catch(e => this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e));
+                }).then(msg => music.oldVoiceStateUpdateMessage = msg.id).catch(e => this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e));
             }
         } catch (e) { this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e); }
     }
@@ -70,7 +65,7 @@ export class Util {
                 clearTimeout(music.timeout!);
                 music.timeout = undefined;
                 const song = music.player!.queue.current;
-                if (textChannel?.isText()) {
+                if (textChannel?.isText() && textChannel.id !== music.playerMessage?.channelId) {
                     const embed = createEmbed("info", `Someone joins the voice channel. Enjoy the music 🎶\nNow Playing: **[${song!.title}](${(song as any).url})**`)
                         .setTitle("▶ Queue resumed");
                     // @ts-expect-error-next-line
@@ -78,12 +73,9 @@ export class Util {
                     if (thumbnail) embed.setThumbnail(thumbnail);
                     textChannel.send({
                         embeds: [embed]
-                    }).then(m => {
-                        music.oldVoiceStateUpdateMessage = m.id;
-                        if (m.channelId === music.playerMessage?.channelId) {
-                            setTimeout(() => music.oldVoiceStateUpdateMessage = null, 5000);
-                        }
-                    }).catch(e => this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e));
+                    }).then(m => music.oldVoiceStateUpdateMessage = m.id).catch(e => this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e));
+                } else {
+                    music.oldVoiceStateUpdateMessage = null;
                 }
                 music.player?.pause(false);
             } catch (e) { this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e); }
