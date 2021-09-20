@@ -187,6 +187,7 @@ export class MusicHandler {
         if (this._lastVoiceStateUpdateMessageID !== null) {
             const textChannel = this.client.channels.cache.get(String(this.player?.textChannel)) as TextChannel|null;
             if (textChannel?.isText()) {
+                console.log(id);
                 textChannel.messages.fetch(this._lastVoiceStateUpdateMessageID, { cache: false })
                     .then(m => m.delete())
                     .catch(e => this.client.logger.error("DELETE_OLD_VOICE_STATE_UPDATE_MESSAGE_ERR:", e));

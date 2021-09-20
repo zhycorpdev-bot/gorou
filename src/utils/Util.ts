@@ -36,15 +36,17 @@ export class Util {
                                 .setTitle("⏹ Queue deleted.")
                         ]
                     }).catch(e => { this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e); return null; })
-                        .then(msg => {
-                            music.oldVoiceStateUpdateMessage = null;
+                        .then(async msg => {
                             if (msg?.channelId === music.playerMessage?.channelId) {
+                                const old = await music.playerMessage?.channel.messages.fetch(music.oldVoiceStateUpdateMessage!, { cache: false }).catch(() => null);
+                                if (old) old.delete().catch(() => null);
                                 setTimeout(() => msg?.delete().catch(e => this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e)), 5000);
                             }
+                            await music.reset();
+                            music.oldVoiceStateUpdateMessage = null;
                         });
                 }
                 music.player?.destroy();
-                void music.reset();
             }, timeout);
             if (textChannel?.isText()) {
                 textChannel.send({

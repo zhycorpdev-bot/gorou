@@ -54,7 +54,8 @@ export class InteractionCreateEvent extends BaseListener {
                     const msg = await interaction.followUp({
                         embeds: [createEmbed("error", "I'm not playing anything right now", true)]
                     });
-                    return setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
+                    setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
+                    return undefined;
                 }
                 const member = interaction.guild!.members.cache.get(interaction.user.id);
                 const vc = interaction.guild!.channels.cache.get(member!.voice.channelId!) as VoiceChannel|undefined;
@@ -62,25 +63,29 @@ export class InteractionCreateEvent extends BaseListener {
                     const msg = await interaction.followUp({
                         embeds: [createEmbed("error", "Please join a voice channel", true)]
                     });
-                    return setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
+                    setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
+                    return undefined;
                 }
                 if (!vc.permissionsFor(interaction.guild!.me!)!.has(["CONNECT", "SPEAK"])) {
                     const msg = await interaction.followUp({
                         embeds: [createEmbed("error", "I'm missing `CONNECT` or `SPEAK` permission in your voice!", true)]
                     });
-                    return setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
+                    setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
+                    return undefined;
                 }
                 if (!vc.joinable) {
                     const msg = await interaction.followUp({
                         embeds: [createEmbed("error", "I can't join your voice channel", true)]
                     });
-                    return setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
+                    setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
+                    return undefined;
                 }
                 if (interaction.guild!.me!.voice.channelId && interaction.guild!.me!.voice.channelId !== member!.voice.channelId) {
                     const msg = await interaction.followUp({
                         embeds: [createEmbed("error", `I'm already used on ${interaction.guild!.me!.voice.channel!.toString()}`, true)]
                     });
-                    return setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
+                    setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
+                    return undefined;
                 }
                 if (action === "resumepause") {
                     await music.player.pause(!music.player.paused);
