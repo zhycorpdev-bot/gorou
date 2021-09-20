@@ -1,7 +1,7 @@
 import { Guild, TextChannel, User, VoiceChannel, GuildMember, Snowflake, Message } from "discord.js";
 import { BotClient } from "../structures/BotClient";
 import { readableTime } from "./readableTime";
-import { Node, Player } from "erela.js";
+import { Node, Player, TrackUtils } from "erela.js";
 import { createEmbed } from "./createEmbed";
 import { chunk } from "./chunk";
 
@@ -33,8 +33,9 @@ export class MusicHandler {
         if (this.playerMessage) {
             if (this.player?.queue.totalSize) {
                 const list = chunk(this.player.queue.map((x, i) => `${++i}. ${x.author!} - ${x.title} [${readableTime(x.duration!)}] ~ <@${x.requester as any}>`), 10);
+                const currentSong = this.player.queue.current!;
                 // @ts-expect-error-next-line
-                const display = this.player.queue.current!.displayThumbnail("maxresdefault") || "";
+                const display = TrackUtils.isUnresolvedTrack(currentSong) ? currentSong.thumbnail ?? this.client.config.defaultBanner : currentSong.displayThumbnail("maxresdefault") || this.client.config.defaultBanner;
                 const image = await this.client.request.get(display).then(() => display).catch(() => this.client.config.defaultBanner);
                 const embed = createEmbed("info")
                     .setTitle(`**${this.player.queue.current!.title}**`)
