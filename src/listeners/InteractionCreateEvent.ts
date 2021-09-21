@@ -52,6 +52,7 @@ export class InteractionCreateEvent extends BaseListener {
                 const { music } = interaction.guild!;
                 if (!music.player) {
                     const msg = await interaction.followUp({
+                        ephemeral: true,
                         embeds: [createEmbed("error", "I'm not playing anything right now", true)]
                     });
                     setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
@@ -61,6 +62,7 @@ export class InteractionCreateEvent extends BaseListener {
                 const vc = interaction.guild!.channels.cache.get(member!.voice.channelId!) as VoiceChannel|undefined;
                 if (!vc) {
                     const msg = await interaction.followUp({
+                        ephemeral: true,
                         embeds: [createEmbed("error", "Please join a voice channel", true)]
                     });
                     setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
@@ -68,6 +70,7 @@ export class InteractionCreateEvent extends BaseListener {
                 }
                 if (!vc.permissionsFor(interaction.guild!.me!)!.has(["CONNECT", "SPEAK"])) {
                     const msg = await interaction.followUp({
+                        ephemeral: true,
                         embeds: [createEmbed("error", "I'm missing `CONNECT` or `SPEAK` permission in your voice!", true)]
                     });
                     setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
@@ -75,6 +78,7 @@ export class InteractionCreateEvent extends BaseListener {
                 }
                 if (!vc.joinable) {
                     const msg = await interaction.followUp({
+                        ephemeral: true,
                         embeds: [createEmbed("error", "I can't join your voice channel", true)]
                     });
                     setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
@@ -82,6 +86,7 @@ export class InteractionCreateEvent extends BaseListener {
                 }
                 if (interaction.guild!.me!.voice.channelId && interaction.guild!.me!.voice.channelId !== member!.voice.channelId) {
                     const msg = await interaction.followUp({
+                        ephemeral: true,
                         embeds: [createEmbed("error", `I'm already used on ${interaction.guild!.me!.voice.channel!.toString()}`, true)]
                     });
                     setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
@@ -90,6 +95,7 @@ export class InteractionCreateEvent extends BaseListener {
                 if (action === "resumepause") {
                     await music.player.pause(!music.player.paused);
                     void interaction.followUp({
+                        ephemeral: true,
                         embeds: [createEmbed("success", music.player.paused ? "Paused current music" : "Resumed current music", true)]
                     }).then(x => setTimeout(() => this.client.util.convertToMessage(x).delete().catch(() => null), 5000));
                     await music.updatePlayerEmbed();
@@ -105,6 +111,7 @@ export class InteractionCreateEvent extends BaseListener {
                     await music.player!.destroy();
                     await music.reset();
                     const msg = await interaction.followUp({
+                        ephemeral: true,
                         embeds: [
                             createEmbed("info", "Stopped current queue", true)
                         ]
