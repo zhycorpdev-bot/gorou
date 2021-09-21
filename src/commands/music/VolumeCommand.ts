@@ -60,5 +60,6 @@ export class VolumeCommand extends BaseCommand {
         if (ctx.channel!.id === ctx.guild?.music.playerMessage?.channelId) {
             setTimeout(() => m.delete().catch(() => null), 5000);
         }
+        return music.updatePlayerEmbed();
     }
 }
