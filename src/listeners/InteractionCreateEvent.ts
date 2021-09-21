@@ -47,7 +47,7 @@ export class InteractionCreateEvent extends BaseListener {
         if (interaction.isButton()) {
             const src = this.decode(interaction.customId || "");
             if (src.startsWith("player")) {
-                await interaction.deferReply();
+                await interaction.deferReply({ ephemeral: true });
                 const action: "resumepause"|"stop"|"skip"|"loop"|"shuffle" = src.split("_")[1] as any;
                 const { music } = interaction.guild!;
                 if (!music.player) {
