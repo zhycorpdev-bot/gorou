@@ -14,6 +14,7 @@ export class InteractionCreateEvent extends BaseListener {
         if (interaction.isContextMenu()) {
             const cmd = this.client.commands.find(x => x.meta.contextChat === interaction.commandName);
             if (cmd) {
+                this.client.logger.info(`${interaction.user.tag} [${interaction.user.id}] is using ${cmd.meta.name} context chat command from ${cmd.meta.category!} category`);
                 context.additionalArgs.set("message", interaction.options.getMessage("message"));
                 void cmd.execute(context);
             }
@@ -21,6 +22,7 @@ export class InteractionCreateEvent extends BaseListener {
         if (interaction.isCommand()) {
             const cmd = this.client.commands.filter(x => x.meta.slash !== undefined).find(x => x.meta.slash!.name === interaction.commandName);
             if (cmd) {
+                this.client.logger.info(`${interaction.user.tag} [${interaction.user.id}] is using ${cmd.meta.name} interaction command from ${cmd.meta.category!} category`);
                 void cmd.execute(context);
             }
         }
@@ -92,6 +94,7 @@ export class InteractionCreateEvent extends BaseListener {
                     setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
                     return undefined;
                 }
+                this.client.logger.info(`${this.client.shard ? `[Shard #${this.client.shard.ids[0]}]` : ""} ${interaction.user.tag} [${interaction.user.id}] executed "${action}" on ${interaction.guild!.name} [${interaction.guildId}]`);
                 if (action === "resumepause") {
                     await music.player.pause(!music.player.paused);
                     void interaction.followUp({
