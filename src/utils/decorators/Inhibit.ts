@@ -19,6 +19,7 @@ export function inhibit<T extends (ctx: CommandContext, ...args: any[]) => Promi
                     if (msg.channelId === ctx.guild!.music.playerMessage?.channelId) {
                         setTimeout(() => msg.delete().catch(() => null), 5000);
                     }
+                    return undefined;
                 }
             }
             await method.call(this, ctx, ...args);
