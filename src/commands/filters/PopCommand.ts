@@ -22,10 +22,13 @@ export class PopCommand extends BaseCommand {
     public async execute(ctx: CommandContext): Promise<any> {
         if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
         await ctx.guild!.music.player!.setPop(!ctx.guild!.music.player!.filters.pop);
-        return ctx.send({
+        const msg = await ctx.send({
             embeds: [
                 createEmbed("info", `${ctx.guild!.music.player!.filters.pop ? "Enabled" : "Disabled"} pop filter`, true)
             ]
         });
+        if (ctx.channel!.id === ctx.guild?.music.playerMessage?.channelId) {
+            setTimeout(() => msg.delete().catch(() => null), 5000);
+        }
     }
 }

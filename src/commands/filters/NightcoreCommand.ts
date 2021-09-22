@@ -22,10 +22,13 @@ export class NightcoreCommand extends BaseCommand {
     public async execute(ctx: CommandContext): Promise<any> {
         if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
         await ctx.guild!.music.player!.setNightcore(!ctx.guild!.music.player!.filters.nightcore);
-        return ctx.send({
+        const msg = await ctx.send({
             embeds: [
                 createEmbed("info", `${ctx.guild!.music.player!.filters.nightcore ? "Enabled" : "Disabled"} nightcore filter`, true)
             ]
         });
+        if (ctx.channel!.id === ctx.guild?.music.playerMessage?.channelId) {
+            setTimeout(() => msg.delete().catch(() => null), 5000);
+        }
     }
 }

@@ -22,10 +22,13 @@ export class SoftCommand extends BaseCommand {
     public async execute(ctx: CommandContext): Promise<any> {
         if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
         await ctx.guild!.music.player!.setSoft(!ctx.guild!.music.player!.filters.soft);
-        return ctx.send({
+        const msg = await ctx.send({
             embeds: [
                 createEmbed("info", `${ctx.guild!.music.player!.filters.soft ? "Enabled" : "Disabled"} soft filter`, true)
             ]
         });
+        if (ctx.channel!.id === ctx.guild?.music.playerMessage?.channelId) {
+            setTimeout(() => msg.delete().catch(() => null), 5000);
+        }
     }
 }

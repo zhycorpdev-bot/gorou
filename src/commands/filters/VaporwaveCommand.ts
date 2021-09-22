@@ -22,10 +22,13 @@ export class VaporwaveCommand extends BaseCommand {
     public async execute(ctx: CommandContext): Promise<any> {
         if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
         await ctx.guild!.music.player!.setVaporwave(!ctx.guild!.music.player!.filters.vaporwave);
-        return ctx.send({
+        const msg = await ctx.send({
             embeds: [
                 createEmbed("info", `${ctx.guild!.music.player!.filters.vaporwave ? "Enabled" : "Disabled"} vaporwave filter`, true)
             ]
         });
+        if (ctx.channel!.id === ctx.guild?.music.playerMessage?.channelId) {
+            setTimeout(() => msg.delete().catch(() => null), 5000);
+        }
     }
 }

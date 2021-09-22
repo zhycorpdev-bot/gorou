@@ -21,10 +21,13 @@ export class EightDCommand extends BaseCommand {
     @isSameVoiceChannel()
     public async execute(ctx: CommandContext): Promise<any> {
         await ctx.guild!.music.player!.setEightD(!ctx.guild!.music.player!.filters.eightD);
-        return ctx.send({
+        const msg = await ctx.send({
             embeds: [
                 createEmbed("info", `${ctx.guild!.music.player!.filters.eightD ? "Enabled" : "Disabled"} 8D filter`, true)
             ]
         });
+        if (ctx.channel!.id === ctx.guild?.music.playerMessage?.channelId) {
+            setTimeout(() => msg.delete().catch(() => null), 5000);
+        }
     }
 }

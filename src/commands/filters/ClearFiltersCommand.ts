@@ -22,10 +22,13 @@ export class ClearFiltersCommand extends BaseCommand {
     public async execute(ctx: CommandContext): Promise<any> {
         if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
         await ctx.guild!.music.player!.clearFilters(true);
-        return ctx.send({
+        const msg = await ctx.send({
             embeds: [
                 createEmbed("info", "Cleared applied filters", true)
             ]
         });
+        if (ctx.channel!.id === ctx.guild?.music.playerMessage?.channelId) {
+            setTimeout(() => msg.delete().catch(() => null), 5000);
+        }
     }
 }
