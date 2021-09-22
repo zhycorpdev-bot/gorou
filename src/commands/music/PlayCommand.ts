@@ -58,11 +58,15 @@ export class PlayCommand extends BaseCommand {
         const query = ctx.args.join(" ") || ctx.options?.getString("query") || (ctx.additionalArgs.get("values") ? ctx.additionalArgs.get("values")[0] : undefined);
         const fromRequester = ctx.context.channelId === ctx.guild!.music.playerMessage?.channelId;
         if (!query) {
-            return ctx.send({
+            const msg = await ctx.send({
                 embeds: [
                     createEmbed("error", "Please provide a valid query!", true)
                 ]
-            });
+            }, fromRequester ? "followUp" : "editReply");
+            if (fromRequester) {
+                setTimeout(() => msg.delete().catch(() => null), 5000);
+            }
+            return undefined;
         }
         const { valid, matched } = parseURL(query);
         if (valid && !domains.includes(matched[1])) {
