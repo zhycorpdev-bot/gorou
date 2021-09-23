@@ -56,6 +56,7 @@ export class BotClient extends Client {
                 },
                 database: this.config.databaseName,
                 entities: [`${resolve(__dirname, "..", "entities")}/**/*.ts`, `${resolve(__dirname, "..", "entities")}/**/*.js`],
+                logging: this.config.isDev ? "all" : ["info"],
                 type: "mongodb",
                 url: process.env.DATABASE!,
                 useUnifiedTopology: true
