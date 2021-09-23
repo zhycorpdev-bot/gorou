@@ -18,7 +18,7 @@ export class MessageCreateEvent extends BaseListener {
         if (message.author.bot) return;
         if (message.content.startsWith(data.prefix) || message.content.startsWith(this.client.config.prefix)) void this.client.commands.handle(message);
 
-        if ((await this.getUserFromMention(message.content))?.id === this.client.user?.id) {
+        if ((await this.getUserFromMention(message.content))?.id === this.client.user?.id && message.channelId !== message.guild!.music.playerMessage?.channelId) {
             message.channel.send({
                 embeds: [
                     new MessageEmbed()
