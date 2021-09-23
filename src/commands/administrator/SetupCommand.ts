@@ -65,10 +65,6 @@ export class SetupCommand extends BaseCommand {
                                 .setEmoji("⏯")
                                 .setStyle("SECONDARY"),
                             new MessageButton()
-                                .setCustomId(this.encode(`player_stop`))
-                                .setEmoji("⏹")
-                                .setStyle("DANGER"),
-                            new MessageButton()
                                 .setCustomId(this.encode(`player_skip`))
                                 .setEmoji("⏭")
                                 .setStyle("SECONDARY"),
@@ -76,6 +72,10 @@ export class SetupCommand extends BaseCommand {
                                 .setCustomId(this.encode(`player_loop`))
                                 .setEmoji("🔁")
                                 .setStyle("SECONDARY"),
+                            new MessageButton()
+                                .setCustomId(this.encode(`player_stop`))
+                                .setEmoji("⏹")
+                                .setStyle("DANGER"),
                             new MessageButton()
                                 .setCustomId(this.encode(`player_shuffle`))
                                 .setEmoji("🔀")
@@ -86,7 +86,6 @@ export class SetupCommand extends BaseCommand {
             ctx.guild!.music.playerMessage = msg;
             data.requesterMessage = msg.id;
         }
-        await this.client.connection.queryResultCache?.remove([`guilds_${ctx.guild!.id}`]);
         await this.client.databases.guilds.repository.save(data);
         return ctx.send({
             embeds: [createEmbed("info", `Set requester channel to: <#${data.requesterChannel!}>`)]
