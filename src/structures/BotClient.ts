@@ -14,7 +14,7 @@ import Spotify from "better-erela.js-spotify";
 import Filters from "erela.js-filter";
 import { Util } from "../utils/Util";
 import { GuildSettingManager } from "../utils/GuildSettingManager";
-import { createConnection } from "typeorm";
+import { Connection, createConnection } from "typeorm";
 
 export class BotClient extends Client {
     public readonly config = config;
@@ -41,7 +41,7 @@ export class BotClient extends Client {
     };
 
     public readonly util = new Util(this);
-
+    public connection!: Connection;
     public constructor(opt: ClientOptions) { super(opt); }
 
     public async build(token: string): Promise<BotClient> {
@@ -50,7 +50,10 @@ export class BotClient extends Client {
         this.on("raw", (d: any) => this.music.updateVoiceState(d));
         this.on("ready", async () => {
             await this.music.init(this.user!.id);
-            await createConnection({
+            this.connection = await createConnection({
+                cache: {
+                    duration: this.config.databaseCacheLifetime
+                },
                 database: this.config.databaseName,
                 entities: [`${resolve(__dirname, "..", "entities")}/**/*.ts`, `${resolve(__dirname, "..", "entities")}/**/*.js`],
                 type: "mongodb",
@@ -60,9 +63,10 @@ export class BotClient extends Client {
                 this.logger.error("MONGODB_CONN_ERR:", e);
                 this.logger.warn("Couldn't connect to database. Exiting...");
                 return process.exit(1);
-            }).then(async () => {
+            }).then(async c => {
                 this.logger.info("Connected to MongoDB cloud");
                 await this.databases.guilds._init();
+                return c;
             });
             await this.commands.load();
             this.logger.info(`Ready took ${formatMS(Date.now() - start)}`);
