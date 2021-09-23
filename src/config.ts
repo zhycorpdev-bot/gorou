@@ -4,7 +4,7 @@ export const defaultPrefix = ".";
 export const devs: UserResolvable[] = ["725331428962992131", "740075062190669884", "736943755344609301"];
 export const clientOptions: ClientOptions = {
     allowedMentions: { parse: ["users"] },
-    intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES],
+    intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MEMBERS],
     makeCache: () => new Collection(),
     restTimeOffset: 300,
     retryLimit: 3
