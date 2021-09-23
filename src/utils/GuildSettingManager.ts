@@ -1,4 +1,5 @@
 import { Snowflake } from "discord-api-types";
+import { TextChannel } from "discord.js";
 import { FindOneOptions, getMongoRepository, MongoRepository } from "typeorm";
 import { GuildSetting } from "../entities/Guild";
 import { BotClient } from "../structures/BotClient";
@@ -15,8 +16,10 @@ export class GuildSettingManager {
             if (channel?.isText()) {
                 const message = await channel.messages.fetch(data.requesterMessage!).catch(() => null);
                 if (message) {
+                    this.client.logger.info(`Fetched ${(message.channel as TextChannel).name} [${message.channelId}] on ${message.guild!.name}`);
                     guild.music.playerMessage = message;
                 } else {
+                    this.client.logger.info(`Failed to fetch ${data.requesterChannel!} on ${data.guild}`);
                     data.requesterMessage = null;
                     data.requesterChannel = null;
                     await this.repository.save(data);
