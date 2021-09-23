@@ -10,7 +10,10 @@ export class MessageCreateEvent extends BaseListener {
         const data = await this.client.databases.guilds.get(message.guild!.id, { select: ["prefix", "requesterChannel"] });
         if (message.channelId === data.requesterChannel) {
             if (message.deletable && message.author.id !== this.client.user!.id) await message.delete().catch(() => null);
-            if (!message.content.startsWith(data.prefix) && !message.author.bot) void this.client.commands.get("play")!.execute(new CommandContext(message, message.content.split(/ +/g)));
+            if (!message.content.startsWith(data.prefix) && !message.author.bot) {
+                this.client.logger.info(`${message.author.tag} [${message.author.id}] is using play command on ${message.guild!.name}`);
+                void this.client.commands.get("play")!.execute(new CommandContext(message, message.content.split(/ +/g)));
+            }
         }
         if (message.author.bot) return;
         if (message.content.startsWith(data.prefix) || message.content.startsWith(this.client.config.prefix)) void this.client.commands.handle(message);
