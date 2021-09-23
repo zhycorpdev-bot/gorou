@@ -12,7 +12,7 @@ export class GuildSettingManager {
         this.repository = getMongoRepository(GuildSetting);
         for (const guild of [...this.client.guilds.cache.values()]) {
             const data = await this.get(guild.id);
-            const channel = await guild.channels.fetch(data.requesterChannel!);
+            const channel = await guild.channels.fetch(data.requesterChannel!).catch(() => null);
             if (channel?.isText()) {
                 const message = await channel.messages.fetch(data.requesterMessage!).catch(() => null);
                 if (message) {
