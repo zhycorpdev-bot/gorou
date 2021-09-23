@@ -1,5 +1,5 @@
 import { Snowflake } from "discord-api-types";
-import { getMongoRepository, MongoRepository } from "typeorm";
+import { FindOneOptions, getMongoRepository, MongoRepository } from "typeorm";
 import { GuildSetting } from "../entities/Guild";
 import { BotClient } from "../structures/BotClient";
 
@@ -25,9 +25,12 @@ export class GuildSettingManager {
         }
     }
 
-    public async get(guild: Snowflake): Promise<GuildSetting> {
-        const data = await this.repository.findOne({ guild }) ?? this.repository.create({ guild });
-        await this.repository.save(data);
+    public async get(guild: Snowflake, options?: FindOneOptions<GuildSetting>): Promise<GuildSetting> {
+        let data = await this.repository.findOne({ guild, ...options, cache: { id: `guilds_${guild}`, milliseconds: this.client.config.databaseCacheLifetime } });
+        if (!data) {
+            data = this.repository.create({ guild });
+            await this.repository.save(data);
+        }
         return data;
     }
 }

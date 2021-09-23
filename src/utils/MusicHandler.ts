@@ -55,7 +55,7 @@ export class MusicHandler {
                     content: `**__Queue list:__**${list.length > 1 ? `\n\nAnd **${this.player.queue.totalSize - list[0].length}** more...` : ""}\n${list.length ? list[0].reverse().join("\n") : "Join a voice channel and queue songs by name or url in here."}`
                 });
             } else {
-                const data = await this.client.databases.guilds.get(this.guild.id);
+                const data = await this.client.databases.guilds.get(this.guild.id, { select: ["prefix"] });
                 await this.playerMessage.edit({
                     allowedMentions: { parse: [] },
                     embeds: [

@@ -86,6 +86,7 @@ export class SetupCommand extends BaseCommand {
             ctx.guild!.music.playerMessage = msg;
             data.requesterMessage = msg.id;
         }
+        await this.client.connection.queryResultCache?.remove([`guilds_${ctx.guild!.id}`]);
         await this.client.databases.guilds.repository.save(data);
         return ctx.send({
             embeds: [createEmbed("info", `Set requester channel to: <#${data.requesterChannel!}>`)]
