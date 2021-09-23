@@ -2,6 +2,7 @@ import { BaseCommand } from "../../structures/BaseCommand";
 import { ColorResolvable, MessageEmbed } from "discord.js";
 import { DefineCommand } from "../../utils/decorators/DefineCommand";
 import { CommandContext } from "../../structures/CommandContext";
+import { createEmbed } from "../../utils/createEmbed";
 
 @DefineCommand({
     aliases: ["pong", "peng", "p", "pingpong"],
@@ -14,7 +15,14 @@ import { CommandContext } from "../../structures/CommandContext";
 })
 export class PingCommand extends BaseCommand {
     public async execute(ctx: CommandContext): Promise<any> {
-        if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
+        if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply(ctx.channel!.id === ctx.guild!.music.playerMessage?.channelId);
+        if (ctx.channel!.id === ctx.guild!.music.playerMessage?.channelId) {
+            await ctx.send({
+                embeds: [createEmbed("error", "You can't use this command here")],
+                ephemeral: true
+            });
+            return undefined;
+        }
         const before = Date.now();
         const msg = await ctx.send({ content: "🏓 Pinging..." }, "reply");
         const latency = Date.now() - before;

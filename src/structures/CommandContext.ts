@@ -15,9 +15,9 @@ export class CommandContext {
         return this;
     }
 
-    public async deferReply(): Promise<void> {
+    public async deferReply(ephemeral = false): Promise<void> {
         if (this.isInteraction()) {
-            return (this.context as CommandInteraction).deferReply();
+            return (this.context as CommandInteraction).deferReply({ ephemeral });
         }
         return Promise.resolve(undefined);
     }
