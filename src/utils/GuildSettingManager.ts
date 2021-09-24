@@ -17,7 +17,8 @@ export class GuildSettingManager {
                 const message = await channel.messages.fetch(data.requesterMessage!).catch(() => null);
                 if (message) {
                     this.client.logger.info(`Fetched ${(message.channel as TextChannel).name} [${message.channelId}] on ${message.guild!.name}`);
-                    guild.music.playerMessage = message;
+                    guild.music.playerMessage = message.id;
+                    guild.music.playerChannel = message.channelId;
                 } else {
                     this.client.logger.info(`Failed to fetch ${data.requesterChannel!} on ${data.guild}`);
                     data.requesterMessage = null;
