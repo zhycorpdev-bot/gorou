@@ -30,11 +30,14 @@ export class VoiceStateUpdateEvent extends BaseListener {
                         ]
                     }).then(async msg => {
                         if (music.oldVoiceStateUpdateMessage) {
-                            const old = await music.playerMessage?.channel.messages.fetch(music.oldVoiceStateUpdateMessage, { cache: false }).catch(() => null);
-                            if (old) old.delete().catch(() => null);
+                            const ch = music.guild.channels.cache.get(music.playerChannel);
+                            if (ch?.isText()) {
+                                const old = await ch.messages.fetch(music.oldVoiceStateUpdateMessage, { cache: false }).catch(() => null);
+                                if (old) old.delete().catch(() => null);
+                            }
                         }
                         music.oldMusicMessage = null; music.oldVoiceStateUpdateMessage = null;
-                        if (msg.channelId === music.playerMessage?.channelId) {
+                        if (msg.channelId === music.playerChannel) {
                             setTimeout(() => msg.delete().catch(e => this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e)), 5000);
                         }
                         newState.guild.music.reset();
