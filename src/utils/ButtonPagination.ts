@@ -62,7 +62,7 @@ export class ButtonPagination {
         });
 
         collector.on("end", async () => {
-            if (this.msg.guild?.music.playerMessage?.channelId === this.msg.channelId) {
+            if (this.msg.guild?.music.playerChannel === this.msg.channelId) {
                 await fetchedMsg.delete().catch(() => null);
             }
         });

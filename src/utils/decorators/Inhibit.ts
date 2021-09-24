@@ -16,7 +16,7 @@ export function inhibit<T extends (ctx: CommandContext, ...args: any[]) => Promi
                     const msg = await ctx.send({
                         embeds: [createEmbed("error", message, true)]
                     });
-                    if (msg.channelId === ctx.guild!.music.playerMessage?.channelId) {
+                    if (msg.channelId === ctx.guild!.music.playerChannel) {
                         setTimeout(() => msg.delete().catch(() => null), 5000);
                     }
                     return undefined;
