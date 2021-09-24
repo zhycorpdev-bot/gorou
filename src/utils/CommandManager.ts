@@ -53,20 +53,22 @@ export class CommandManager extends Collection<string, ICommandComponent> {
                                         this.client.logger.info(`Registered ${command.meta.name} to chat input context for global`);
                                     }
                                 }
-                                if (!allCmd.find(x => x.name === command.meta.name) && command.meta.slash) {
+                                if (command.meta.slash) {
                                     if (!command.meta.slash.name) Object.assign(command.meta.slash, { name: command.meta.name });
                                     if (!command.meta.slash.description) Object.assign(command.meta.slash, { description: command.meta.description });
-                                    if (this.client.config.isDev) {
-                                        for (const guild of this.client.config.devGuild) {
-                                            if (!this.client.config.registerDevSlash) continue;
-                                            const g = await this.client.guilds.fetch({ guild });
-                                            await g.commands.create(command.meta.slash as ApplicationCommandData)
-                                                .catch(() => this.client.logger.info(`Missing access on ${guild} [SLASH_COMMAND]`));
-                                            this.client.logger.info(`Registered ${command.meta.name} to slash command for ${guild}`);
+                                    if (!allCmd.find(x => x.name === command.meta.name)) {
+                                        if (this.client.config.isDev) {
+                                            for (const guild of this.client.config.devGuild) {
+                                                if (!this.client.config.registerDevSlash) continue;
+                                                const g = await this.client.guilds.fetch({ guild });
+                                                await g.commands.create(command.meta.slash as ApplicationCommandData)
+                                                    .catch(() => this.client.logger.info(`Missing access on ${guild} [SLASH_COMMAND]`));
+                                                this.client.logger.info(`Registered ${command.meta.name} to slash command for ${guild}`);
+                                            }
+                                        } else {
+                                            await this.client.application!.commands.create(command.meta.slash as ApplicationCommandData);
+                                            this.client.logger.info(`Registered ${command.meta.name} to slash command for global`);
                                         }
-                                    } else {
-                                        await this.client.application!.commands.create(command.meta.slash as ApplicationCommandData);
-                                        this.client.logger.info(`Registered ${command.meta.name} to slash command for global`);
                                     }
                                 }
                                 this.client.logger.info(`Command ${command.meta.name} from ${category} category is now loaded.`);
