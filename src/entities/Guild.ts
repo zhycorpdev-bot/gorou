@@ -1,5 +1,5 @@
 import { Snowflake } from "discord-api-types";
-import { Column, Entity, ObjectID, ObjectIdColumn } from "typeorm";
+import { Column, Entity, ObjectID, ObjectIdColumn, PrimaryColumn } from "typeorm";
 import { defaultPrefix } from "../config";
 
 @Entity({ name: "guilds" })
@@ -7,7 +7,7 @@ export class GuildSetting {
     @ObjectIdColumn()
     public _id!: ObjectID;
 
-    @Column("string")
+    @PrimaryColumn("string")
     public guild!: Snowflake;
 
     @Column("string")
