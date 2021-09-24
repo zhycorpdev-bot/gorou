@@ -48,7 +48,8 @@ export class PlayCommand extends BaseCommand {
     @isMemberVoiceChannelJoinable()
     @isSameVoiceChannel()
     public async execute(ctx: CommandContext): Promise<any> {
-        if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
+        const fromRequester = ctx.context.channelId === ctx.guild!.music.playerChannel;
+        if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply(fromRequester);
         if (ctx.guild!.music.playerMessage && ctx.guild!.music.playerChannel !== ctx.context.channelId) {
             return ctx.send({
                 embeds: [createEmbed("error", `This command is restricted to <#${ctx.guild!.music.playerChannel}>.`)]
@@ -56,13 +57,12 @@ export class PlayCommand extends BaseCommand {
         }
         const vc = ctx.member!.voice.channel;
         const query = ctx.args.join(" ") || ctx.options?.getString("query") || (ctx.additionalArgs.get("values") ? ctx.additionalArgs.get("values")[0] : undefined);
-        const fromRequester = ctx.context.channelId === ctx.guild!.music.playerChannel;
         if (!query) {
             const msg = await ctx.send({
                 embeds: [
                     createEmbed("error", "Please provide a valid query!", true)
                 ]
-            }, fromRequester ? "followUp" : "editReply");
+            }, "editReply");
             if (fromRequester) {
                 setTimeout(() => msg.delete().catch(() => null), 5000);
             }
@@ -74,7 +74,7 @@ export class PlayCommand extends BaseCommand {
                 embeds: [
                     createEmbed("error", "Only support source from youtube, soundcloud and spotify", true)
                 ]
-            }, fromRequester ? "followUp" : "editReply");
+            }, "editReply");
             if (fromRequester) {
                 setTimeout(() => msg.delete().catch(() => null), 5000);
             }
@@ -90,7 +90,7 @@ export class PlayCommand extends BaseCommand {
                 embeds: [
                     createEmbed("error", "Couldn't find any track", true)
                 ]
-            }, fromRequester ? "followUp" : "editReply");
+            }, "editReply");
             if (fromRequester) {
                 setTimeout(() => msg.delete().catch(() => null), 5000);
             }
@@ -103,7 +103,7 @@ export class PlayCommand extends BaseCommand {
                 embeds: [
                     createEmbed("info", `All tracks in playlist: **[${response.playlist!.name}](${query})** **[**\`${readableTime(response.playlist!.duration)}\`**]**, has been added to the queue!`)
                 ]
-            }, fromRequester ? "followUp" : "editReply");
+            }, "editReply");
             if (fromRequester) {
                 setTimeout(() => msg.delete().catch(() => null), 5000);
             }
@@ -111,10 +111,11 @@ export class PlayCommand extends BaseCommand {
             await ctx.guild!.music.player!.queue.add(response.tracks[0]);
             // Identify if the command is being runned by another command (select menu)
             if (!ctx.additionalArgs.get("values")) {
-                if (!fromRequester) {
-                    await ctx.send({
-                        embeds: [createEmbed("info", `✅ Track **[${response.tracks[0].title}](${response.tracks[0].uri})** has been added to the queue`).setThumbnail(response.tracks[0].thumbnail!)]
-                    });
+                const msg = await ctx.send({
+                    embeds: [createEmbed("info", `✅ Track **[${response.tracks[0].title}](${response.tracks[0].uri})** has been added to the queue`).setThumbnail(response.tracks[0].thumbnail!)]
+                });
+                if (fromRequester) {
+                    setTimeout(() => msg.delete().catch(() => null), 5000);
                 }
             }
         }
