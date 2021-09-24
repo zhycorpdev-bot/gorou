@@ -31,8 +31,8 @@ export class HelpCommand extends BaseCommand {
         .setColor("#00FF00");
 
     public async execute(ctx: CommandContext): Promise<any> {
-        if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply(ctx.channel!.id === ctx.guild!.music.playerMessage?.channelId);
-        if (ctx.channel!.id === ctx.guild!.music.playerMessage?.channelId) {
+        if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply(ctx.channel!.id === ctx.guild!.music.playerChannel);
+        if (ctx.channel!.id === ctx.guild!.music.playerChannel) {
             await ctx.send({
                 embeds: [createEmbed("error", "You can't use this command here")],
                 ephemeral: true

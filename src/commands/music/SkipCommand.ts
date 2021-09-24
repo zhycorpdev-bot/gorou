@@ -30,7 +30,7 @@ export class SkipCommand extends BaseCommand {
                         createEmbed("info", "You're already vote to skip the song.", true)
                     ]
                 });
-                if (music.playerMessage?.channelId === ctx.context.channelId) {
+                if (music.playerChannel === ctx.context.channelId) {
                     setTimeout(() => msg.delete().catch(() => null), 5000);
                 }
                 return undefined;
@@ -43,7 +43,7 @@ export class SkipCommand extends BaseCommand {
                         createEmbed("info", `Need more votes to skip the song! **[**\`${music.skipVotes.length}\`**/**\`${needed}\`**]**`, true)
                     ]
                 });
-                if (music.playerMessage?.channelId === ctx.context.channelId) {
+                if (music.playerChannel === ctx.context.channelId) {
                     setTimeout(() => msg.delete().catch(() => null), 5000);
                 }
                 return undefined;
@@ -54,7 +54,7 @@ export class SkipCommand extends BaseCommand {
                 createEmbed("info", `Skipped **[${music.player!.queue.current!.title}](${music.player!.queue.current!.uri!})**`, true)
             ]
         });
-        if (music.playerMessage?.channelId === ctx.context.channelId) {
+        if (music.playerChannel === ctx.context.channelId) {
             setTimeout(() => msg.delete().catch(() => null), 5000);
         }
         return music.player?.stop();

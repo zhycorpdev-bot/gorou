@@ -27,7 +27,7 @@ export class DaycoreCommand extends BaseCommand {
                 createEmbed("info", `${ctx.guild!.music.player!.filters.daycore ? "Enabled" : "Disabled"} daycore filter`, true)
             ]
         });
-        if (ctx.channel!.id === ctx.guild?.music.playerMessage?.channelId) {
+        if (ctx.channel!.id === ctx.guild!.music.playerChannel) {
             setTimeout(() => msg.delete().catch(() => null), 5000);
         }
     }

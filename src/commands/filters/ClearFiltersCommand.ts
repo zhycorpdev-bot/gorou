@@ -27,7 +27,7 @@ export class ClearFiltersCommand extends BaseCommand {
                 createEmbed("info", "Cleared applied filters", true)
             ]
         });
-        if (ctx.channel!.id === ctx.guild?.music.playerMessage?.channelId) {
+        if (ctx.channel!.id === ctx.guild!.music.playerChannel) {
             setTimeout(() => msg.delete().catch(() => null), 5000);
         }
     }

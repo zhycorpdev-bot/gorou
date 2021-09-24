@@ -32,7 +32,7 @@ export class VolumeCommand extends BaseCommand {
         let volume = Number(ctx.args[0] || ctx.options?.getInteger("volume"));
         if (isNaN(volume)) {
             const msg = await ctx.send({ embeds: [createEmbed("info", `📶 The current volume is \`${music.player!.volume.toString()}\``)] });
-            if (ctx.channel!.id === ctx.guild?.music.playerMessage?.channelId) {
+            if (ctx.channel!.id === ctx.guild!.music.playerChannel) {
                 setTimeout(() => msg.delete().catch(() => null), 5000);
             }
             return undefined;
@@ -40,7 +40,7 @@ export class VolumeCommand extends BaseCommand {
         if (volume < 0) volume = 0;
         if (volume === 0) {
             const msg = await ctx.send({ embeds: [createEmbed("warn", "❗ Please pause the music player instead of setting the volume to \`0\`")] });
-            if (ctx.channel!.id === ctx.guild?.music.playerMessage?.channelId) {
+            if (ctx.channel!.id === ctx.guild!.music.playerChannel) {
                 setTimeout(() => msg.delete().catch(() => null), 5000);
             }
             return undefined;
@@ -49,7 +49,7 @@ export class VolumeCommand extends BaseCommand {
             const msg = await ctx.send({
                 embeds: [createEmbed("warn", `❗ I can't set the volume above \`100\``)]
             });
-            if (ctx.channel!.id === ctx.guild?.music.playerMessage?.channelId) {
+            if (ctx.channel!.id === ctx.guild!.music.playerChannel) {
                 setTimeout(() => msg.delete().catch(() => null), 5000);
             }
             return undefined;
@@ -57,7 +57,7 @@ export class VolumeCommand extends BaseCommand {
 
         music.player?.setVolume(volume);
         const m = await ctx.send({ embeds: [createEmbed("info", `📶 Volume set to \`${volume}\``)] });
-        if (ctx.channel!.id === ctx.guild?.music.playerMessage?.channelId) {
+        if (ctx.channel!.id === ctx.guild!.music.playerChannel) {
             setTimeout(() => m.delete().catch(() => null), 5000);
         }
         return music.updatePlayerEmbed();

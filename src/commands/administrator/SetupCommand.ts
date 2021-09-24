@@ -83,7 +83,8 @@ export class SetupCommand extends BaseCommand {
                         )
                 ]
             });
-            ctx.guild!.music.playerMessage = msg;
+            ctx.guild!.music.playerMessage = msg.id;
+            ctx.guild!.music.playerChannel = msg.channelId;
             data.requesterMessage = msg.id;
         }
         await this.client.databases.guilds.repository.save(data);

@@ -27,7 +27,7 @@ export class ShuffleCommand extends BaseCommand {
                 createEmbed("info", "Shuffled current queue", true)
             ]
         });
-        if (ctx.channel!.id === ctx.guild?.music.playerMessage?.channelId) {
+        if (ctx.channel!.id === ctx.guild!.music.playerChannel) {
             setTimeout(() => msg.delete().catch(() => null), 5000);
         }
         await ctx.guild?.music.updatePlayerEmbed();

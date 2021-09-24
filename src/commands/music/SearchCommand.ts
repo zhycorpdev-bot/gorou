@@ -49,9 +49,9 @@ export class SearchCommand extends BaseCommand {
     @isSameVoiceChannel()
     public async execute(ctx: CommandContext): Promise<any> {
         if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
-        if (ctx.guild!.music.playerMessage && ctx.guild!.music.playerMessage.channelId !== ctx.context.channelId) {
+        if (ctx.guild!.music.playerMessage && ctx.guild!.music.playerChannel !== ctx.context.channelId) {
             return ctx.send({
-                embeds: [createEmbed("error", `This command is restricted to <#${ctx.guild!.music.playerMessage.channelId}>.`)]
+                embeds: [createEmbed("error", `This command is restricted to <#${ctx.guild!.music.playerChannel}>.`)]
             });
         }
         const { music } = ctx.guild!;
@@ -66,7 +66,7 @@ export class SearchCommand extends BaseCommand {
             if (msg !== undefined) {
                 const selection = msg.components[0].components.find(x => x.type === "SELECT_MENU");
                 selection!.setDisabled(true);
-                if (msg.channelId === music.playerMessage?.channelId) await msg.delete().catch(() => null);
+                if (msg.channelId === music.playerChannel) await msg.delete().catch(() => null);
                 else await msg.edit({ components: [new MessageActionRow().addComponents(selection!)] });
             }
             const message = await ctx.send({
@@ -74,7 +74,7 @@ export class SearchCommand extends BaseCommand {
                     createEmbed("success", `Added \`${tracks.length}\` tracks to queue`, true)
                 ]
             });
-            if (ctx.context.channelId === music.playerMessage?.channelId) {
+            if (ctx.context.channelId === music.playerChannel) {
                 setTimeout(() => message.delete().catch(() => null), 5000);
             }
             return undefined;
@@ -86,7 +86,7 @@ export class SearchCommand extends BaseCommand {
                     createEmbed("error", "Please provide a valid query!", true)
                 ]
             });
-            if (music.playerMessage?.channelId === ctx.context.channelId) {
+            if (music.playerChannel === ctx.context.channelId) {
                 setTimeout(() => msg.delete().catch(() => null), 5000);
             }
             return undefined;
@@ -105,7 +105,7 @@ export class SearchCommand extends BaseCommand {
             const msg = await ctx.send({
                 embeds: [createEmbed("error", `Sorry, i can't find anything`, true)]
             });
-            if (music.playerMessage?.channelId === ctx.context.channelId) {
+            if (music.playerChannel === ctx.context.channelId) {
                 setTimeout(() => msg.delete().catch(() => null), 5000);
             }
             return undefined;

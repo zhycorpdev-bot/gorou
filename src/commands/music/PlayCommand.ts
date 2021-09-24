@@ -49,14 +49,14 @@ export class PlayCommand extends BaseCommand {
     @isSameVoiceChannel()
     public async execute(ctx: CommandContext): Promise<any> {
         if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
-        if (ctx.guild!.music.playerMessage && ctx.guild!.music.playerMessage.channelId !== ctx.context.channelId) {
+        if (ctx.guild!.music.playerMessage && ctx.guild!.music.playerChannel !== ctx.context.channelId) {
             return ctx.send({
-                embeds: [createEmbed("error", `This command is restricted to <#${ctx.guild!.music.playerMessage.channelId}>.`)]
+                embeds: [createEmbed("error", `This command is restricted to <#${ctx.guild!.music.playerChannel}>.`)]
             });
         }
         const vc = ctx.member!.voice.channel;
         const query = ctx.args.join(" ") || ctx.options?.getString("query") || (ctx.additionalArgs.get("values") ? ctx.additionalArgs.get("values")[0] : undefined);
-        const fromRequester = ctx.context.channelId === ctx.guild!.music.playerMessage?.channelId;
+        const fromRequester = ctx.context.channelId === ctx.guild!.music.playerChannel;
         if (!query) {
             const msg = await ctx.send({
                 embeds: [

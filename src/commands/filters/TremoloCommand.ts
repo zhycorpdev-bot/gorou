@@ -27,7 +27,7 @@ export class TremoloCommand extends BaseCommand {
                 createEmbed("info", `${ctx.guild!.music.player!.filters.tremolo ? "Enabled" : "Disabled"} tremolo filter`, true)
             ]
         });
-        if (ctx.channel!.id === ctx.guild?.music.playerMessage?.channelId) {
+        if (ctx.channel!.id === ctx.guild!.music.playerChannel) {
             setTimeout(() => msg.delete().catch(() => null), 5000);
         }
     }

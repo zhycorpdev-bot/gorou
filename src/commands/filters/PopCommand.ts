@@ -27,7 +27,7 @@ export class PopCommand extends BaseCommand {
                 createEmbed("info", `${ctx.guild!.music.player!.filters.pop ? "Enabled" : "Disabled"} pop filter`, true)
             ]
         });
-        if (ctx.channel!.id === ctx.guild?.music.playerMessage?.channelId) {
+        if (ctx.channel!.id === ctx.guild!.music.playerChannel) {
             setTimeout(() => msg.delete().catch(() => null), 5000);
         }
     }

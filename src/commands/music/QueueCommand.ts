@@ -38,7 +38,7 @@ export class QueueCommand extends BaseCommand {
             });
             await pagination.start();
         } else {
-            const fromRequester = ctx.channel!.id === ctx.guild!.music.playerMessage?.channelId;
+            const fromRequester = ctx.channel!.id === ctx.guild!.music.playerChannel;
             if (fromRequester) {
                 setTimeout(() => msg.delete().catch(() => null), 5000);
             }

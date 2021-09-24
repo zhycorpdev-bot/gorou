@@ -27,7 +27,7 @@ export class TrebblebassCommand extends BaseCommand {
                 createEmbed("info", `${ctx.guild!.music.player!.filters.trebblebass ? "Enabled" : "Disabled"} trebblebass filter`, true)
             ]
         });
-        if (ctx.channel!.id === ctx.guild?.music.playerMessage?.channelId) {
+        if (ctx.channel!.id === ctx.guild!.music.playerChannel) {
             setTimeout(() => msg.delete().catch(() => null), 5000);
         }
     }
