@@ -49,10 +49,10 @@ export class InteractionCreateEvent extends BaseListener {
         if (interaction.isButton()) {
             const src = this.decode(interaction.customId || "");
             if (src.startsWith("player")) {
-                await interaction.deferReply({ ephemeral: true });
                 const action: "resumepause"|"stop"|"skip"|"loop"|"shuffle" = src.split("_")[1] as any;
                 const { music } = interaction.guild!;
                 if (!music.player) {
+                    await interaction.deferReply({ ephemeral: true });
                     const msg = await interaction.followUp({
                         ephemeral: true,
                         embeds: [createEmbed("error", "I'm not playing anything right now", true)]
@@ -63,6 +63,7 @@ export class InteractionCreateEvent extends BaseListener {
                 const member = interaction.guild!.members.cache.get(interaction.user.id);
                 const vc = interaction.guild!.channels.cache.get(member!.voice.channelId!) as VoiceChannel|undefined;
                 if (!vc) {
+                    await interaction.deferReply({ ephemeral: true });
                     const msg = await interaction.followUp({
                         ephemeral: true,
                         embeds: [createEmbed("error", "Please join a voice channel", true)]
@@ -71,6 +72,7 @@ export class InteractionCreateEvent extends BaseListener {
                     return undefined;
                 }
                 if (!vc.permissionsFor(interaction.guild!.me!)!.has(["CONNECT", "SPEAK"])) {
+                    await interaction.deferReply({ ephemeral: true });
                     const msg = await interaction.followUp({
                         ephemeral: true,
                         embeds: [createEmbed("error", "I'm missing `CONNECT` or `SPEAK` permission in your voice!", true)]
@@ -79,6 +81,7 @@ export class InteractionCreateEvent extends BaseListener {
                     return undefined;
                 }
                 if (!vc.joinable) {
+                    await interaction.deferReply({ ephemeral: true });
                     const msg = await interaction.followUp({
                         ephemeral: true,
                         embeds: [createEmbed("error", "I can't join your voice channel", true)]
@@ -87,6 +90,7 @@ export class InteractionCreateEvent extends BaseListener {
                     return undefined;
                 }
                 if (interaction.guild!.me!.voice.channelId && interaction.guild!.me!.voice.channelId !== member!.voice.channelId) {
+                    await interaction.deferReply({ ephemeral: true });
                     const msg = await interaction.followUp({
                         ephemeral: true,
                         embeds: [createEmbed("error", `I'm already used on ${interaction.guild!.me!.voice.channel!.toString()}`, true)]
@@ -97,12 +101,10 @@ export class InteractionCreateEvent extends BaseListener {
                 this.client.logger.info(`${this.client.shard ? `[Shard #${this.client.shard.ids[0]}]` : ""} ${interaction.user.tag} [${interaction.user.id}] executed "${action}" on ${interaction.guild!.name} [${interaction.guildId}]`);
                 if (action === "resumepause") {
                     await music.player.pause(!music.player.paused);
-                    void interaction.followUp({
-                        ephemeral: true,
-                        embeds: [createEmbed("success", music.player.paused ? "Paused current music" : "Resumed current music", true)]
-                    }).then(x => setTimeout(() => this.client.util.convertToMessage(x).delete().catch(() => null), 5000));
+                    await interaction.deferUpdate();
                     await music.updatePlayerEmbed();
                 } else if (action === "loop") {
+                    await interaction.deferReply({ ephemeral: true });
                     const loopModes = {
                         [LoopType.ONE]: "track",
                         [LoopType.ALL]: "queue",
@@ -113,14 +115,9 @@ export class InteractionCreateEvent extends BaseListener {
                 } else if (action === "stop") {
                     await music.player!.destroy();
                     await music.reset();
-                    const msg = await interaction.followUp({
-                        ephemeral: true,
-                        embeds: [
-                            createEmbed("info", "Stopped current queue", true)
-                        ]
-                    });
-                    setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
+                    await interaction.deferUpdate();
                 } else {
+                    await interaction.deferReply({ ephemeral: true });
                     const cmd = this.client.commands.find(x => x.meta.name === action);
                     if (cmd) void cmd.execute(context);
                 }
