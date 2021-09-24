@@ -12,7 +12,9 @@ export class GuildSettingManager {
         this.repository = getMongoRepository(GuildSetting);
         for (const guild of [...this.client.guilds.cache.values()]) {
             const data = await this.get(guild.id);
-            const channel = await guild.channels.fetch(data.requesterChannel!).catch(() => null);
+            if (!data.requesterChannel) continue;
+            await guild.channels.fetch().catch(() => undefined);
+            const channel = guild.channels.cache.get(data.requesterChannel);
             if (channel?.isText()) {
                 const message = await channel.messages.fetch(data.requesterMessage!).catch(() => null);
                 if (message) {
@@ -20,7 +22,7 @@ export class GuildSettingManager {
                     guild.music.playerMessage = message.id;
                     guild.music.playerChannel = message.channelId;
                 } else {
-                    this.client.logger.info(`Failed to fetch ${data.requesterChannel!} on ${data.guild}`);
+                    this.client.logger.info(`Failed to fetch ${data.requesterChannel} on ${guild.name}`);
                     data.requesterMessage = null;
                     data.requesterChannel = null;
                     await this.repository.save(data);
