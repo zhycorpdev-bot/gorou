@@ -12,7 +12,7 @@ export class MessageCreateEvent extends BaseListener {
             if (message.deletable && message.author.id !== this.client.user!.id) await message.delete().catch(() => null);
             if ((!message.content.startsWith(data.prefix) || !message.content.startsWith(this.client.config.prefix)) && !message.author.bot) {
                 this.client.logger.info(`${message.author.tag} [${message.author.id}] is using play command on ${message.guild!.name}`);
-                void this.client.commands.get("play")!.execute(new CommandContext(message, message.content.split(/ +/g).slice(1)).setAdditionalArgs("fromRequesterChannel", true));
+                void this.client.commands.get("play")!.execute(new CommandContext(message, message.content.split(/ +/g)).setAdditionalArgs("fromRequesterChannel", true));
             }
         }
         if (message.author.bot) return;

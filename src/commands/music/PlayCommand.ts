@@ -110,10 +110,16 @@ export class PlayCommand extends BaseCommand {
         } else {
             await ctx.guild!.music.player!.queue.add(response.tracks[0]);
             // Identify if the command is being runned by another command (select menu)
-            if (!ctx.additionalArgs.get("values") && !ctx.additionalArgs.get("fromRequesterChannel")) {
-                await ctx.send({
-                    embeds: [createEmbed("info", `✅ Track **[${response.tracks[0].title}](${response.tracks[0].uri})** has been added to the queue`).setThumbnail(response.tracks[0].thumbnail!)]
-                });
+            if (!ctx.additionalArgs.get("values") && (!ctx.additionalArgs.get("fromRequesterChannel"))) {
+                if (fromRequester && ctx.isInteraction()) {
+                    await ctx.send({
+                        embeds: [createEmbed("info", `✅ Track **[${response.tracks[0].title}](${response.tracks[0].uri})** has been added to the queue`).setThumbnail(response.tracks[0].thumbnail!)]
+                    });
+                } else if (!fromRequester) {
+                    await ctx.send({
+                        embeds: [createEmbed("info", `✅ Track **[${response.tracks[0].title}](${response.tracks[0].uri})** has been added to the queue`).setThumbnail(response.tracks[0].thumbnail!)]
+                    });
+                }
             }
         }
         await ctx.guild!.music.updatePlayerEmbed();
