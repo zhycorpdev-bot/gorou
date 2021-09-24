@@ -7,8 +7,8 @@ import { CommandContext } from "../structures/CommandContext";
 export class MessageCreateEvent extends BaseListener {
     public async execute(message: Message): Promise<any> {
         if (message.channel.type === "DM" || !this.client.commands.isReady) return message;
-        const data = await this.client.databases.guilds.get(message.guild!.id, { select: ["prefix", "requesterChannel"] });
-        if (message.channelId === data.requesterChannel) {
+        const data = await this.client.databases.guilds.get(message.guild!.id, { select: ["prefix"] });
+        if (message.channelId === message.guild!.music.playerChannel) {
             if (message.deletable && message.author.id !== this.client.user!.id) await message.delete().catch(() => null);
             if ((!message.content.startsWith(data.prefix) || !message.content.startsWith(this.client.config.prefix)) && !message.author.bot) {
                 this.client.logger.info(`${message.author.tag} [${message.author.id}] is using play command on ${message.guild!.name}`);
@@ -18,7 +18,7 @@ export class MessageCreateEvent extends BaseListener {
         if (message.author.bot) return;
         if (message.content.startsWith(data.prefix) || message.content.startsWith(this.client.config.prefix)) void this.client.commands.handle(message);
 
-        if ((await this.getUserFromMention(message.content))?.id === this.client.user?.id && message.channelId !== message.guild!.music.playerMessage?.channelId) {
+        if ((await this.getUserFromMention(message.content))?.id === this.client.user?.id && message.channelId !== message.guild!.music.playerChannel) {
             message.channel.send({
                 embeds: [
                     new MessageEmbed()
