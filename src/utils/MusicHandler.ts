@@ -1,4 +1,4 @@
-import { Guild, TextChannel, User, VoiceChannel, GuildMember, Snowflake, Message } from "discord.js";
+import { Guild, TextChannel, User, VoiceChannel, GuildMember, Snowflake } from "discord.js";
 import { BotClient } from "../structures/BotClient";
 import { readableTime } from "./readableTime";
 import { Node, Player, TrackUtils } from "erela.js";
@@ -18,7 +18,8 @@ export class MusicHandler {
     public skipVotes: User[] = [];
     public timeout?: NodeJS.Timeout;
     public updateInterval?: NodeJS.Timer;
-    public playerMessage!: Message|undefined;
+    public playerMessage!: Snowflake;
+    public playerChannel!: Snowflake;
     private _lastMusicMessageID: Snowflake | null = null;
     private _lastVoiceStateUpdateMessageID: Snowflake | null = null;
     private _lastExceptionMessageID: Snowflake | null = null;
@@ -49,14 +50,14 @@ export class MusicHandler {
                     progbar[Math.round(percent)] = "🔘";
                     embed.setDescription(`${this.player.paused ? "⏸" : "▶️"} ${progbar.join("")} **[\`${readableTime(this.player.position)}\` - \`${readableTime(this.player.queue.current!.duration!)}\`]** by <@${String(this.player.queue.current!.requester)}>`);
                 }
-                await this.playerMessage.edit({
+                await (await this.client.util.getPlayerMessage(this.guild))?.edit({
                     allowedMentions: { parse: [] },
                     embeds: [embed],
                     content: `**__Queue list:__**${list.length > 1 ? `\n\nAnd **${this.player.queue.totalSize - list[0].length}** more...` : ""}\n${list.length ? list[0].reverse().join("\n") : "Join a voice channel and queue songs by name or url in here."}`
                 });
             } else {
                 const data = await this.client.databases.guilds.get(this.guild.id, { select: ["prefix"] });
-                await this.playerMessage.edit({
+                await (await this.client.util.getPlayerMessage(this.guild))?.edit({
                     allowedMentions: { parse: [] },
                     embeds: [
                         createEmbed("info")
