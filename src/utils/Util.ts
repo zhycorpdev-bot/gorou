@@ -1,4 +1,4 @@
-import { GuildMember, Message } from "discord.js";
+import { Guild, GuildMember, Message } from "discord.js";
 import { BotClient } from "../structures/BotClient";
 import { createEmbed } from "./createEmbed";
 import { formatMS } from "./formatMS";
@@ -37,10 +37,13 @@ export class Util {
                         ]
                     }).catch(e => { this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e); return null; })
                         .then(async msg => {
-                            if (msg?.channelId === music.playerMessage?.channelId) {
-                                const old = await music.playerMessage?.channel.messages.fetch(music.oldVoiceStateUpdateMessage!, { cache: false }).catch(() => null);
-                                if (old) old.delete().catch(() => null);
-                                setTimeout(() => msg?.delete().catch(e => this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e)), 5000);
+                            if (msg?.channelId === music.playerChannel) {
+                                const ch = music.guild.channels.cache.get(music.playerChannel);
+                                if (ch?.isText()) {
+                                    const old = await ch.messages.fetch(music.oldVoiceStateUpdateMessage!, { cache: false }).catch(() => null);
+                                    if (old) old.delete().catch(() => null);
+                                }
+                                setTimeout(() => msg.delete().catch(e => this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e)), 5000);
                             }
                             await music.reset();
                             music.oldVoiceStateUpdateMessage = null;
@@ -68,7 +71,7 @@ export class Util {
                 clearTimeout(music.timeout!);
                 music.timeout = undefined;
                 const song = music.player!.queue.current;
-                if (textChannel?.isText() && textChannel.id !== music.playerMessage?.channelId) {
+                if (textChannel?.isText() && textChannel.id !== music.playerChannel) {
                     const embed = createEmbed("info", `Someone joins the voice channel. Enjoy the music 🎶\nNow Playing: **[${song!.title}](${(song as any).url})**`)
                         .setTitle("▶ Queue resumed");
                     // @ts-expect-error-next-line
@@ -83,5 +86,14 @@ export class Util {
                 music.player?.pause(false);
             } catch (e) { this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e); }
         }
+    }
+
+    public async getPlayerMessage(guild: Guild): Promise<Message|null> {
+        const channel = this.client.channels.cache.get(guild.music.playerChannel);
+        if (channel?.isText()) {
+            const msg = await channel.messages.fetch(guild.music.playerMessage).catch(() => null);
+            return msg;
+        }
+        return null;
     }
 }
