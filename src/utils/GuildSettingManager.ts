@@ -32,9 +32,10 @@ export class GuildSettingManager {
     }
 
     public async get(guild: Snowflake, options?: FindOneOptions<GuildSetting>): Promise<GuildSetting> {
-        let data = await this.repository.findOne({ guild, ...options, cache: { id: `guilds_${guild}`, milliseconds: this.client.config.databaseCacheLifetime } });
+        let data = await this.repository.findOne({ guild, ...options });
         if (!data) {
-            data = this.repository.create({ guild });
+            data = this.repository.create();
+            data.guild = guild;
             await this.repository.save(data);
         }
         return data;
