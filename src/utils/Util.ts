@@ -1,12 +1,85 @@
-import { Guild, GuildMember, Message } from "discord.js";
+import { Channel, Guild, GuildMember, Message, User, Collection, Snowflake } from "discord.js";
 import { BotClient } from "../structures/BotClient";
 import { createEmbed } from "./createEmbed";
 import { formatMS } from "./formatMS";
 import { MusicHandler } from "./MusicHandler";
 import { APIMessage } from "discord-api-types/v9";
+import { resolve } from "path/posix";
 
 export class Util {
     public constructor(public client: BotClient) {}
+
+    public bytesToSize(bytes: number): string {
+        if (isNaN(bytes) && bytes !== 0) throw new Error(`[bytesToSize] (bytes) Error: bytes is not a Number/Integer, received: ${typeof bytes}`);
+        const sizes: string[] = ["B", "KiB", "MiB", "GiB", "TiB", "PiB"];
+        if (bytes < 2 && bytes > 0) return `${bytes} Byte`;
+        const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)).toString());
+        if (i === 0) return `${bytes} ${sizes[i]}`;
+        if (!sizes[i]) return `${bytes} ${sizes[sizes.length - 1]}`;
+        return `${Number(bytes / Math.pow(1024, i)).toFixed(1)} ${sizes[i]}`;
+    }
+
+    public getPackageJSON(pkgName = process.cwd()): Promise<any> {
+        if (process.platform === "win32") pkgName = pkgName.replace("/", "\\");
+        const resolvedPath = resolve(require.resolve(pkgName));
+        return import(resolve(resolvedPath.split(pkgName)[0], pkgName, "package.json"));
+    }
+
+    public async getResource<T extends keyof getResourceResourceType>(type: T | keyof getResourceResourceType): Promise<getResourceReturnType<T>> {
+        // Functions how to get the resources
+        const resourcesFunctions: Record<keyof getResourceResourceType, (client: BotClient) => Collection<any, any>> = {
+            users: (client: BotClient) => client.users.cache,
+            channels: (client: BotClient) => client.channels.cache,
+            guilds: (client: BotClient) => client.guilds.cache,
+            queues: (client: BotClient) => client._music.cache.mapValues(v => v)
+        };
+
+        /*
+            Why do we convert these functions to string? because we can't pass a function to a broadcastEval context, so we convert them to string.
+            Then in the broadcastEval context, we convert them again to function using eval, then execute that function
+        */
+        const doBroadcastEval = (): any => this.client.shard?.broadcastEval(
+            // eslint-disable-next-line no-eval
+            (client, ctx) => eval(ctx.resourcesFunctions[ctx.type])(client),
+            { context: { type, resourcesFunctions: Object.fromEntries(Object.entries(resourcesFunctions).map(o => [o[0], o[1].toString()])) } }
+        );
+
+        const evalResult = await doBroadcastEval() ?? resourcesFunctions[type](this.client);
+
+        let result: getResourceReturnType<T>;
+        if (this.client.shard) {
+            result = new Collection<Snowflake, getResourceResourceType[T]>(
+                await this.mergeBroadcastEval<getResourceResourceType[T]>(evalResult as (getResourceResourceType[T])[][])
+            );
+        } else { result = evalResult as getResourceReturnType<T>; }
+        return result;
+    }
+
+    public async getGuildsCount(): Promise<number> {
+        return (await this.getResource("guilds")).size;
+    }
+
+    public async getChannelsCount(filter = true): Promise<number> {
+        const channels = await this.getResource("channels");
+
+        if (filter) return channels.filter(c => c.type !== "GUILD_CATEGORY" && c.type !== "DM").size;
+        return channels.size;
+    }
+
+    public async getUsersCount(filter = true): Promise<number> {
+        const users = await this.getResource("users");
+
+        if (filter) return users.filter(u => u.id !== this.client.user!.id).size;
+        return users.size;
+    }
+
+    public async getTotalPlaying(): Promise<number> {
+        return (await this.getResource("queues")).filter(q => q.player?.playing === true).size;
+    }
+
+    public mergeBroadcastEval<T>(broadcastEval: T[][]): Iterable<[Snowflake, T]> {
+        return broadcastEval.reduce((p, c) => [...p, ...c]) as Iterable<[Snowflake, T]>;
+    }
 
     public convertToMessage(msg: APIMessage|Message): Message {
         if (!(msg instanceof Message)) {
@@ -97,3 +170,11 @@ export class Util {
         return null;
     }
 }
+
+interface getResourceResourceType {
+    users: User;
+    channels: Channel;
+    guilds: Guild;
+    queues: MusicHandler;
+}
+type getResourceReturnType<T extends keyof getResourceResourceType> = Collection<Snowflake, getResourceResourceType[T]>;
