@@ -15,6 +15,7 @@ import Filters from "erela.js-filter";
 import { Util } from "../utils/Util";
 import { GuildSettingManager } from "../utils/GuildSettingManager";
 import { Connection, createConnection } from "typeorm";
+import { GuildSetting } from "../entities/Guild";
 
 export class BotClient extends Client {
     public readonly config = config;
@@ -55,7 +56,7 @@ export class BotClient extends Client {
                     duration: this.config.databaseCacheLifetime
                 },
                 database: this.config.databaseName,
-                entities: [`${resolve(__dirname, "..", "entities")}/**/*.ts`, `${resolve(__dirname, "..", "entities")}/**/*.js`],
+                entities: [GuildSetting],
                 logging: this.config.isDev ? "all" : ["info"],
                 type: "mongodb",
                 url: process.env.DATABASE!,
