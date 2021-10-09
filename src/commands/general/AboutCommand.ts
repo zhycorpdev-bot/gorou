@@ -15,7 +15,14 @@ import { formatMS } from "../../utils/formatMS";
 })
 export class AboutCommand extends BaseCommand {
     public async execute(ctx: CommandContext): Promise<void> {
-        if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
+        if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply(ctx.channel!.id === ctx.guild!.music.playerChannel);
+        if (ctx.channel!.id === ctx.guild!.music.playerChannel) {
+            await ctx.send({
+                embeds: [createEmbed("error", "You can't use this command here")],
+                ephemeral: true
+            });
+            return undefined;
+        }
         ctx.send({
             embeds: [
                 createEmbed("info", `
