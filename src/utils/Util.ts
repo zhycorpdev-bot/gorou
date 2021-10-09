@@ -83,8 +83,8 @@ export class Util {
 
     public convertToMessage(msg: APIMessage|Message): Message {
         if (!(msg instanceof Message)) {
-            const newMsg = new Message(this.client as any, msg);
             // @ts-expect-error-next-line
+            const newMsg = new Message(this.client, msg);
             newMsg._patch(msg);
             return newMsg;
         }
