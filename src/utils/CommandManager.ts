@@ -93,8 +93,8 @@ export class CommandManager extends Collection<string, ICommandComponent> {
     }
 
     // eslint-disable-next-line @typescript-eslint/require-await
-    public async handle(message: Message): Promise<any> {
-        const args = message.content.substring(this.client.config.prefix.length).trim().split(/ +/);
+    public async handle(message: Message, prefix: string): Promise<any> {
+        const args = message.content.substring(prefix.length).trim().split(/ +/);
         const cmd = args.shift()?.toLowerCase();
         const command = this.get(cmd!) ?? this.get(this.aliases.get(cmd!)!);
         if (!command || command.meta.disable) return undefined;
