@@ -98,6 +98,19 @@ export class InteractionCreateEvent extends BaseListener {
                     setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
                     return undefined;
                 }
+                const data = await this.client.databases.guilds.get(interaction.guild!.id);
+                if (data.dj_only && data.dj_role) {
+                    const djRole = interaction.guild!.roles.resolve(data.dj_role);
+                    if (djRole && !member?.roles.cache.has(djRole.id)) {
+                        await interaction.deferReply({ ephemeral: true });
+                        const msg = await interaction.followUp({
+                            ephemeral: true,
+                            embeds: [createEmbed("error", `Sorry, but my commands are restricted only for those who has ${djRole.name} role`, true)]
+                        });
+                        setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
+                        return undefined;
+                    }
+                }
                 this.client.logger.info(`${this.client.shard ? `[Shard #${this.client.shard.ids[0]}]` : ""} ${interaction.user.tag} [${interaction.user.id}] executed "${action}" on ${interaction.guild!.name} [${interaction.guildId}]`);
                 if (action === "resumepause") {
                     await music.player.pause(!music.player.paused);

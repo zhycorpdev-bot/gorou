@@ -32,7 +32,7 @@ export class MusicHandler {
             [LoopType.NONE]: "off"
         };
         if (this.playerMessage) {
-            if (this.player?.queue.totalSize) {
+            if (this.player?.queue && this.player.queue.totalSize) {
                 const list = chunk(this.player.queue.map((x, i) => `${++i}. ${x.author!} - ${x.title} [${readableTime(x.duration!)}] ~ <@${x.requester as any}>`), 10);
                 const currentSong = this.player.queue.current!;
                 // @ts-expect-error-next-line
@@ -86,6 +86,8 @@ export class MusicHandler {
     public async play(): Promise<any> {
         this.skipVotes = [];
         await this.player!.play();
+        const { default_volume: defaultVolume } = await this.client.databases.guilds.get(this.guild.id, { select: ["default_volume"] });
+        await this.player!.setVolume(defaultVolume);
     }
 
     public async join(vc: VoiceChannel|string, channel?: TextChannel): Promise<void> {
@@ -188,7 +190,6 @@ export class MusicHandler {
         if (this._lastVoiceStateUpdateMessageID !== null) {
             const textChannel = this.client.channels.cache.get(String(this.player?.textChannel)) as TextChannel|null;
             if (textChannel?.isText()) {
-                console.log(id);
                 textChannel.messages.fetch(this._lastVoiceStateUpdateMessageID, { cache: false })
                     .then(m => m.delete())
                     .catch(e => this.client.logger.error("DELETE_OLD_VOICE_STATE_UPDATE_MESSAGE_ERR:", e));
