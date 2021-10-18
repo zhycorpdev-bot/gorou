@@ -4,7 +4,7 @@ import { BaseCommand } from "../../structures/BaseCommand";
 import { CommandContext } from "../../structures/CommandContext";
 import { createEmbed } from "../../utils/createEmbed";
 import { DefineCommand } from "../../utils/decorators/DefineCommand";
-import { isMemberInVoiceChannel, isMemberVoiceChannelJoinable, isSameVoiceChannel } from "../../utils/decorators/MusicHelpers";
+import { isMemberDJ, isMemberInVoiceChannel, isMemberVoiceChannelJoinable, isSameVoiceChannel } from "../../utils/decorators/MusicHelpers";
 import { parseURL } from "../../utils/parseURL";
 import { readableTime } from "../../utils/readableTime";
 
@@ -47,6 +47,7 @@ export class PlayCommand extends BaseCommand {
     @isMemberInVoiceChannel()
     @isMemberVoiceChannelJoinable()
     @isSameVoiceChannel()
+    @isMemberDJ()
     public async execute(ctx: CommandContext): Promise<any> {
         const fromRequester = ctx.context.channelId === ctx.guild!.music.playerChannel;
         if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply(fromRequester);

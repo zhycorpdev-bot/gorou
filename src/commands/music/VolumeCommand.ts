@@ -2,7 +2,7 @@ import { BaseCommand } from "../../structures/BaseCommand";
 import { CommandContext } from "../../structures/CommandContext";
 import { createEmbed } from "../../utils/createEmbed";
 import { DefineCommand } from "../../utils/decorators/DefineCommand";
-import { isMemberInVoiceChannel, isMemberVoiceChannelJoinable, isMusicPlaying, isSameVoiceChannel } from "../../utils/decorators/MusicHelpers";
+import { isMemberDJ, isMemberInVoiceChannel, isMemberVoiceChannelJoinable, isMusicPlaying, isSameVoiceChannel } from "../../utils/decorators/MusicHelpers";
 
 @DefineCommand({
     aliases: [],
@@ -26,6 +26,7 @@ export class VolumeCommand extends BaseCommand {
     @isMemberInVoiceChannel()
     @isMemberVoiceChannelJoinable()
     @isSameVoiceChannel()
+    @isMemberDJ()
     public async execute(ctx: CommandContext): Promise<any> {
         if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
         const { music } = ctx.guild!;
