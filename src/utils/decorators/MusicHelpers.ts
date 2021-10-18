@@ -49,3 +49,15 @@ export function isHasQueue(): any {
         }
     });
 }
+
+export function isMemberDJ(): any {
+    return inhibit(async msg => {
+        const data = await msg.client.databases.guilds.get(msg.guild!.id);
+        if (data.dj_only && data.dj_role) {
+            const djRole = msg.guild!.roles.resolve(data.dj_role);
+            if (djRole && !msg.member!.roles.cache.has(djRole.id)) {
+                return `Sorry, but my commands are restricted only for those who has ${djRole.name} role`;
+            }
+        }
+    });
+}

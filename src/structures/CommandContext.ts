@@ -8,6 +8,7 @@ export class CommandContext {
     public additionalArgs: Collection<string, any> = new Collection();
     public channel: TextBasedChannels|null = this.context.channel;
     public guild = this.context.guild;
+    public client = this.context.guild!.client;
     public constructor(public readonly context: Interaction|CommandInteraction|SelectMenuInteraction|ContextMenuInteraction|Message, public args: string[] = []) {}
 
     public setAdditionalArgs(key: string, value: any): CommandContext {
