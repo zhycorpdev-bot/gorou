@@ -32,7 +32,7 @@ export class MusicHandler {
             [LoopType.NONE]: "off"
         };
         if (this.playerMessage) {
-            if (this.player?.queue.totalSize) {
+            if (this.player?.queue && this.player.queue.totalSize) {
                 const list = chunk(this.player.queue.map((x, i) => `${++i}. ${x.author!} - ${x.title} [${readableTime(x.duration!)}] ~ <@${x.requester as any}>`), 10);
                 const currentSong = this.player.queue.current!;
                 // @ts-expect-error-next-line
