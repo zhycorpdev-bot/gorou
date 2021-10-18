@@ -33,7 +33,4 @@ export class GuildSetting {
 
     @Column({ type: "string", default: 100, nullable: true })
     public default_volume = 100;
-
-    @Column({ type: "boolean", default: false, nullable: true })
-    public announce_song = false;
 }
