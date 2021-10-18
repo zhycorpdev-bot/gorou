@@ -36,6 +36,7 @@ export class SettingCommand extends BaseCommand {
                 .addField("🎶 Custom DJ Role", `\`${data.prefix}settings custom-dj\``, true)
                 .addField("🔄 Max Queue Length", `\`${data.prefix}settings max-queue\``, true)
                 .addField("🔊 Default Volume", `\`${data.prefix}settings default-volume\``, true)
+                .addField("⭐ Custom Prefix", `\`${data.prefix}settings prefix\``, true)
                 .setTimestamp();
             return ctx.send({ embeds: [embed] });
         }
@@ -58,6 +59,25 @@ export class SettingCommand extends BaseCommand {
                 await repository.save(data);
                 return ctx.send({
                     embeds: [createEmbed("info", `${data.duplicate_song ? "Enabled" : "Disabled"} anti duplicate track`)]
+                });
+            }
+            case "prefix": {
+                if (!ctx.args[1]) {
+                    return ctx.send({
+                        embeds: [
+                            this.createEmbed(
+                                ctx, "⭐ Custom Prefix", "Setting", data.prefix, stripIndents`
+                                    \`${data.prefix}settings prefix <new prefix || reset>\`
+                                    Example: \`${data.prefix}settings prefix !\`, \`${data.prefix}settings prefix reset\`
+                                `, "New prefix (without space) or `reset`"
+                            )
+                        ]
+                    });
+                }
+                data.prefix = ctx.args[1] === "reset" ? this.client.config.defaultPrefix : ctx.args[1];
+                await repository.save(data);
+                return ctx.send({
+                    embeds: [createEmbed("info", `Changed custom prefix to \`${data.prefix}\` ${ctx.args[1] === "reset" ? "(default)" : ""}`)]
                 });
             }
             case "djonly": {
