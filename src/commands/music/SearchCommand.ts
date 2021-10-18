@@ -55,7 +55,7 @@ export class SearchCommand extends BaseCommand {
                 embeds: [createEmbed("error", `This command is restricted to <#${ctx.guild!.music.playerChannel}>.`)]
             });
         }
-        const { max_queue: maxQueue } = await this.client.databases.guilds.get(ctx.guild!.id, { select: ["max_queue"] });
+        const { max_queue: maxQueue, duplicate_song: duplicateSong } = await this.client.databases.guilds.get(ctx.guild!.id, { select: ["max_queue", "duplicate_song"] });
         if (maxQueue <= (ctx.guild!.music.player?.queue.totalSize || 0)) {
             const msg = await ctx.send({
                 embeds: [
@@ -70,7 +70,9 @@ export class SearchCommand extends BaseCommand {
         const { music } = ctx.guild!;
         const tracks = ctx.additionalArgs.get("values");
         if (tracks && ctx.isSelectMenu()) {
-            for (const track of tracks) {
+            const duplicated = tracks.filter((x: string) => music.player?.queue.find(y => y.uri === x)) as Track[];
+            const toAdd = tracks.filter((x: string) => duplicateSong && !music.player?.queue.find(y => y.uri === x));
+            for (const track of toAdd) {
                 const newCtx = new CommandContext(ctx.context, []);
                 newCtx.additionalArgs.set("values", [track]);
                 this.client.commands.get("play")!.execute(newCtx);
@@ -82,6 +84,17 @@ export class SearchCommand extends BaseCommand {
                 if (msg.channelId === music.playerChannel) await msg.delete().catch(() => null);
                 else await msg.edit({ components: [new MessageActionRow().addComponents(selection!)] });
             }
+            if (duplicateSong && duplicated.length) {
+                const duplicateMessage = await ctx.send({
+                    embeds: [
+                        createEmbed("warn", `Over ${duplicated.length} track${duplicated.length > 1 ? "s" : ""} are skipped because it was a duplicate`)
+                    ]
+                });
+                if (ctx.context.channelId === music.playerChannel) {
+                    setTimeout(() => duplicateMessage.delete().catch(() => null), 5000);
+                }
+            }
+            if (!toAdd.length) return;
             const message = await ctx.send({
                 embeds: [
                     createEmbed("success", `Added \`${tracks.length}\` tracks to queue`, true)
