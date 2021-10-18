@@ -56,6 +56,18 @@ export class PlayCommand extends BaseCommand {
                 embeds: [createEmbed("error", `This command is restricted to <#${ctx.guild!.music.playerChannel}>.`)]
             });
         }
+        const { max_queue: maxQueue } = await this.client.databases.guilds.get(ctx.guild!.id, { select: ["max_queue"] });
+        if (maxQueue <= (ctx.guild!.music.player?.queue.totalSize || 0)) {
+            const msg = await ctx.send({
+                embeds: [
+                    createEmbed("error", `Max queue limit reached **\`[${maxQueue}\`**. Remove some track to add another!`, true)
+                ]
+            });
+            if (fromRequester) {
+                setTimeout(() => msg.delete().catch(() => null), 5000);
+            }
+            return undefined;
+        }
         const vc = ctx.member!.voice.channel;
         const query = ctx.args.join(" ") || ctx.options?.getString("query") || (ctx.additionalArgs.get("values") ? ctx.additionalArgs.get("values")[0] : undefined);
         if (!query) {
