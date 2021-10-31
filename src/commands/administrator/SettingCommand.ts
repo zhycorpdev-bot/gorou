@@ -7,10 +7,10 @@ import { GuildSetting } from "../../entities/Guild";
 import { CommandContext } from "../../structures/CommandContext";
 import { stripIndents } from "common-tags";
 
-type Option = "anti-duplicate" | "djonly" | "custom-dj" | "max-queue" | "default-volume" | "announcesongs";
+type Option = "anti-duplicate" | "djonly" | "custom-dj" | "max-queue" | "default-volume" | "prefix";
 type Action = "enable" | "disable" | "set" | "available";
 
-const options = ["anti-duplicate", "djonly", "custom-dj", "max-queue", "default-volume", "djrole", "announcesongs"] as Option[];
+const options = ["anti-duplicate", "djonly", "custom-dj", "max-queue", "default-volume", "djrole", "prefix"] as Option[];
 
 @DefineCommand({
     aliases: ["setting"],
