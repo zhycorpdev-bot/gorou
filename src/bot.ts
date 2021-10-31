@@ -8,6 +8,10 @@ process.on("exit", code => {
     client.logger.info(`NodeJS process exited with code ${code}`);
 });
 process.on("uncaughtException", err => {
+    // Temporary fix for winston crash
+    if (err.message === "self._addDefaultMeta is not a function") {
+        return undefined;
+    }
     client.logger.error("UNCAUGHT_EXCEPTION:", err);
     client.logger.warn("Uncaught Exception detected. Restarting...");
     process.exit(1);
