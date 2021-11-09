@@ -52,7 +52,7 @@ export class EvalCommand extends BaseCommand {
                 });
             }
 
-            const output = this.clean(evaled);
+            const output = this.clean(String(evaled));
             if (output.length > 1024) {
                 const hastebin = await this.hastebin(output);
                 embed.addField("Output", `${hastebin}.js`);

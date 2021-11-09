@@ -16,6 +16,7 @@ import { Util } from "../utils/Util";
 import { GuildSettingManager } from "../utils/GuildSettingManager";
 import { Connection, createConnection } from "typeorm";
 import { GuildSetting } from "../entities/Guild";
+import { VoicePacket } from "erela.js";
 
 export class BotClient extends Client {
     public readonly config = config;
@@ -48,7 +49,7 @@ export class BotClient extends Client {
     public async build(token: string): Promise<BotClient> {
         const start = Date.now();
         this.listeners.load();
-        this.on("raw", (d: any) => this.music.updateVoiceState(d));
+        this.on("raw", (d: any) => this.music.updateVoiceState(d as VoicePacket));
         this.on("ready", async () => {
             await this.music.init(this.user!.id);
             this.connection = await createConnection({

@@ -18,7 +18,7 @@ export class CommandManager extends Collection<string, ICommandComponent> {
                 this.client.logger.info(`Found ${categories.length} categories, registering...`);
                 for (const category of categories) {
                     const meta = await import(resolve(this.path, category, "category.meta.json"));
-                    this.categories.set(category, meta);
+                    this.categories.set(category, meta as ICategoryMeta);
                     this.client.logger.info(`Registering ${category} category...`);
                     await fs.readdir(resolve(this.path, category))
                         .then(files => files.filter(f => f !== "category.meta.json"))
@@ -77,7 +77,7 @@ export class CommandManager extends Collection<string, ICommandComponent> {
                             return { disabledCount, files };
                         })
                         .then(data => {
-                            this.categories.set(category, Object.assign(meta, { cmds: this.filter(({ meta }) => meta.category === category) }));
+                            this.categories.set(category, Object.assign(meta, { cmds: this.filter(({ meta }) => meta.category === category) }) as ICategoryMeta);
                             this.client.logger.info(`Done loading ${data.files.length} commands in ${category} category.`);
                             if (data.disabledCount !== 0) this.client.logger.info(`${data.disabledCount} out of ${data.files.length} commands in ${category} category is disabled.`);
                         })

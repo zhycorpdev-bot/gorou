@@ -81,7 +81,7 @@ export class PlayCommand extends BaseCommand {
             }
             return undefined;
         }
-        const { valid, matched } = parseURL(query);
+        const { valid, matched } = parseURL(String(query));
         if (valid && !domains.includes(matched[1])) {
             const msg = await ctx.send({
                 embeds: [
@@ -96,7 +96,7 @@ export class PlayCommand extends BaseCommand {
         const src = ctx.additionalArgs.get("source") ?? ctx.options?.getString("source") as "youtube"|"soundcloud"|null ?? "youtube";
         const response = await ctx.guild!.music.node.manager.search({
             query,
-            source: valid ? src : /soundcloud/gi.exec(query) ? "soundcloud" : /spotify/gi.exec(query) ? undefined : "youtube"
+            source: valid ? src : /soundcloud/gi.exec(String(query)) ? "soundcloud" : /spotify/gi.exec(String(query)) ? undefined : "youtube"
         }, ctx.author.id);
         if (response.loadType === "NO_MATCHES" || !response.tracks.length) {
             const msg = await ctx.send({
@@ -109,7 +109,7 @@ export class PlayCommand extends BaseCommand {
             }
             return undefined;
         }
-        if (!ctx.guild!.music.player) await ctx.guild!.music.join(vc as any, ctx.channel as TextChannel);
+        if (!ctx.guild!.music.player) await ctx.guild!.music.join(String(vc), ctx.channel as TextChannel);
         if (response.loadType === "PLAYLIST_LOADED") {
             const duplicated = response.tracks.filter(x => ctx.guild!.music.player!.queue.find(y => y.identifier === x.identifier));
             const toAdd = response.tracks.filter(x => duplicateSong && !ctx.guild!.music.player?.queue.find(y => y.identifier === x.identifier));

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable func-names, @typescript-eslint/naming-convention */
 import { CommandContext } from "../../structures/CommandContext";
 import { createEmbed } from "../createEmbed";

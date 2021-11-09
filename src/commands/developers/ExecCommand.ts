@@ -21,13 +21,13 @@ export class ExecCommand extends BaseCommand {
             if (e) return m.edit(`\`\`\`js\n${e.message}\`\`\``);
             if (!stderr && !stdout) return m.edit("Executed without result.");
             if (stdout) {
-                const pages = this.paginate(stdout, 1950);
+                const pages = this.paginate(String(stdout), 1950);
                 for (const page of pages) {
                     await ctx.send(`\`\`\`\n${page}\`\`\``);
                 }
             }
             if (stderr) {
-                const pages = this.paginate(stderr, 1950);
+                const pages = this.paginate(String(stderr), 1950);
                 for (const page of pages) {
                     await ctx.send(`\`\`\`\n${page}\`\`\``);
                 }
