@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
-import { ButtonInteraction, Collection, CommandInteraction, CommandInteractionOptionResolver, ContextMenuInteraction, GuildMember, Interaction, InteractionReplyOptions, Message, MessageMentions, MessageOptions, MessagePayload, SelectMenuInteraction, TextBasedChannels, User } from "discord.js";
+import { ButtonInteraction, Collection, CommandInteraction, CommandInteractionOptionResolver, ContextMenuInteraction, GuildMember, Interaction, InteractionReplyOptions, InteractionType, Message, MessageMentions, MessageOptions, MessagePayload, SelectMenuInteraction, TextBasedChannels, User } from "discord.js";
 import { MessageInteractionAction } from "../typings";
 import { InteractionTypes, MessageComponentTypes } from "../typings/enum";
 
@@ -39,8 +39,9 @@ export class CommandContext {
         return this.context instanceof Interaction ? (this.context as CommandInteraction).deferred : false;
     }
 
-    public get options(): CommandInteractionOptionResolver|null {
-        return this.context instanceof Interaction ? (this.context as CommandInteraction).options : null;
+    public get options(): CommandInteractionOptionResolver<"cached">|null {
+        // @ts-expect-error-next-line
+        return this.isCommand() ? (this.context as CommandInteraction).options : null;
     }
 
     public get author(): User {
@@ -60,27 +61,27 @@ export class CommandContext {
     }
 
     public isCommand(): boolean {
-        return InteractionTypes[(this.context as Interaction).type] === InteractionTypes.APPLICATION_COMMAND && typeof (this.context as any).targetId === "undefined";
+        return InteractionTypes[this.context.type as InteractionType] === InteractionTypes.APPLICATION_COMMAND && typeof (this.context as any).targetId === "undefined";
     }
 
     public isContextMenu(): boolean {
-        return InteractionTypes[(this.context as Interaction).type] === InteractionTypes.APPLICATION_COMMAND && typeof (this.context as any).targetId !== "undefined";
+        return InteractionTypes[this.context.type as InteractionType] === InteractionTypes.APPLICATION_COMMAND && typeof (this.context as any).targetId !== "undefined";
     }
 
     public isMessageComponent(): boolean {
-        return InteractionTypes[(this.context as Interaction).type] === InteractionTypes.MESSAGE_COMPONENT;
+        return InteractionTypes[this.context.type as InteractionType] === InteractionTypes.MESSAGE_COMPONENT;
     }
 
     public isButton(): boolean {
         return (
-            InteractionTypes[(this.context as Interaction).type] === InteractionTypes.MESSAGE_COMPONENT &&
+            InteractionTypes[this.context.type as InteractionType] === InteractionTypes.MESSAGE_COMPONENT &&
             MessageComponentTypes[(this.context as ButtonInteraction).componentType] === MessageComponentTypes.BUTTON
         );
     }
 
     public isSelectMenu(): boolean {
         return (
-            InteractionTypes[(this.context as Interaction).type] === InteractionTypes.MESSAGE_COMPONENT &&
+            InteractionTypes[this.context.type as InteractionType] === InteractionTypes.MESSAGE_COMPONENT &&
             MessageComponentTypes[(this.context as SelectMenuInteraction).componentType] === MessageComponentTypes.SELECT_MENU
         );
     }
