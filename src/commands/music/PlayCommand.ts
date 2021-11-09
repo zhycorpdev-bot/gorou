@@ -109,7 +109,7 @@ export class PlayCommand extends BaseCommand {
             }
             return undefined;
         }
-        if (!ctx.guild!.music.player) await ctx.guild!.music.join(String(vc), ctx.channel as TextChannel);
+        if (!ctx.guild!.music.player) await ctx.guild!.music.join(vc!.id, ctx.channel as TextChannel);
         if (response.loadType === "PLAYLIST_LOADED") {
             const duplicated = response.tracks.filter(x => ctx.guild!.music.player!.queue.find(y => y.identifier === x.identifier));
             const toAdd = response.tracks.filter(x => duplicateSong && !ctx.guild!.music.player?.queue.find(y => y.identifier === x.identifier));
