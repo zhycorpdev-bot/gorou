@@ -49,7 +49,6 @@ export class SetupCommand extends BaseCommand {
         }
         if (channel.isText()) {
             data.requesterChannel = channel.id;
-            const emojis = ["⏯", "⏭", "🔁", "⏹", "🔀"];
             const msg = await channel.send({
                 embeds: [
                     createEmbed("info")
@@ -59,7 +58,7 @@ export class SetupCommand extends BaseCommand {
                         .setFooter(`Prefix for this server is: ${data.prefix}`)
                 ]
             });
-            for (const emoji of emojis) { await msg.react(emoji); }
+            for (const emoji of this.client.config.emojis) { await msg.react(emoji); }
             ctx.guild!.music.playerMessage = msg.id;
             ctx.guild!.music.playerChannel = msg.channelId;
             data.requesterMessage = msg.id;
