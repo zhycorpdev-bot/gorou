@@ -42,9 +42,9 @@ export class SetupCommand extends BaseCommand {
                 embeds: [createEmbed("error", `Already setup in ${old.toString()}`)]
             });
         }
-        if (!channel.permissionsFor(this.client.user!.id)?.has(["SEND_MESSAGES", "ATTACH_FILES"])) {
+        if (!channel.permissionsFor(this.client.user!.id)?.has(["SEND_MESSAGES", "ATTACH_FILES", "MANAGE_MESSAGES"])) {
             return ctx.send({
-                embeds: [createEmbed("error", "I need these permissions to make requester channel: `SEND_MESSAGES`, `ATTACH_FILES`")]
+                embeds: [createEmbed("error", "I need these permissions to make requester channel: `SEND_MESSAGES`, `ATTACH_FILES`, `MANAGE_MESSAGES`")]
             });
         }
         if (channel.isText()) {
