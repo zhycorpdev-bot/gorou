@@ -1,10 +1,8 @@
-/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
-import { Interaction, VoiceChannel } from "discord.js";
+import { Interaction } from "discord.js";
 import { BaseListener } from "../structures/BaseListener";
 import { CommandContext } from "../structures/CommandContext";
 import { createEmbed } from "../utils/createEmbed";
 import { DefineListener } from "../utils/decorators/DefineListener";
-import { LoopType } from "../utils/MusicHandler";
 
 @DefineListener("interactionCreate")
 export class InteractionCreateEvent extends BaseListener {
@@ -43,96 +41,6 @@ export class InteractionCreateEvent extends BaseListener {
                 if (command) {
                     context.additionalArgs.set("values", interaction.values);
                     void command.execute(context);
-                }
-            }
-        }
-        if (interaction.isButton()) {
-            const src = this.decode(interaction.customId || "");
-            if (src.startsWith("player")) {
-                const action: "resumepause"|"stop"|"skip"|"loop"|"shuffle" = src.split("_")[1] as any;
-                const { music } = interaction.guild!;
-                if (!music.player) {
-                    await interaction.deferReply({ ephemeral: true });
-                    const msg = await interaction.followUp({
-                        ephemeral: true,
-                        embeds: [createEmbed("error", "I'm not playing anything right now", true)]
-                    });
-                    setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
-                    return undefined;
-                }
-                const member = interaction.guild!.members.cache.get(interaction.user.id);
-                const vc = interaction.guild!.channels.cache.get(member!.voice.channelId!) as VoiceChannel|undefined;
-                if (!vc) {
-                    await interaction.deferReply({ ephemeral: true });
-                    const msg = await interaction.followUp({
-                        ephemeral: true,
-                        embeds: [createEmbed("error", "Please join a voice channel", true)]
-                    });
-                    setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
-                    return undefined;
-                }
-                if (!vc.permissionsFor(interaction.guild!.me!)!.has(["CONNECT", "SPEAK"])) {
-                    await interaction.deferReply({ ephemeral: true });
-                    const msg = await interaction.followUp({
-                        ephemeral: true,
-                        embeds: [createEmbed("error", "I'm missing `CONNECT` or `SPEAK` permission in your voice!", true)]
-                    });
-                    setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
-                    return undefined;
-                }
-                if (!vc.joinable) {
-                    await interaction.deferReply({ ephemeral: true });
-                    const msg = await interaction.followUp({
-                        ephemeral: true,
-                        embeds: [createEmbed("error", "I can't join your voice channel", true)]
-                    });
-                    setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
-                    return undefined;
-                }
-                if (interaction.guild!.me!.voice.channelId && interaction.guild!.me!.voice.channelId !== member!.voice.channelId) {
-                    await interaction.deferReply({ ephemeral: true });
-                    const msg = await interaction.followUp({
-                        ephemeral: true,
-                        embeds: [createEmbed("error", `I'm already used on ${interaction.guild!.me!.voice.channel!.toString()}`, true)]
-                    });
-                    setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
-                    return undefined;
-                }
-                const data = await this.client.databases.guilds.get(interaction.guild!.id);
-                if (data.dj_only && data.dj_role) {
-                    const djRole = interaction.guild!.roles.resolve(data.dj_role);
-                    if (djRole && !member?.roles.cache.has(djRole.id)) {
-                        await interaction.deferReply({ ephemeral: true });
-                        const msg = await interaction.followUp({
-                            ephemeral: true,
-                            embeds: [createEmbed("error", `Sorry, but my commands are restricted only for those who has ${djRole.name} role`, true)]
-                        });
-                        setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
-                        return undefined;
-                    }
-                }
-                this.client.logger.info(`${this.client.shard ? `[Shard #${this.client.shard.ids[0]}]` : ""} ${interaction.user.tag} [${interaction.user.id}] executed "${action}" on ${interaction.guild!.name} [${interaction.guildId}]`);
-                if (action === "resumepause") {
-                    await music.player.pause(!music.player.paused);
-                    await interaction.deferUpdate();
-                    await music.updatePlayerEmbed();
-                } else if (action === "loop") {
-                    await interaction.deferReply({ ephemeral: true });
-                    const loopModes = {
-                        [LoopType.ONE]: "track",
-                        [LoopType.ALL]: "queue",
-                        [LoopType.NONE]: "off"
-                    };
-                    context.args = [loopModes[(music.loopType + 1) as 0|1|2] || loopModes[LoopType.NONE]];
-                    void this.client.commands.get("loop")!.execute(context);
-                } else if (action === "stop") {
-                    await music.player!.destroy();
-                    await music.reset();
-                    await interaction.deferUpdate();
-                } else {
-                    await interaction.deferReply({ ephemeral: true });
-                    const cmd = this.client.commands.find(x => x.meta.name === action);
-                    if (cmd) void cmd.execute(context);
                 }
             }
         }
