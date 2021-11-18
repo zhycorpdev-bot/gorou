@@ -81,6 +81,7 @@ export class MusicHandler {
         this.oldExceptionMessage = null;
         this.oldVoiceStateUpdateMessage = null;
         this.skipVotes = [];
+        return undefined;
     }
 
     public async play(): Promise<any> {
