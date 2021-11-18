@@ -53,9 +53,6 @@ export class BotClient extends Client {
         this.on("ready", async () => {
             await this.music.init(this.user!.id);
             this.connection = await createConnection({
-                cache: {
-                    duration: this.config.databaseCacheLifetime
-                },
                 database: this.config.databaseName,
                 entities: [GuildSetting],
                 logging: this.config.isDev ? "all" : ["info"],
