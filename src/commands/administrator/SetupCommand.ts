@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-base-to-string */
-import { GuildChannel } from "discord.js";
+import { GuildChannel, EmojiIdentifierResolvable } from "discord.js";
 import { BaseCommand } from "../../structures/BaseCommand";
 import { CommandContext } from "../../structures/CommandContext";
 import { createEmbed } from "../../utils/createEmbed";
@@ -58,7 +58,7 @@ export class SetupCommand extends BaseCommand {
                         .setFooter(`Prefix for this server is: ${data.prefix}`)
                 ]
             });
-            for (const emoji of this.client.config.emojis) { await msg.react(emoji); }
+            for (const emoji of this.client.config.emojis) { await msg.react(emoji as EmojiIdentifierResolvable); }
             ctx.guild!.music.playerMessage = msg.id;
             ctx.guild!.music.playerChannel = msg.channelId;
             data.requesterMessage = msg.id;
