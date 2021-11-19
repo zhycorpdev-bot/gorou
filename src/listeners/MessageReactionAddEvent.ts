@@ -10,7 +10,7 @@ export class MessageReactionAddEvent extends BaseListener {
     public async execute(messageReaction: MessageReaction, user: User): Promise<any> {
         if (!messageReaction.message.guild || user.equals(this.client.user!)) return undefined;
         const { message, message: { guild }, message: { guild: { music } } } = messageReaction;
-        const data = await this.client.databases.guilds.get(guild.id, { select: ["requesterMessage", "dj_only", "dj_role"] });
+        const data = await this.client.databases.guilds.get(guild.id);
         if (data.requesterMessage === message.id) {
             const emojis = [
                 {
