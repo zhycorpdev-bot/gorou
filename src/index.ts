@@ -1,4 +1,5 @@
 import "dotenv/config";
+import "./extension/Global";
 import { resolve } from "path";
 import { ShardingManager } from "discord.js";
 import { createLogger } from "./utils/Logger";
