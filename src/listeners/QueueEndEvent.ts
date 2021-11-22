@@ -15,7 +15,7 @@ export class QueueEndEvent extends BaseListener {
                 ]
             });
         }
-        manager.reset();
-        void player.destroy();
+        await manager.reset();
+        await player.destroy();
     }
 }

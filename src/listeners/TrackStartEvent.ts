@@ -16,6 +16,5 @@ export class TrackStartEvent extends BaseListener {
             });
             manager.oldMusicMessage = msg.id;
         }
-        manager.updateInterval = setInterval(() => manager.updatePlayerEmbed(), 10000);
     }
 }

@@ -17,7 +17,6 @@ export class MusicHandler {
     public client: BotClient = this.guild.client;
     public skipVotes: User[] = [];
     public timeout?: NodeJS.Timeout;
-    public updateInterval?: NodeJS.Timer;
     public playerMessage!: Snowflake;
     public playerChannel!: Snowflake;
     private _lastMusicMessageID: Snowflake | null = null;
@@ -72,12 +71,10 @@ export class MusicHandler {
         }
     }
 
-    public reset(): void {
-        void this.updatePlayerEmbed();
+    public async reset(): Promise<void> {
+        await this.updatePlayerEmbed();
         if (this.timeout) clearTimeout(this.timeout);
-        if (this.updateInterval) clearInterval(this.updateInterval);
         this.timeout = undefined;
-        this.updateInterval = undefined;
         this.oldMusicMessage = null;
         this.oldExceptionMessage = null;
         this.oldVoiceStateUpdateMessage = null;

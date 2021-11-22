@@ -40,7 +40,7 @@ export class VoiceStateUpdateEvent extends BaseListener {
                         if (msg.channelId === music.playerChannel) {
                             setTimeout(() => msg.delete().catch(e => this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e)), 5000);
                         }
-                        newState.guild.music.reset();
+                        await newState.guild.music.reset();
                     }).catch(e => this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e));
                 }
             } catch (e) {
