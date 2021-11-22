@@ -19,7 +19,7 @@ if (process[Symbol.for("ts-node.register.instance")]) {
         totalShards,
         mode: "worker",
         respawn: true,
-        token: process.env.SECRET_DISCORD_TOKEN
+        token: process.env.DISCORD_TOKEN
     });
 
     manager.on("shardCreate", shard => {
