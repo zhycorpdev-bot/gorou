@@ -156,7 +156,7 @@ export class SearchCommand extends BaseCommand {
         const emojis = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"];
         return tracks.slice(0, 10).map((x, i) => (
             {
-                label: x.title.length > 98 ? `${x.title.substr(0, 97)}...` : x.title,
+                label: x.title.escapeMarkdown().length > 98 ? `${x.title.escapeMarkdown().substr(0, 97)}...` : x.title.escapeMarkdown(),
                 emoji: emojis[i],
                 description: `${x.author} · ${readableTime(x.duration)}`,
                 value: x.uri

@@ -37,7 +37,7 @@ export class RemoveCommand extends BaseCommand {
             });
         }
         const removed = music.player!.queue.splice(position - 1, 1)[0];
-        const m = await ctx.send({ embeds: [createEmbed("info", `Removed **[${removed.title}](${removed.uri!})** from the queue!`)] });
+        const m = await ctx.send({ embeds: [createEmbed("info", `Removed **[${removed.title.escapeMarkdown()}](${removed.uri!})** from the queue!`)] });
         if (ctx.channel!.id === ctx.guild!.music.playerChannel) {
             setTimeout(() => m.delete().catch(() => null), 5000);
         }

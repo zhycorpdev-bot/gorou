@@ -141,7 +141,7 @@ export class PlayCommand extends BaseCommand {
             if (duplicateSong && duplicated) {
                 const duplicateMessage = await ctx.send({
                     embeds: [
-                        createEmbed("warn", `Track **[${duplicated.title}](${duplicated.uri!})** is already queued, and this server configuration disallow duplicated tracks in queue`)
+                        createEmbed("warn", `Track **[${duplicated.title.escapeMarkdown()}](${duplicated.uri!})** is already queued, and this server configuration disallow duplicated tracks in queue`)
                     ]
                 });
                 if (fromRequester) {
@@ -154,11 +154,11 @@ export class PlayCommand extends BaseCommand {
             if (!ctx.additionalArgs.get("values") && (!ctx.additionalArgs.get("fromRequesterChannel"))) {
                 if (fromRequester && ctx.isInteraction()) {
                     await ctx.send({
-                        embeds: [createEmbed("info", `✅ Track **[${response.tracks[0].title}](${response.tracks[0].uri})** has been added to the queue`).setThumbnail(response.tracks[0].thumbnail!)]
+                        embeds: [createEmbed("info", `✅ Track **[${response.tracks[0].title.escapeMarkdown()}](${response.tracks[0].uri})** has been added to the queue`).setThumbnail(response.tracks[0].thumbnail!)]
                     });
                 } else if (!fromRequester) {
                     await ctx.send({
-                        embeds: [createEmbed("info", `✅ Track **[${response.tracks[0].title}](${response.tracks[0].uri})** has been added to the queue`).setThumbnail(response.tracks[0].thumbnail!)]
+                        embeds: [createEmbed("info", `✅ Track **[${response.tracks[0].title.escapeMarkdown()}](${response.tracks[0].uri})** has been added to the queue`).setThumbnail(response.tracks[0].thumbnail!)]
                     });
                 }
             }
