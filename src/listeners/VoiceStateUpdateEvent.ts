@@ -23,7 +23,7 @@ export class VoiceStateUpdateEvent extends BaseListener {
         if (oldMember?.id === botID && oldState.channelId === queueVC.id && !newState.channelId) {
             try {
                 newState.guild.music.player?.destroy();
-                this.client.logger.info(`${this.client.shard ? `[Shard #${this.client.shard.ids[0]}]` : ""} Disconnected from the voice channel at ${newState.guild.name}, the queue was deleted.`);
+                this.client.logger.info(`Disconnected from the voice channel at ${newState.guild.name}, the queue was deleted.`);
                 if (textChannel?.isText()) {
                     textChannel.send({
                         embeds: [

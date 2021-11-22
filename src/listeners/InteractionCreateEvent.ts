@@ -101,7 +101,7 @@ export class InteractionCreateEvent extends BaseListener {
                         return undefined;
                     }
                 }
-                this.client.logger.info(`${this.client.shard ? `[Shard #${this.client.shard.ids[0]}]` : ""} ${interaction.user.tag} [${interaction.user.id}] executed "${action}" on ${interaction.guild!.name} [${interaction.guildId}]`);
+                this.client.logger.info(`${interaction.user.tag} [${interaction.user.id}] executed "${action}" on ${interaction.guild!.name} [${interaction.guildId}]`);
                 if (action === "resumepause") {
                     await music.player.pause(!music.player.paused);
                     await interaction.deferUpdate();

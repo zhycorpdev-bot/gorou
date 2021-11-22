@@ -10,6 +10,6 @@ export class TrackEndEvent extends BaseListener {
             manager.oldMusicMessage = null;
         }
         await manager.updatePlayerEmbed();
-        this.client.logger.info(`${this.client.shard ? `[Shard #${this.client.shard.ids[0]}]` : ""} Track: "${track.title}" on ${manager.guild.name} ended`);
+        this.client.logger.info(`Track: "${track.title}" on ${manager.guild.name} ended`);
     }
 }
