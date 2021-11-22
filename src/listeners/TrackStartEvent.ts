@@ -6,13 +6,13 @@ import { DefineListener } from "../utils/decorators/DefineListener";
 @DefineListener("trackStart", "erela")
 export class TrackStartEvent extends BaseListener {
     public async execute(player: Player, track: Track): Promise<void> {
-        const manager = this.client._music.fetch(player.guild);
+        const manager = this.client.queue.fetch(player.guild);
         const channel = this.client.channels.cache.get(player.textChannel!);
         this.client.logger.info(`Track: "${track.title}" on ${manager.guild.name} started`);
         await manager.updatePlayerEmbed();
         if (channel?.isText() && !manager.playerMessage) {
             const msg = await channel.send({
-                embeds: [createEmbed("info", `▶ Start playing: **[${track.title}](${track.uri})**`).setThumbnail(track.thumbnail!)]
+                embeds: [createEmbed("info", `▶ Start playing: **[${track.title.escapeMarkdown()}](${track.uri})**`).setThumbnail(track.thumbnail!)]
             });
             manager.oldMusicMessage = msg.id;
         }

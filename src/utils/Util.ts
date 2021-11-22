@@ -32,7 +32,7 @@ export class Util {
             users: (client: BotClient) => client.users.cache,
             channels: (client: BotClient) => client.channels.cache,
             guilds: (client: BotClient) => client.guilds.cache,
-            queues: (client: BotClient) => client._music.cache.mapValues(v => v)
+            queues: (client: BotClient) => client.queue.cache.mapValues(v => v)
         };
 
         /*
@@ -146,7 +146,7 @@ export class Util {
                 music.timeout = undefined;
                 const song = music.player!.queue.current;
                 if (textChannel?.isText() && textChannel.id !== music.playerChannel) {
-                    const embed = createEmbed("info", `Someone joins the voice channel. Enjoy the music 🎶\nNow Playing: **[${song!.title}](${(song as any).url})**`)
+                    const embed = createEmbed("info", `Someone joins the voice channel. Enjoy the music 🎶\nNow Playing: **[${song!.title.escapeMarkdown()}](${(song as any).url})**`)
                         .setTitle("▶ Queue resumed");
                     // @ts-expect-error-next-line
                     const thumbnail = song?.displayThumbnail("maxresdefault");

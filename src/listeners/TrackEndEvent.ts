@@ -5,7 +5,7 @@ import { DefineListener } from "../utils/decorators/DefineListener";
 @DefineListener("trackEnd", "erela")
 export class TrackEndEvent extends BaseListener {
     public async execute(player: Player, track: Track): Promise<void> {
-        const manager = this.client._music.fetch(player.guild);
+        const manager = this.client.queue.fetch(player.guild);
         if (manager.oldMusicMessage) {
             manager.oldMusicMessage = null;
         }

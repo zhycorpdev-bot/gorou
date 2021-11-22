@@ -6,7 +6,7 @@ import { DefineListener } from "../utils/decorators/DefineListener";
 @DefineListener("trackError", "erela")
 export class TrackErrorEvent extends BaseListener {
     public async execute(player: Player, track: Track, payload: TrackExceptionEvent): Promise<void> {
-        const manager = this.client._music.fetch(player.guild);
+        const manager = this.client.queue.fetch(player.guild);
         if (manager.oldExceptionMessage) {
             manager.oldExceptionMessage = null;
         }

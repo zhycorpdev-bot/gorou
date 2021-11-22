@@ -33,13 +33,13 @@ export class MusicHandler {
         };
         if (this.playerMessage) {
             if (this.player?.queue && this.player.queue.totalSize) {
-                const list = chunk(this.player.queue.map((x, i) => `${++i}. ${x.author!} - ${x.title} [${readableTime(x.duration!)}] ~ <@${x.requester as any}>`), 10);
+                const list = chunk(this.player.queue.map((x, i) => `${++i}. ${x.author!} - ${x.title.escapeMarkdown()} [${readableTime(x.duration!)}] ~ <@${x.requester as any}>`), 10);
                 const currentSong = this.player.queue.current!;
                 // @ts-expect-error-next-line
                 const display = TrackUtils.isUnresolvedTrack(currentSong) ? currentSong.thumbnail ?? this.client.config.defaultBanner : currentSong.displayThumbnail("maxresdefault") || this.client.config.defaultBanner;
                 const image = await this.client.request.get(display).then(() => display).catch(() => this.client.config.defaultBanner);
                 const embed = createEmbed("info")
-                    .setTitle(`**${this.player.queue.current!.title}**`)
+                    .setTitle(`**${this.player.queue.current!.title.escapeMarkdown()}**`)
                     .setURL(this.player.queue.current!.uri!)
                     .setDescription(`Requested by: <@${String(this.player.queue.current!.requester)}>`)
                     .setImage(image)
@@ -80,6 +80,7 @@ export class MusicHandler {
         this.oldExceptionMessage = null;
         this.oldVoiceStateUpdateMessage = null;
         this.skipVotes = [];
+        this.client.queue.cache.delete(this.guild.id);
         return undefined;
     }
 
