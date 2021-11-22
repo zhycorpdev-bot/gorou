@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-base-to-string */
-import { GuildChannel, EmojiIdentifierResolvable } from "discord.js";
+import { GuildChannel, MessageActionRow, MessageButton } from "discord.js";
 import { BaseCommand } from "../../structures/BaseCommand";
 import { CommandContext } from "../../structures/CommandContext";
 import { createEmbed } from "../../utils/createEmbed";
@@ -56,9 +56,33 @@ export class SetupCommand extends BaseCommand {
                         .setImage(this.client.config.defaultBanner)
                         .setDescription("Join a voice channel and queue songs by name or url in here.")
                         .setFooter(`Prefix for this server is: ${data.prefix}`)
+                ],
+                components: [
+                    new MessageActionRow()
+                        .addComponents(
+                            new MessageButton()
+                                .setCustomId(this.encode(`player_resumepause`))
+                                .setEmoji("⏯")
+                                .setStyle("SECONDARY"),
+                            new MessageButton()
+                                .setCustomId(this.encode(`player_skip`))
+                                .setEmoji("⏭")
+                                .setStyle("SECONDARY"),
+                            new MessageButton()
+                                .setCustomId(this.encode(`player_loop`))
+                                .setEmoji("🔁")
+                                .setStyle("SECONDARY"),
+                            new MessageButton()
+                                .setCustomId(this.encode(`player_stop`))
+                                .setEmoji("⏹")
+                                .setStyle("DANGER"),
+                            new MessageButton()
+                                .setCustomId(this.encode(`player_shuffle`))
+                                .setEmoji("🔀")
+                                .setStyle("SUCCESS")
+                        )
                 ]
             });
-            for (const emoji of this.client.config.emojis) { await msg.react(emoji as EmojiIdentifierResolvable); }
             ctx.guild!.music.playerMessage = msg.id;
             ctx.guild!.music.playerChannel = msg.channelId;
             data.requesterMessage = msg.id;
@@ -67,5 +91,9 @@ export class SetupCommand extends BaseCommand {
         return ctx.send({
             embeds: [createEmbed("info", `Set requester channel to: <#${data.requesterChannel!}>`)]
         });
+    }
+
+    public encode(string: string): string {
+        return Buffer.from(string).toString("base64");
     }
 }

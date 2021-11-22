@@ -19,10 +19,10 @@ export class GuildSettingManager {
                 const message = await channel.messages.fetch(data.requesterMessage!).catch(() => null);
                 if (message) {
                     this.client.logger.info(`Fetched ${(message.channel as TextChannel).name} [${message.channelId}] on ${message.guild!.name}`);
-                    const cached = message.reactions.cache.filter(x => this.client.config.emojis.includes(x.emoji.name!));
-                    if (cached.size !== this.client.config.emojis.length) {
-                        for (const e of this.client.config.emojis) await message.react(e);
-                    }
+                    // const cached = message.reactions.cache.filter(x => this.client.config.emojis.includes(x.emoji.name!));
+                    // if (cached.size !== this.client.config.emojis.length) {
+                    //     for (const e of this.client.config.emojis) await message.react(e);
+                    // }
                     guild.music.playerMessage = message.id;
                     guild.music.playerChannel = message.channelId;
                 } else {
