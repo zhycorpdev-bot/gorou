@@ -1,44 +1,38 @@
-import winston from "winston";
-import { format } from "date-fns";
+/* eslint-disable sort-keys */
+import pino from "pino";
+import { resolve } from "path";
 
-export function createLogger(serviceName: string, prod = false): winston.Logger {
-    const logger = winston.createLogger({
-        defaultMeta: {
-            serviceName
-        },
-        format: winston.format.combine(
-            winston.format.printf(info => {
-                const { level, message, stack } = info;
-                const prefix = `[${format(Date.now(), "yyyy-MM-dd HH:mm:ss (x)")}] [${level}]`;
-                if (["error", "crit"].includes(level)) return `${prefix}: ${stack}`;
-                return `${prefix}: ${message}`;
-            })
-        ),
-        level: prod ? "info" : "debug",
-        levels: {
-            alert: 1,
-            debug: 5,
-            error: 0,
-            info: 4,
-            notice: 3,
-            warn: 2
-        },
-        transports: [
-            new winston.transports.File({ filename: `logs/${serviceName}/error-${format(Date.now(), "yyyy-MM-dd-HH-mm-ss")}.log`, level: "error" }),
-            new winston.transports.File({ filename: `logs/${serviceName}/logs-${format(Date.now(), "yyyy-MM-dd-HH-mm-ss")}.log` })
-        ]
+export function createLogger(name: string, lang: string, type: "manager" | "shard", shardID?: number, debug = false): pino.Logger {
+    const dateFormat = Intl.DateTimeFormat(lang, {
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+        hour12: false
     });
-    logger.add(new winston.transports.Console({
-        format: winston.format.combine(
-            winston.format.printf(info => {
-                const { level, message, stack } = info;
-                const prefix = `[${format(Date.now(), "yyyy-MM-dd HH:mm:ss (x)")}] [${level}]`;
-                if (["error", "alert"].includes(level) && !prod) return `${prefix}: ${stack}`;
-                return `${prefix}: ${message}`;
-            }),
-            winston.format.align(),
-            prod ? winston.format.colorize({ all: false }) : winston.format.colorize({ all: true })
-        )
-    }));
+    const date = formatDate(dateFormat);
+    const logger = pino({
+        name,
+        timestamp: true,
+        level: debug ? "debug" : "info",
+        formatters: {
+            bindings: () => ({
+                pid: type === "shard" ? shardID === undefined ? null : `Shard #${shardID}` : `ShardManager`
+            })
+        },
+        transport: {
+            targets: [
+                { target: "pino/file", level: "info", options: { destination: resolve(process.cwd(), "logs", `${name}-${date}.log`) } },
+                { target: "pino-pretty", level: debug ? "debug" : "info", options: { translateTime: "SYS:yyyy-mm-dd HH:MM:ss.l o" } }
+            ]
+        }
+    });
     return logger;
+}
+
+function formatDate(dateFormat: Intl.DateTimeFormat, date: number | Date = new Date()): string {
+    const data = dateFormat.formatToParts(date);
+    return `<year>-<month>-<day>`
+        .replace(/<year>/g, data.find(d => d.type === "year")!.value)
+        .replace(/<month>/g, data.find(d => d.type === "month")!.value)
+        .replace(/<day>/g, data.find(d => d.type === "day")!.value);
 }

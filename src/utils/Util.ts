@@ -5,6 +5,7 @@ import { formatMS } from "./formatMS";
 import { MusicHandler } from "./MusicHandler";
 import { APIMessage } from "discord-api-types/v9";
 import { resolve } from "path/posix";
+import { CustomError } from "./CustomError";
 
 export class Util {
     public constructor(public client: BotClient) {}
@@ -108,7 +109,7 @@ export class Util {
                             createEmbed("error", `**${duration}** have passed and there is no one who joins my voice channel, the queue was deleted.`)
                                 .setTitle("⏹ Queue deleted.")
                         ]
-                    }).catch(e => { this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e); return null; })
+                    }).catch(e => { this.client.logger.error(CustomError("VOICE_STATE_UPDATE_EVENT_ERR:", String(e))); return null; })
                         .then(async msg => {
                             if (msg?.channelId === music.playerChannel) {
                                 const ch = music.guild.channels.cache.get(music.playerChannel);
@@ -116,7 +117,7 @@ export class Util {
                                     const old = await ch.messages.fetch(music.oldVoiceStateUpdateMessage!, { cache: false }).catch(() => null);
                                     if (old) old.delete().catch(() => null);
                                 }
-                                setTimeout(() => msg.delete().catch(e => this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e)), 5000);
+                                setTimeout(() => msg.delete().catch(e => this.client.logger.error(CustomError("VOICE_STATE_UPDATE_EVENT_ERR:", String(e)))), 5000);
                             }
                             await music.reset();
                             music.oldVoiceStateUpdateMessage = null;
@@ -131,9 +132,9 @@ export class Util {
                         `If there's no one who joins my voice channel in the next **${duration}**, the queue will be deleted.`)
                             .setTitle("⏸ Queue paused.")
                     ]
-                }).then(msg => music.oldVoiceStateUpdateMessage = msg.id).catch(e => this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e));
+                }).then(msg => music.oldVoiceStateUpdateMessage = msg.id).catch(e => this.client.logger.error(CustomError("VOICE_STATE_UPDATE_EVENT_ERR:", String(e))));
             }
-        } catch (e) { this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e); }
+        } catch (e) { this.client.logger.error(CustomError("VOICE_STATE_UPDATE_EVENT_ERR:", String(e))); }
     }
 
     public resumeTimeout(vcMembers: GuildMember[], music: MusicHandler): any {
@@ -157,7 +158,7 @@ export class Util {
                     music.oldVoiceStateUpdateMessage = null;
                 }
                 music.player?.pause(false);
-            } catch (e) { this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e); }
+            } catch (e) { this.client.logger.error(CustomError("VOICE_STATE_UPDATE_EVENT_ERR:", String(e))); }
         }
     }
 

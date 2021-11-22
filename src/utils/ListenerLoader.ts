@@ -3,6 +3,7 @@ import { promises as fs } from "fs";
 import { parse, resolve } from "path";
 import { IListener } from "../typings";
 import { BotClient } from "../structures/BotClient";
+import { CustomError } from "./CustomError";
 
 export class ListenerLoader {
     public constructor(public client: BotClient, public path: string) {}
@@ -18,7 +19,7 @@ export class ListenerLoader {
                     if (event.emitter === "erela") this.client.music.addListener(event.name, (...args) => event.execute(...args));
                 }
             })
-            .catch(err => this.client.logger.error("LISTENER_LOADER_ERR:", err))
+            .catch(err => this.client.logger.error(CustomError("LISTENER_LOADER_ERR:", err)))
             .finally(() => this.client.logger.info("Done loading listeners."));
     }
 

@@ -4,6 +4,7 @@ import { readableTime } from "./readableTime";
 import { Node, Player, TrackUtils } from "erela.js";
 import { createEmbed } from "./createEmbed";
 import { chunk } from "./chunk";
+import { CustomError } from "./CustomError";
 
 export enum LoopType {
     NONE,
@@ -159,7 +160,7 @@ export class MusicHandler {
             if (textChannel?.isText()) {
                 textChannel.messages.fetch(this._lastExceptionMessageID, { cache: false })
                     .then(m => m.delete())
-                    .catch(e => this.client.logger.error("DELETE_OLD_EXCEPTION_MESSAGE_ERR:", e));
+                    .catch(e => this.client.logger.error(CustomError("DELETE_OLD_EXCEPTION_MESSAGE_ERR:", String(e))));
             }
         }
         this._lastExceptionMessageID = id;
@@ -175,7 +176,7 @@ export class MusicHandler {
             if (textChannel?.isText()) {
                 textChannel.messages.fetch(this._lastMusicMessageID, { cache: false })
                     .then(m => m.delete())
-                    .catch(e => this.client.logger.error("DELETE_OLD_MUSIC_MESSAGE_ERR:", e));
+                    .catch(e => this.client.logger.error(CustomError("DELETE_OLD_MUSIC_MESSAGE_ERR:", String(e))));
             }
         }
         this._lastMusicMessageID = id;
@@ -191,7 +192,7 @@ export class MusicHandler {
             if (textChannel?.isText()) {
                 textChannel.messages.fetch(this._lastVoiceStateUpdateMessageID, { cache: false })
                     .then(m => m.delete())
-                    .catch(e => this.client.logger.error("DELETE_OLD_VOICE_STATE_UPDATE_MESSAGE_ERR:", e));
+                    .catch(e => this.client.logger.error(CustomError("DELETE_OLD_VOICE_STATE_UPDATE_MESSAGE_ERR:", String(e))));
             }
         }
         this._lastVoiceStateUpdateMessageID = id;
