@@ -1,3 +1,4 @@
+import "./extension/Global";
 import { BotClient } from "./structures/BotClient";
 import { clientOptions } from "./config";
 import { CustomError } from "./utils/CustomError";
