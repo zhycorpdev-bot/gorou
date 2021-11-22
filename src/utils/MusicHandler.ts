@@ -77,6 +77,7 @@ export class MusicHandler {
         if (this.timeout) clearTimeout(this.timeout);
         if (this.updateInterval) clearInterval(this.updateInterval);
         this.timeout = undefined;
+        this.updateInterval = undefined;
         this.oldMusicMessage = null;
         this.oldExceptionMessage = null;
         this.oldVoiceStateUpdateMessage = null;
