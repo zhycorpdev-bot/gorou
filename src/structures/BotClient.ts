@@ -17,10 +17,11 @@ import { GuildSettingManager } from "../utils/GuildSettingManager";
 import { Connection, createConnection } from "typeorm";
 import { GuildSetting } from "../entities/Guild";
 import { VoicePacket } from "erela.js";
+import { CustomError } from "../utils/CustomError";
 
 export class BotClient extends Client {
     public readonly config = config;
-    public readonly logger = createLogger("bot", this.config.isProd);
+    public readonly logger = createLogger("main", "en-US", "shard", this.shard?.ids[0], this.config.isDev);
     public readonly request = got;
     public readonly music = new Manager({
         nodes: this.config.nodes,
@@ -60,7 +61,7 @@ export class BotClient extends Client {
                 url: process.env.DATABASE!,
                 useUnifiedTopology: true
             }).catch(e => {
-                this.logger.error("MONGODB_CONN_ERR:", e);
+                this.logger.error(CustomError("MONGODB_CONN_ERR:", String(e)));
                 this.logger.warn("Couldn't connect to database. Exiting...");
                 return process.exit(1);
             }).then(async c => {

@@ -1,6 +1,7 @@
 import { VoiceChannel, VoiceState } from "discord.js";
 import { BaseListener } from "../structures/BaseListener";
 import { createEmbed } from "../utils/createEmbed";
+import { CustomError } from "../utils/CustomError";
 import { DefineListener } from "../utils/decorators/DefineListener";
 
 @DefineListener("voiceStateUpdate")
@@ -38,13 +39,13 @@ export class VoiceStateUpdateEvent extends BaseListener {
                         }
                         music.oldMusicMessage = null; music.oldVoiceStateUpdateMessage = null;
                         if (msg.channelId === music.playerChannel) {
-                            setTimeout(() => msg.delete().catch(e => this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e)), 5000);
+                            setTimeout(() => msg.delete().catch(e => this.client.logger.error(CustomError("VOICE_STATE_UPDATE_EVENT_ERR:", String(e)))), 5000);
                         }
                         await newState.guild.music.reset();
-                    }).catch(e => this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e));
+                    }).catch(e => this.client.logger.error(CustomError("VOICE_STATE_UPDATE_EVENT_ERR:", String(e))));
                 }
             } catch (e) {
-                this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e);
+                this.client.logger.error(CustomError("VOICE_STATE_UPDATE_EVENT_ERR:", String(e)));
             }
         }
 
