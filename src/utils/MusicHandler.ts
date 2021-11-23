@@ -80,7 +80,6 @@ export class MusicHandler {
         this.oldExceptionMessage = null;
         this.oldVoiceStateUpdateMessage = null;
         this.skipVotes = [];
-        this.client.queue.cache.delete(this.guild.id);
         return undefined;
     }
 
