@@ -20,6 +20,7 @@ export class EightDCommand extends BaseCommand {
     @isMemberVoiceChannelJoinable()
     @isSameVoiceChannel()
     public async execute(ctx: CommandContext): Promise<any> {
+        if (ctx.isInteraction() && !ctx.deferred) await ctx.deferReply();
         await ctx.guild!.music.player!.setEightD(!ctx.guild!.music.player!.filters.eightD);
         const msg = await ctx.send({
             embeds: [
