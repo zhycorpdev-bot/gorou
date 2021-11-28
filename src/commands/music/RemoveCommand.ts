@@ -19,7 +19,7 @@ import { isMemberDJ, isMemberInVoiceChannel, isMemberVoiceChannelJoinable, isMus
             }
         ]
     },
-    usage: "{prefix}volume [new volume]"
+    usage: "{prefix}remove [track position]"
 })
 export class RemoveCommand extends BaseCommand {
     @isMusicPlaying()
