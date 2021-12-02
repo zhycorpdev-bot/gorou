@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
 import { Interaction, VoiceChannel } from "discord.js";
 import { BaseListener } from "../structures/BaseListener";
 import { CommandContext } from "../structures/CommandContext";
@@ -71,15 +70,6 @@ export class InteractionCreateEvent extends BaseListener {
                     setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
                     return undefined;
                 }
-                if (!vc.permissionsFor(interaction.guild!.me!)!.has(["CONNECT", "SPEAK"])) {
-                    await interaction.deferReply({ ephemeral: true });
-                    const msg = await interaction.followUp({
-                        ephemeral: true,
-                        embeds: [createEmbed("error", "I'm missing `CONNECT` or `SPEAK` permission in your voice!", true)]
-                    });
-                    setTimeout(() => this.client.util.convertToMessage(msg).delete().catch(() => null), 5000);
-                    return undefined;
-                }
                 if (!vc.joinable) {
                     await interaction.deferReply({ ephemeral: true });
                     const msg = await interaction.followUp({
@@ -111,7 +101,7 @@ export class InteractionCreateEvent extends BaseListener {
                         return undefined;
                     }
                 }
-                this.client.logger.info(`${this.client.shard ? `[Shard #${this.client.shard.ids[0]}]` : ""} ${interaction.user.tag} [${interaction.user.id}] executed "${action}" on ${interaction.guild!.name} [${interaction.guildId}]`);
+                this.client.logger.info(`${interaction.user.tag} [${interaction.user.id}] executed "${action}" on ${interaction.guild!.name} [${interaction.guildId}]`);
                 if (action === "resumepause") {
                     await music.player.pause(!music.player.paused);
                     await interaction.deferUpdate();
@@ -126,7 +116,7 @@ export class InteractionCreateEvent extends BaseListener {
                     context.args = [loopModes[(music.loopType + 1) as 0|1|2] || loopModes[LoopType.NONE]];
                     void this.client.commands.get("loop")!.execute(context);
                 } else if (action === "stop") {
-                    await music.player!.destroy();
+                    await music.player.destroy();
                     await music.reset();
                     await interaction.deferUpdate();
                 } else {

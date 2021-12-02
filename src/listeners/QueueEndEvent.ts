@@ -6,7 +6,7 @@ import { DefineListener } from "../utils/decorators/DefineListener";
 @DefineListener("queueEnd", "erela")
 export class QueueEndEvent extends BaseListener {
     public async execute(player: Player): Promise<void> {
-        const manager = this.client._music.fetch(player.guild);
+        const manager = this.client.queue.fetch(player.guild);
         const channel = this.client.channels.cache.get(player.textChannel!);
         if (channel?.isText() && !manager.playerMessage) {
             await channel.send({
@@ -15,7 +15,7 @@ export class QueueEndEvent extends BaseListener {
                 ]
             });
         }
-        manager.reset();
-        void player.destroy();
+        await manager.reset();
+        await player.destroy();
     }
 }

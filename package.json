@@ -11,7 +11,7 @@
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "start": "node dist/index.js",
-    "start:dev": "ts-node -r dotenv/config src/bot.ts"
+    "start:dev": "ts-node -r dotenv/config src/index.ts"
   },
   "main": "dist/index.js",
   "dependencies": {
@@ -23,6 +23,8 @@
     "erela.js-filter": "^0.2.3",
     "got": "^11.8.3",
     "mongodb": "^3.7.3",
+    "pino": "^7.3.0",
+    "pino-pretty": "^7.2.0",
     "reflect-metadata": "^0.1.13",
     "tslib": "^2.3.1",
     "typeorm": "^0.2.41",

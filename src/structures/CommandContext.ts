@@ -3,7 +3,6 @@ import { ButtonInteraction, Collection, CommandInteraction, CommandInteractionOp
 import { MessageInteractionAction } from "../typings";
 import { InteractionTypes, MessageComponentTypes } from "../typings/enum";
 
-
 export class CommandContext {
     public additionalArgs: Collection<string, any> = new Collection();
     public channel: TextBasedChannels|null = this.context.channel;

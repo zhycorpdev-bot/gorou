@@ -4,7 +4,7 @@ export const defaultPrefix = ".";
 export const devs: UserResolvable[] = ["725331428962992131", "740075062190669884", "736943755344609301"];
 export const clientOptions: ClientOptions = {
     allowedMentions: { parse: ["users"] },
-    intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MEMBERS],
+    intents: [Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_VOICE_STATES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS],
     makeCache: () => new Collection(),
     restTimeOffset: 300,
     retryLimit: 3
@@ -32,7 +32,7 @@ export const leftTimeout = 120000;
 export const defaultBanner = process.env.DEFAULT_BANNER!;
 export const databaseName = process.env.DATABASE_NAME;
 export const enableProgressBar = process.env.ENABLE_PROGRESS_BAR === "yes";
-export const databaseCacheLifetime = 60000;
+// export const emojis = ["⏯", "⏭", "🔁", "⏹", "🔀"];
 
 if (typeof databaseName !== "string") throw new Error("config#databaseName must be a string.");
 if (typeof defaultBanner !== "string") throw new Error("config#defaultBanner must be a string.");

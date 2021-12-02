@@ -1,6 +1,7 @@
 import { VoiceChannel, VoiceState } from "discord.js";
 import { BaseListener } from "../structures/BaseListener";
 import { createEmbed } from "../utils/createEmbed";
+import { CustomError } from "../utils/CustomError";
 import { DefineListener } from "../utils/decorators/DefineListener";
 
 @DefineListener("voiceStateUpdate")
@@ -22,7 +23,7 @@ export class VoiceStateUpdateEvent extends BaseListener {
         if (oldMember?.id === botID && oldState.channelId === queueVC.id && !newState.channelId) {
             try {
                 newState.guild.music.player?.destroy();
-                this.client.logger.info(`${this.client.shard ? `[Shard #${this.client.shard.ids[0]}]` : ""} Disconnected from the voice channel at ${newState.guild.name}, the queue was deleted.`);
+                this.client.logger.info(`Disconnected from the voice channel at ${newState.guild.name}, the queue was deleted.`);
                 if (textChannel?.isText()) {
                     textChannel.send({
                         embeds: [
@@ -38,13 +39,13 @@ export class VoiceStateUpdateEvent extends BaseListener {
                         }
                         music.oldMusicMessage = null; music.oldVoiceStateUpdateMessage = null;
                         if (msg.channelId === music.playerChannel) {
-                            setTimeout(() => msg.delete().catch(e => this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e)), 5000);
+                            setTimeout(() => msg.delete().catch(e => this.client.logger.error(CustomError("VOICE_STATE_UPDATE_EVENT_ERR:", String(e)))), 5000);
                         }
-                        newState.guild.music.reset();
-                    }).catch(e => this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e));
+                        await newState.guild.music.reset();
+                    }).catch(e => this.client.logger.error(CustomError("VOICE_STATE_UPDATE_EVENT_ERR:", String(e))));
                 }
             } catch (e) {
-                this.client.logger.error("VOICE_STATE_UPDATE_EVENT_ERR:", e);
+                this.client.logger.error(CustomError("VOICE_STATE_UPDATE_EVENT_ERR:", String(e)));
             }
         }
 

@@ -59,3 +59,10 @@ declare module "discord.js" {
         music: MusicHandler;
     }
 }
+
+declare global {
+    interface String {
+        toProperCase(): string;
+        escapeMarkdown(): string;
+    }
+}

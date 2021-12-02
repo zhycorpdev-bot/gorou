@@ -4,6 +4,7 @@ import { readableTime } from "./readableTime";
 import { Node, Player, TrackUtils } from "erela.js";
 import { createEmbed } from "./createEmbed";
 import { chunk } from "./chunk";
+import { CustomError } from "./CustomError";
 
 export enum LoopType {
     NONE,
@@ -17,7 +18,6 @@ export class MusicHandler {
     public client: BotClient = this.guild.client;
     public skipVotes: User[] = [];
     public timeout?: NodeJS.Timeout;
-    public updateInterval?: NodeJS.Timer;
     public playerMessage!: Snowflake;
     public playerChannel!: Snowflake;
     private _lastMusicMessageID: Snowflake | null = null;
@@ -33,13 +33,13 @@ export class MusicHandler {
         };
         if (this.playerMessage) {
             if (this.player?.queue && this.player.queue.totalSize) {
-                const list = chunk(this.player.queue.map((x, i) => `${++i}. ${x.author!} - ${x.title} [${readableTime(x.duration!)}] ~ <@${x.requester as any}>`), 10);
+                const list = chunk(this.player.queue.map((x, i) => `${++i}. ${x.author!} - ${x.title.escapeMarkdown()} [${readableTime(x.duration!)}] ~ <@${x.requester as any}>`), 10);
                 const currentSong = this.player.queue.current!;
                 // @ts-expect-error-next-line
                 const display = TrackUtils.isUnresolvedTrack(currentSong) ? currentSong.thumbnail ?? this.client.config.defaultBanner : currentSong.displayThumbnail("maxresdefault") || this.client.config.defaultBanner;
                 const image = await this.client.request.get(display).then(() => display).catch(() => this.client.config.defaultBanner);
                 const embed = createEmbed("info")
-                    .setTitle(`**${this.player.queue.current!.title}**`)
+                    .setTitle(`**${this.player.queue.current!.title.escapeMarkdown()}**`)
                     .setURL(this.player.queue.current!.uri!)
                     .setDescription(`Requested by: <@${String(this.player.queue.current!.requester)}>`)
                     .setImage(image)
@@ -72,15 +72,15 @@ export class MusicHandler {
         }
     }
 
-    public reset(): void {
-        void this.updatePlayerEmbed();
+    public async reset(): Promise<void> {
+        await this.updatePlayerEmbed();
         if (this.timeout) clearTimeout(this.timeout);
-        if (this.updateInterval) clearInterval(this.updateInterval);
         this.timeout = undefined;
         this.oldMusicMessage = null;
         this.oldExceptionMessage = null;
         this.oldVoiceStateUpdateMessage = null;
         this.skipVotes = [];
+        return undefined;
     }
 
     public async play(): Promise<any> {
@@ -160,7 +160,7 @@ export class MusicHandler {
             if (textChannel?.isText()) {
                 textChannel.messages.fetch(this._lastExceptionMessageID, { cache: false })
                     .then(m => m.delete())
-                    .catch(e => this.client.logger.error("DELETE_OLD_EXCEPTION_MESSAGE_ERR:", e));
+                    .catch(e => this.client.logger.error(CustomError("DELETE_OLD_EXCEPTION_MESSAGE_ERR:", String(e))));
             }
         }
         this._lastExceptionMessageID = id;
@@ -176,7 +176,7 @@ export class MusicHandler {
             if (textChannel?.isText()) {
                 textChannel.messages.fetch(this._lastMusicMessageID, { cache: false })
                     .then(m => m.delete())
-                    .catch(e => this.client.logger.error("DELETE_OLD_MUSIC_MESSAGE_ERR:", e));
+                    .catch(e => this.client.logger.error(CustomError("DELETE_OLD_MUSIC_MESSAGE_ERR:", String(e))));
             }
         }
         this._lastMusicMessageID = id;
@@ -192,7 +192,7 @@ export class MusicHandler {
             if (textChannel?.isText()) {
                 textChannel.messages.fetch(this._lastVoiceStateUpdateMessageID, { cache: false })
                     .then(m => m.delete())
-                    .catch(e => this.client.logger.error("DELETE_OLD_VOICE_STATE_UPDATE_MESSAGE_ERR:", e));
+                    .catch(e => this.client.logger.error(CustomError("DELETE_OLD_VOICE_STATE_UPDATE_MESSAGE_ERR:", String(e))));
             }
         }
         this._lastVoiceStateUpdateMessageID = id;

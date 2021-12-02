@@ -56,7 +56,7 @@ export class PlayCommand extends BaseCommand {
                 embeds: [createEmbed("error", `This command is restricted to <#${ctx.guild!.music.playerChannel}>.`)]
             });
         }
-        const { max_queue: maxQueue, duplicate_song: duplicateSong } = await this.client.databases.guilds.get(ctx.guild!.id, { select: ["max_queue", "duplicate_song"] });
+        const { max_queue: maxQueue, duplicate_song: duplicateSong } = await this.client.databases.guilds.get(ctx.guild!.id);
         if (maxQueue <= (ctx.guild!.music.player?.queue.totalSize || 0)) {
             const msg = await ctx.send({
                 embeds: [
@@ -111,8 +111,11 @@ export class PlayCommand extends BaseCommand {
         }
         if (!ctx.guild!.music.player) await ctx.guild!.music.join(vc!.id, ctx.channel as TextChannel);
         if (response.loadType === "PLAYLIST_LOADED") {
-            const duplicated = response.tracks.filter(x => ctx.guild!.music.player!.queue.find(y => y.identifier === x.identifier));
-            const toAdd = response.tracks.filter(x => duplicateSong && !ctx.guild!.music.player?.queue.find(y => y.identifier === x.identifier));
+            const duplicated = response.tracks.filter(x => ctx.guild!.music.player!.queue.some(y => y.identifier === x.identifier) || ctx.guild!.music.player!.queue.current?.identifier === x.identifier);
+            const toAdd = response.tracks.filter(x => {
+                if (duplicateSong) return !duplicated.some(y => y.identifier === x.identifier);
+                return true;
+            });
             for (const trck of toAdd) await ctx.guild!.music.player!.queue.add(trck);
             if (duplicateSong && duplicated.length) {
                 const duplicateMessage = await ctx.send({
@@ -138,7 +141,7 @@ export class PlayCommand extends BaseCommand {
             if (duplicateSong && duplicated) {
                 const duplicateMessage = await ctx.send({
                     embeds: [
-                        createEmbed("warn", `Track **[${duplicated.title}](${duplicated.uri!})** is already queued, and this server configuration disallow duplicated tracks in queue`)
+                        createEmbed("warn", `Track **[${duplicated.title.escapeMarkdown()}](${duplicated.uri!})** is already queued, and this server configuration disallow duplicated tracks in queue`)
                     ]
                 });
                 if (fromRequester) {
@@ -151,11 +154,11 @@ export class PlayCommand extends BaseCommand {
             if (!ctx.additionalArgs.get("values") && (!ctx.additionalArgs.get("fromRequesterChannel"))) {
                 if (fromRequester && ctx.isInteraction()) {
                     await ctx.send({
-                        embeds: [createEmbed("info", `✅ Track **[${response.tracks[0].title}](${response.tracks[0].uri})** has been added to the queue`).setThumbnail(response.tracks[0].thumbnail!)]
+                        embeds: [createEmbed("info", `✅ Track **[${response.tracks[0].title.escapeMarkdown()}](${response.tracks[0].uri})** has been added to the queue`).setThumbnail(response.tracks[0].thumbnail!)]
                     });
                 } else if (!fromRequester) {
                     await ctx.send({
-                        embeds: [createEmbed("info", `✅ Track **[${response.tracks[0].title}](${response.tracks[0].uri})** has been added to the queue`).setThumbnail(response.tracks[0].thumbnail!)]
+                        embeds: [createEmbed("info", `✅ Track **[${response.tracks[0].title.escapeMarkdown()}](${response.tracks[0].uri})** has been added to the queue`).setThumbnail(response.tracks[0].thumbnail!)]
                     });
                 }
             }

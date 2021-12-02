@@ -1,27 +1,29 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import { Client, ClientOptions } from "discord.js";
-import got from "got";
-import { resolve } from "path";
 import * as config from "../config";
+import { Client, ClientOptions } from "discord.js";
+import { resolve } from "path";
 import { CommandManager } from "../utils/CommandManager";
 import { createLogger } from "../utils/Logger";
 import { formatMS } from "../utils/formatMS";
 import { ListenerLoader } from "../utils/ListenerLoader";
-import { MusicManager } from "../utils/MusicManager";
-import "../extension";
 import { Manager } from "./Manager";
-import Spotify from "better-erela.js-spotify";
-import Filters from "erela.js-filter";
 import { Util } from "../utils/Util";
 import { GuildSettingManager } from "../utils/GuildSettingManager";
 import { Connection, createConnection } from "typeorm";
 import { GuildSetting } from "../entities/Guild";
 import { VoicePacket } from "erela.js";
+import { CustomError } from "../utils/CustomError";
+import { MusicManager } from "../utils/MusicManager";
+import got from "got";
+import Spotify from "better-erela.js-spotify";
+import Filters from "erela.js-filter";
+import "../extension";
 
 export class BotClient extends Client {
     public readonly config = config;
-    public readonly logger = createLogger("bot", this.config.isProd);
+    public readonly logger = createLogger("main", "en-US", "shard", this.shard?.ids[0], this.config.isDev);
     public readonly request = got;
+    public readonly queue = new MusicManager(this);
     public readonly music = new Manager({
         nodes: this.config.nodes,
         send: (id: string, payload: any) => {
@@ -37,7 +39,6 @@ export class BotClient extends Client {
     public readonly commands = new CommandManager(this, resolve(__dirname, "..", "commands"));
     // @ts-expect-error override
     public readonly listeners = new ListenerLoader(this, resolve(__dirname, "..", "listeners"));
-    public readonly _music = new MusicManager(this);
     public readonly databases = {
         guilds: new GuildSettingManager(this)
     };
@@ -53,9 +54,6 @@ export class BotClient extends Client {
         this.on("ready", async () => {
             await this.music.init(this.user!.id);
             this.connection = await createConnection({
-                cache: {
-                    duration: this.config.databaseCacheLifetime
-                },
                 database: this.config.databaseName,
                 entities: [GuildSetting],
                 logging: this.config.isDev ? "all" : ["info"],
@@ -63,7 +61,7 @@ export class BotClient extends Client {
                 url: process.env.DATABASE!,
                 useUnifiedTopology: true
             }).catch(e => {
-                this.logger.error("MONGODB_CONN_ERR:", e);
+                this.logger.error(CustomError("MONGODB_CONN_ERR:", String(e)));
                 this.logger.warn("Couldn't connect to database. Exiting...");
                 return process.exit(1);
             }).then(async c => {

@@ -1,25 +1,21 @@
+import "./extension/Global";
 import { BotClient } from "./structures/BotClient";
 import { clientOptions } from "./config";
-import { NoStackError } from "./utils/NoStackError";
+import { CustomError } from "./utils/CustomError";
 
 export const client = new BotClient(clientOptions);
 
-process.on("exit", code => {
-    client.logger.info(`NodeJS process exited with code ${code}`);
-});
-process.on("uncaughtException", err => {
-    // Temporary fix for winston crash
-    if (err.message === "self._addDefaultMeta is not a function") {
-        return undefined;
+process.on("unhandledRejection", e => {
+    if (e instanceof Error) {
+        client.logger.error(e);
+    } else {
+        client.logger.error(CustomError("PromiseError", e as string));
     }
-    client.logger.error("UNCAUGHT_EXCEPTION:", err);
-    client.logger.warn("Uncaught Exception detected. Restarting...");
+});
+process.on("uncaughtException", e => {
+    client.logger.fatal(e);
     process.exit(1);
 });
-process.on("unhandledRejection", reason => {
-    client.logger.error("UNHANDLED_REJECTION:", (reason as Error).stack ? reason : new NoStackError(reason as string));
-});
-process.on("warning", client.logger.warn);
 
 client.build(process.env.DISCORD_TOKEN!)
-    .catch(e => client.logger.error("PROMISE_ERR:", e));
+    .catch(e => client.logger.error(e));

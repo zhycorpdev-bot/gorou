@@ -52,7 +52,7 @@ export class SkipCommand extends BaseCommand {
         }
         const msg = await ctx.send({
             embeds: [
-                createEmbed("info", `Skipped **[${music.player!.queue.current!.title}](${music.player!.queue.current!.uri!})**`, true)
+                createEmbed("info", `Skipped **[${music.player!.queue.current!.title.escapeMarkdown()}](${music.player!.queue.current!.uri!})**`, true)
             ]
         });
         if (music.playerChannel === ctx.context.channelId) {
