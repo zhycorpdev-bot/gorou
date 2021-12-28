@@ -17,7 +17,7 @@
   "dependencies": {
     "better-erela.js-spotify": "^1.2.3",
     "common-tags": "^1.8.2",
-    "date-fns": "^2.27.0",
+    "date-fns": "^2.28.0",
     "discord.js": "^13.3.1",
     "erela.js": "^2.3.3",
     "erela.js-filter": "^0.2.3",
