@@ -1,4 +1,4 @@
-FROM node:17.3.0-alpine as build-stage
+FROM node:17.3.1-alpine as build-stage
 
 # NOTE: Change these as you want
 LABEL name "gorou (build-stage)"
@@ -26,7 +26,7 @@ RUN npm run build
 RUN npm prune --production
 
 # Get ready for production
-FROM node:17.3.0-alpine
+FROM node:17.3.1-alpine
 
 # NOTE: Change these as you want
 LABEL name "gorou"
